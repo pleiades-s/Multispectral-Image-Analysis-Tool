@@ -23,6 +23,14 @@
                     <ColumnDefinition Width = "*" />
                     <ColumnDefinition Width = "*" />
                 </Grid.ColumnDefinitions>
+                
+                
+                <Image Name ="first_photo"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="0" Margin="5"/>
+                <Image Name ="second_photo"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="0" Grid.Column="1" Margin="5"/>
+                <Image Name ="third_photo"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="0" Margin="5"/>
+                <Image Name ="fourth_photo"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Margin="5"/>
+                <Image Name ="fifth_photo"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Margin="5"/>
+                <Image Name ="sixth_photo"  HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" Margin="5"/>
             </Grid>
 
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Height="380" Width="400">
@@ -41,7 +49,7 @@
 
         </Grid>
         <Button Content="Load" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Width="120" Height="60"
-                />
+                Click="Load_Click"/>
         <Button Content="Back" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Top" Width="120" Height="60"
                 Click="Back_Click"/>
     </Grid>
