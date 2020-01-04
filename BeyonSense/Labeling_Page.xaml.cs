@@ -24,5 +24,14 @@ namespace BeyonSense
         {
             InitializeComponent();
         }
+
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Navigation_Page navigation_page = new Navigation_Page();
+
+            this.NavigationService.Navigate(navigation_page);
+        }
+
     }
 }

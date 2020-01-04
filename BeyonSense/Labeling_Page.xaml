@@ -9,6 +9,40 @@
       Title="Labeling_Page">
 
     <Grid Background="White">
-        
+
+        <Grid Margin="0,70,0,0" >
+            <Grid HorizontalAlignment="left" VerticalAlignment="Top"  Height="380" Width="200">
+                <!-- 1. 이미지 작은 6개 블럭 2x3 -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height = "*" />
+                    <RowDefinition Height = "*" />
+                    <RowDefinition Height = "*" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width = "*" />
+                    <ColumnDefinition Width = "*" />
+                </Grid.ColumnDefinitions>
+            </Grid>
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Height="380" Width="400">
+                <!-- 2. 이미지 큰 1개 블럭 -->
+
+            </StackPanel>
+
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Height="380" Width="200">
+                <DataGrid Height="250" Margin="10"/>
+                <Button Content="Save" HorizontalAlignment="Center" VerticalAlignment="Center" Width ="120" Height="60" Margin="10"/>
+                <!-- 3. Table  -->
+                <!-- 4. Save button -->
+
+            </StackPanel>
+
+
+        </Grid>
+        <Button Content="Load" HorizontalAlignment="Left" Margin="10" VerticalAlignment="Top" Width="120" Height="60"
+                />
+        <Button Content="Back" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Top" Width="120" Height="60"
+                Click="Back_Click"/>
     </Grid>
 </Page>
