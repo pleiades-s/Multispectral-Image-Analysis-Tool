@@ -17,6 +17,7 @@ namespace BeyonSense
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
+    /// commit test
     /// </summary>
     public partial class MainWindow : Window
     {
