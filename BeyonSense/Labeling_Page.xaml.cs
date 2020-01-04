@@ -73,6 +73,8 @@ namespace BeyonSense
 
             }
 
+            main_photo.Source = new BitmapImage(new Uri(photo_dict[0]));
+
             first_photo.Source = new BitmapImage(new Uri(photo_dict[0]));
             second_photo.Source = new BitmapImage(new Uri(photo_dict[1]));
             third_photo.Source = new BitmapImage(new Uri(photo_dict[2]));
@@ -88,6 +90,11 @@ namespace BeyonSense
             Navigation_Page navigation_page = new Navigation_Page();
 
             this.NavigationService.Navigate(navigation_page);
+        }
+
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+        
         }
 
     }

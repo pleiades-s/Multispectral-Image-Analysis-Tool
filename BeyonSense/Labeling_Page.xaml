@@ -11,7 +11,7 @@
     <Grid Background="White">
 
         <Grid Margin="0,70,0,0" >
-            <Grid HorizontalAlignment="left" VerticalAlignment="Top"  Height="380" Width="200">
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Center"  Height="380" Width="200">
                 <!-- 1. 이미지 작은 6개 블럭 2x3 -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height = "*" />
@@ -34,13 +34,13 @@
             </Grid>
 
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Height="380" Width="400">
+                <Image Name ="main_photo" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10"/>
                 <!-- 2. 이미지 큰 1개 블럭 -->
 
             </StackPanel>
 
-            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Height="380" Width="200">
-                <DataGrid Height="250" Margin="10"/>
-                <Button Content="Save" HorizontalAlignment="Center" VerticalAlignment="Center" Width ="120" Height="60" Margin="10"/>
+            <StackPanel HorizontalAlignment="Right" Height="380" Width="200">
+                <DataGrid VerticalAlignment="Center" Height="250" Margin="10"/>
                 <!-- 3. Table  -->
                 <!-- 4. Save button -->
 
@@ -52,5 +52,7 @@
                 Click="Load_Click"/>
         <Button Content="Back" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Top" Width="120" Height="60"
                 Click="Back_Click"/>
+        <Button Content="Save" HorizontalAlignment="Right" Margin="10" VerticalAlignment="Bottom" Width="120" Height="60"
+                Click="Save_Click"/>
     </Grid>
 </Page>
