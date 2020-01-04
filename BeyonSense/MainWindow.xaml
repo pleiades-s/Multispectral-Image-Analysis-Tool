@@ -7,6 +7,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <StackPanel Orientation="Horizontal">
+            <Button x:Name="labeling" Content="Labeling" Height="200" Width="200" Margin="50"/>
+            <Button x:Name="Train" Content="Train" Height="200" Width="200"/>
+            <Button x:Name="Test" Content="Test" Height="200" Width="200" Margin="50"/>
+
+        </StackPanel>
     </Grid>
 </Window>
