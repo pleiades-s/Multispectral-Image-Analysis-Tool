@@ -16,16 +16,13 @@ using System.Windows.Shapes;
 namespace BeyonSense
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Labeling_Page.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class Labeling_Page : Page
     {
-        public MainWindow()
+        public Labeling_Page()
         {
             InitializeComponent();
-            Navigation_Page navigation_page = new Navigation_Page();
-            navigation_frame.NavigationService.Navigate(navigation_page);
         }
-
     }
 }
