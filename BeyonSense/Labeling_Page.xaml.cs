@@ -41,12 +41,15 @@ namespace BeyonSense
 
             main_photo.Source = new BitmapImage(new Uri(path));
 
-            first_photo.Source = new BitmapImage(new Uri(path));
+            //first_photo.Source = new BitmapImage(new Uri(path));
             second_photo.Source = new BitmapImage(new Uri(path));
             third_photo.Source = new BitmapImage(new Uri(path));
             fourth_photo.Source = new BitmapImage(new Uri(path));
             fifth_photo.Source = new BitmapImage(new Uri(path));
             sixth_photo.Source = new BitmapImage(new Uri(path));
+        }
+
+        private void First_Click(object sender, RoutedEventArgs e) { 
         }
 
         private void Load_Click(object sender, RoutedEventArgs e)
@@ -94,7 +97,7 @@ namespace BeyonSense
 
             main_photo.Source = new BitmapImage(new Uri(photo_dict[0]));
 
-            first_photo.Source = new BitmapImage(new Uri(photo_dict[0]));
+            //first_photo.Source = new BitmapImage(new Uri(photo_dict[0]));
             second_photo.Source = new BitmapImage(new Uri(photo_dict[1]));
             third_photo.Source = new BitmapImage(new Uri(photo_dict[2]));
             fourth_photo.Source = new BitmapImage(new Uri(photo_dict[3]));
