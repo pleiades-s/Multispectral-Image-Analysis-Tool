@@ -43,9 +43,9 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,5,0,0"/>
-                                <!-- TODO: Toggle Button-->
-                                
+                                <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,3,0,0"/>
+                                <!-- Toggle Button -->
+                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40"/>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
