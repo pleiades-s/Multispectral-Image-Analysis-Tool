@@ -63,13 +63,20 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DashBoard.cs" />
+    <Compile Include="Directory\Data\DirectoryItem.cs" />
+    <Compile Include="Directory\Data\DirectoryItemType.cs" />
+    <Compile Include="Directory\DirectoryStructure.cs" />
+    <Compile Include="Directory\ViewModels\Base\BaseViewModel.cs" />
+    <Compile Include="Directory\ViewModels\Base\RelayCommand.cs" />
+    <Compile Include="Directory\ViewModels\DirectoryItemViewModel.cs" />
+    <Compile Include="Directory\ViewModels\DirectoryStructureViewModel.cs" />
+    <Compile Include="HeaderToImageConverter.cs" />
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ToggleSwitch.xaml.cs">
       <DependentUpon>ToggleSwitch.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModel\NavigationViewModel.cs" />
     <Page Include="Labeling_Page.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -140,6 +147,12 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Pictures\BeyonSense_Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Pictures\drive.png" />
+    <Resource Include="Pictures\file.png" />
+    <Resource Include="Pictures\folder-closed.png" />
+    <Resource Include="Pictures\folder-open.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.6\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.6\build\Fody.targets')" />
