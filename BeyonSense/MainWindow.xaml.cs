@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WinForms = System.Windows.Forms;
 
 namespace BeyonSense
 {
@@ -23,9 +24,25 @@ namespace BeyonSense
         public MainWindow()
         {
             InitializeComponent();
-            Navigation_Page navigation_page = new Navigation_Page();
-            navigation_frame.NavigationService.Navigate(navigation_page);
         }
 
+        // TODO: ViewModel로 옮겨야 함.
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            //folder dialog
+            WinForms.FolderBrowserDialog folderDialog = new WinForms.FolderBrowserDialog();
+            folderDialog.ShowNewFolderButton = false;
+            folderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+            WinForms.DialogResult result = folderDialog.ShowDialog();
+
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                //Selected Folder
+                //< Selected Path >
+                string sPath = folderDialog.SelectedPath;
+                this.DataContext = new DirectoryStructureViewModel(sPath);
+            }
+
+        }
     }
 }
