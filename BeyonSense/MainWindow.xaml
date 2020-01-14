@@ -8,9 +8,169 @@
         WindowStartupLocation="CenterScreen"
         Title="BeyonSense" Height="600" Width="800"
         Icon="Pictures/BeyonSense_Icon.png">
-    <Grid>
-        <Frame ScrollViewer.VerticalScrollBarVisibility="Hidden" NavigationUIVisibility="Hidden" x:Name="navigation_frame"/>
-    </Grid>
-    
-    
+    <Border Padding="10">
+        <!-- TODO: Grid background 추가: UI beautifying-->
+        <!-- TODO: Resize 할 때, element 위치관계 확인하기 -->
+        <Grid>
+            <!-- Row 0 -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="5*"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Button x:Name="Load" Content="Open" 
+                             HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
+                             Grid.Row="0" Width="100" Margin="0,0,0,20"/>
+            
+                    <Button x:Name="Capture" Content="Capture" 
+                             HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
+                             Grid.Row="0" Width="100" Margin="20,0,0,20"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Border BorderThickness="3" BorderBrush="Black" CornerRadius="5" Margin="0,0,0,20"
+                            Width="350">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="2*"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,5,0,0"/>
+                                <!-- TODO: Toggle Button-->
+                                
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                <Button Content="Open" Margin="10" Width="50"/>
+                                <TextBlock Text="C:\ML\Blocks\Simple_SVM.pth" Margin="10,12,0,0"/>
+                            </StackPanel>
+
+                        </Grid>
+
+                    </Border>
+                    
+                    
+                </StackPanel>
+            </Grid>
+            <!-- Row 1-->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Column 0: Image set -->
+                <StackPanel Grid.Column="0" Orientation="Vertical">
+                    <TextBlock Text="Image Set"/>
+                    <Grid>
+                        <!-- TODO: Add Treeview template HERE -->
+                    </Grid>
+                </StackPanel>
+                
+                <!-- Column 1: Thumbnails-->
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Image Grid.Row="0" Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="1" Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="2" Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="3" Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="4" Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="5" Source="Pictures/no_image.png" Margin="5"/>
+                </Grid>
+                
+                <!-- Column 2: Main Image-->
+                <Grid Grid.Column ="2">
+                    <!-- TODO: Image source binding-->
+                    <Image Source="Pictures/no_image.png" Margin="5"/>
+                </Grid>
+
+                <!-- Column 3: Table and Buttons-->
+                <StackPanel Grid.Column ="3" Orientation="Vertical">
+                    <!-- Table -->
+                    <!-- TODO: Contents binding-->
+                    <DataGrid AutoGenerateColumns="False" 
+                        Height="200" 
+                        HorizontalAlignment="Center"
+                              Margin="0,10">
+                        <DataGrid.Columns >
+                            <DataGridTextColumn MinWidth="50"/>
+                            <DataGridTextColumn MinWidth="50"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    
+                    <!-- ColorBox-->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- TextBox-->
+                        <TextBlock Grid.Column="0" Text="Color" HorizontalAlignment="Center"/>
+                        
+                        <!-- Rectangle -->
+                        <Rectangle Grid.Column ="1" Margin="20,0">
+                            <Rectangle.Fill>
+                                <!-- TODO: Color binding-->
+                                <SolidColorBrush Color="Red"/>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Grid>
+                    
+                    <!-- Num of points-->
+                    <Grid Margin="0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- TextBox-->
+                        <TextBlock Grid.Column="0" Text="Num of Pixel" HorizontalAlignment="Center"/>
+                        
+                        <!-- TextBox-->
+                        <!-- TODO: #Pixel binding-->
+                        <TextBlock Grid.Column="1" Text="100" HorizontalAlignment="Center"/>
+                    </Grid>
+
+                    <!-- Save and Train Buttons-->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Save Button-->
+                        <Button Grid.Column="0" Content="Save" HorizontalAlignment="Center" 
+                                Width="50" Height="30"/>
+
+                        <!-- Train Button-->
+                        <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
+                                Width="50" Height="30"/>
+                    </Grid>
+                    
+                </StackPanel>
+
+            </Grid>
+        </Grid>
+    </Border>
+
+
 </Window>

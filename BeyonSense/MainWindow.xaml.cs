@@ -23,8 +23,6 @@ namespace BeyonSense
         public MainWindow()
         {
             InitializeComponent();
-            Navigation_Page navigation_page = new Navigation_Page();
-            navigation_frame.NavigationService.Navigate(navigation_page);
         }
 
     }

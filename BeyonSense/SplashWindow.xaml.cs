@@ -29,8 +29,8 @@ namespace BeyonSense
         {
             #region animation setting
 
-            DoubleAnimation doubleanimation = new DoubleAnimation(0, 1, new Duration(TimeSpan.FromSeconds(3)));
-            doubleanimation.EasingFunction = new QuarticEase();
+            DoubleAnimation doubleanimation = new DoubleAnimation(1, 1, new Duration(TimeSpan.FromSeconds(2)));
+            //doubleanimation.EasingFunction = new QuarticEase();
 
             // Close splash screen after the animation ends
             doubleanimation.Completed += doubleanimation_Completed;
