@@ -8,6 +8,9 @@
         WindowStartupLocation="CenterScreen"
         Title="BeyonSense" Height="600" Width="800"
         Icon="Pictures/BeyonSense_Icon.png">
+    
+    <!-- Window 위의 control panel customize해서 이쁘게 하기 -->
+    
     <Border Padding="10">
         <!-- TODO: Grid background 추가: UI beautifying-->
         <!-- TODO: Resize 할 때, element 위치관계 확인하기 -->
@@ -72,8 +75,12 @@
                 <!-- Column 0: Image set -->
                 <StackPanel Grid.Column="0" Orientation="Vertical">
                     <TextBlock Text="Image Set"/>
-                    <Grid>
-                        <!-- TODO: Add Treeview template HERE -->
+                    
+                    <!-- TODO: ScrollViewer 크기를 꽉 차게 못 하나?-->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      Height="440">
+
+                        <!-- Treeview -->
                         <TreeView x:Name="FolderView" ItemsSource="{Binding Items}">
 
                             <TreeView.ItemContainerStyle>
@@ -86,17 +93,18 @@
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     <StackPanel Orientation="Horizontal">
                                         <Image Width="20" Margin="3" 
-                                    Source="{Binding ImageName,
-                                        Converter={x:Static local:HeaderToImageConverter.Instance}}" />
+                                        Source="{Binding ImageName,
+                                            Converter={x:Static local:HeaderToImageConverter.Instance}}" />
                                         <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
                                     </StackPanel>
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
 
                         </TreeView>
-                    </Grid>
+                    </ScrollViewer>
                 </StackPanel>
-                
+
+
                 <!-- Column 1: Thumbnails-->
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
