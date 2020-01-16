@@ -75,14 +75,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DashBoard.cs" />
-    <Compile Include="Directory\Data\DirectoryItem.cs" />
-    <Compile Include="Directory\Data\DirectoryItemType.cs" />
-    <Compile Include="Directory\DirectoryStructure.cs" />
-    <Compile Include="Directory\ViewModels\Base\BaseViewModel.cs" />
-    <Compile Include="Directory\ViewModels\Base\RelayCommand.cs" />
-    <Compile Include="Directory\ViewModels\DirectoryItemViewModel.cs" />
-    <Compile Include="Directory\ViewModels\DirectoryStructureViewModel.cs" />
+    <Compile Include="MVVM\Data\DirectoryItem.cs" />
+    <Compile Include="MVVM\Data\DirectoryItemType.cs" />
+    <Compile Include="MVVM\DirectoryStructure.cs" />
+    <Compile Include="MVVM\ViewModels\Base\BaseViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\Base\RelayCommand.cs" />
+    <Compile Include="MVVM\ViewModels\DirectoryItemViewModel.cs" />
+    <Compile Include="MVVM\ViewModels\MainViewModel.cs" />
     <Compile Include="HeaderToImageConverter.cs" />
+    <Compile Include="ImageIO\ImageIOViewModel.cs" />
     <Compile Include="SplashWindow.xaml.cs">
       <DependentUpon>SplashWindow.xaml</DependentUpon>
     </Compile>
@@ -189,6 +190,7 @@
   <ItemGroup>
     <Resource Include="Themes\Metro\HowToApplyTheme.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.6\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.6\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

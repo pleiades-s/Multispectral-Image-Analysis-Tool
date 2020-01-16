@@ -157,10 +157,10 @@
                         <!-- Rectangle -->
                         <Rectangle Grid.Column ="1" Margin="20,0">
                             <Rectangle.Fill>
-                                <!-- TODO: Color binding-->
-                                <SolidColorBrush Color="Red"/>
+                                <SolidColorBrush Color="{Binding Colour}"/>
                             </Rectangle.Fill>
                         </Rectangle>
+
                     </Grid>
                     
                     <!-- Num of points-->

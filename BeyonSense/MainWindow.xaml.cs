@@ -40,7 +40,8 @@ namespace BeyonSense
                 //Selected Folder
                 //< Selected Path >
                 string sPath = folderDialog.SelectedPath;
-                this.DataContext = new DirectoryStructureViewModel(sPath);
+                this.DataContext = new MainViewModel(sPath);
+
             }
 
         }
