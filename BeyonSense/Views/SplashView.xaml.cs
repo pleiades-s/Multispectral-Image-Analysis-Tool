@@ -3,20 +3,19 @@ using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
-namespace BeyonSense
+namespace BeyonSense.Views
 {
     /// <summary>
     /// Interaction logic for SplashWindow.xaml
     /// </summary>
-    public partial class SplashWindow : Window
+    public partial class SplashView : Window
     {
         DispatcherTimer dT = new DispatcherTimer();
 
-        public SplashWindow()
+        public SplashView()
         {
             InitializeComponent();
         }
-
 
 
         /// <summary>
@@ -56,5 +55,7 @@ namespace BeyonSense
 
         }
         #endregion
+
+
     }
 }

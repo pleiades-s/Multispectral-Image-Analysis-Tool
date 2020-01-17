@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Media;
 
-namespace BeyonSense
+namespace BeyonSense.ViewModels
 {
     /// <summary>
     /// The view model for the applications main Directory view
