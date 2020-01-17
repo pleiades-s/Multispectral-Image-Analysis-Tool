@@ -116,18 +116,18 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Image Grid.Row="0" Source="Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="1" Source="Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="2" Source="Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="3" Source="Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="4" Source="Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="5" Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="0" Source="/Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="1" Source="/Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="2" Source="/Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="3" Source="/Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="4" Source="/Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="5" Source="/Pictures/no_image.png" Margin="5"/>
                 </Grid>
                 
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
                     <!-- TODO: Image source binding-->
-                    <Image Source="Pictures/no_image.png" Margin="5"/>
+                    <Image Source="/Pictures/no_image.png" Margin="5"/>
                 </Grid>
 
                 <!-- Column 3: Table and Buttons-->

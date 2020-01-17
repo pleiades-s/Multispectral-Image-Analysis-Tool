@@ -48,8 +48,10 @@ namespace BeyonSense.Views
         /// <param name="e"></param>
         void doubleanimation_Completed(object sender, EventArgs e)
         {
-            MainWindow mainwindow = new MainWindow();
-            mainwindow.Show();
+            MainView mainView = new MainView();
+            mainView.Show();
+
+
             this.Close();
 
 
