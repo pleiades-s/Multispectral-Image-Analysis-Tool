@@ -86,7 +86,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="DashBoard.cs" />
     <Compile Include="MVVM\Data\DirectoryItem.cs" />
     <Compile Include="MVVM\Data\DirectoryItemType.cs" />
     <Compile Include="MVVM\DirectoryStructure.cs" />
