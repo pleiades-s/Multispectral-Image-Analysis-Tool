@@ -29,9 +29,15 @@
                 </Grid.ColumnDefinitions>
                 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button x:Name="Open" Content="Open" Click="Open_Click"
+                    <Button x:Name="Open" Content="Open"
                              HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
-                             Grid.Row="0" Width="100" Margin="0,0,0,20"/>
+                             Grid.Row="0" Width="100" Margin="0,0,0,20">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Click">
+                                <cal:ActionMessage MethodName="Open" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Button>
             
                     <Button x:Name="Capture" Content="Capture" 
                              HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
@@ -133,12 +139,12 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Image Grid.Row="0" Source="/Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="1" Source="/Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="2" Source="/Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="3" Source="/Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="4" Source="/Pictures/no_image.png" Margin="5"/>
-                    <Image Grid.Row="5" Source="/Pictures/no_image.png" Margin="5"/>
+                    <Image Grid.Row="0" Source="{Binding BmpPath1}" Margin="5"/>
+                    <Image Grid.Row="1" Source="{Binding BmpPath2}" Margin="5"/>
+                    <Image Grid.Row="2" Source="{Binding BmpPath3}" Margin="5"/>
+                    <Image Grid.Row="3" Source="{Binding BmpPath4}" Margin="5"/>
+                    <Image Grid.Row="4" Source="{Binding BmpPath5}" Margin="5"/>
+                    <Image Grid.Row="5" Source="{Binding BmpPath6}" Margin="5"/>
                 </Grid>
                 
                 <!-- Column 2: Main Image-->

@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using WinForms = System.Windows.Forms;
 
 
 namespace BeyonSense.ViewModels
@@ -19,7 +20,6 @@ namespace BeyonSense.ViewModels
 
     public class MainViewModel : Screen
     {
-        #region Public Properties
 
         /// <summary>
         /// A list of all directories on the machine
@@ -27,7 +27,7 @@ namespace BeyonSense.ViewModels
         public ObservableCollection<DirectoryItemViewModel> Items { get; set; }
 
         #region TEST
-        // Test
+        
         private Color color;
 
         public Color Colour
@@ -36,22 +36,102 @@ namespace BeyonSense.ViewModels
             set { color = value; }
         }
 
-        private DirectoryItemViewModel _selectedFile;
 
-        public DirectoryItemViewModel SelectedFile
+        #endregion
+
+        #region Bitmap image paths
+
+        private List<string> bmpList = new List<string>();
+
+        public List<string> BmpList
         {
-            get { return _selectedFile; }
-            set { 
-                _selectedFile = value;
-                NotifyOfPropertyChange(() => SelectedFile);
+            get { return bmpList; }
+            set
+            {
+                bmpList = value;
+                NotifyOfPropertyChange(() => BmpList);
             }
-
         }
 
+        #region Bitmap path 1
+
+        private string bmpPath1 = "/Pictures/no_image.png";
+        public string BmpPath1
+        {
+            get { return bmpPath1; }
+            set { 
+                bmpPath1 = value;
+                NotifyOfPropertyChange(() => BmpPath1);
+            }
+        }
+        #endregion
+
+        #region Bitmap path 2
+        private string bmpPath2 = "/Pictures/no_image.png";
+        public string BmpPath2
+        {
+            get { return bmpPath2; }
+            set
+            {
+                bmpPath2 = value;
+                NotifyOfPropertyChange(() => BmpPath2);
+            }
+        }
+        #endregion
+
+        #region Bitmap path 3
+        private string bmpPath3 = "/Pictures/no_image.png";
+        public string BmpPath3
+        {
+            get { return bmpPath3; }
+            set
+            {
+                bmpPath3 = value;
+                NotifyOfPropertyChange(() => BmpPath3);
+            }
+        }
+        #endregion
+
+        #region Bitmap path 4
+        private string bmpPath4 = "/Pictures/no_image.png";
+        public string BmpPath4
+        {
+            get { return bmpPath4; }
+            set
+            {
+                bmpPath4 = value;
+                NotifyOfPropertyChange(() => BmpPath4);
+            }
+        }
+        #endregion
+
+        #region Bitmap path 5
+        private string bmpPath5 = "/Pictures/no_image.png";
+        public string BmpPath5
+        {
+            get { return bmpPath5; }
+            set
+            {
+                bmpPath5 = value;
+                NotifyOfPropertyChange(() => BmpPath5);
+            }
+        }
+        #endregion
+
+        #region Bitmap path 6
+        private string bmpPath6 = "/Pictures/no_image.png";
+        public string BmpPath6
+        {
+            get { return bmpPath6; }
+            set
+            {
+                bmpPath6 = value;
+                NotifyOfPropertyChange(() => BmpPath6);
+            }
+        }
         #endregion
 
         #endregion
-
 
         #region Color generator function
 
@@ -132,24 +212,31 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        private string rootPath;
 
+        public string RootPath
+        {
+            get { return rootPath; }
+            set
+            {
+                rootPath = value;
+
+                // rootPath is not null or empty
+                if (!String.IsNullOrEmpty(rootPath))
+                {
+                    StartDirectoryTree(rootPath);
+                }
+            }
+        }
 
         #region Constructor
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        public MainViewModel(string path)
+        public MainViewModel()
         {
-            #region Directory TreeView
-            // Get the logical drives
-            var children = DirectoryStructure.GetRootFolder(path);
 
-            // Create the view models from the data
-            this.Items = new ObservableCollection<DirectoryItemViewModel>(
-                children.Select(root => new DirectoryItemViewModel(root.FullPath, DirectoryItemType.Folder)));
-
-            #endregion
 
             #region ColorBox Test
             /// TODO: THIS LINES WILL BE REMOVED.
@@ -163,10 +250,42 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        public void StartDirectoryTree(string path)
+        {
+            #region Directory TreeView
+            // Get the logical drives
+            var children = DirectoryStructure.GetRootFolder(path);
+
+            // Create the view models from the data
+            this.Items = new ObservableCollection<DirectoryItemViewModel>(
+                children.Select(root => new DirectoryItemViewModel(root.FullPath, DirectoryItemType.Folder)));
+
+            #endregion
+        }
+
+
+        // open button
+
+        public void Open()
+        {
+            //folder dialog
+            WinForms.FolderBrowserDialog folderDialog = new WinForms.FolderBrowserDialog();
+            folderDialog.ShowNewFolderButton = false;
+            folderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+            WinForms.DialogResult result = folderDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                //Selected Folder
+                //< Selected Path >
+                RootPath = folderDialog.SelectedPath;
+
+            }
+        }
+
+
         // stackpanel click event handler
         public void TreeElementMouseDown(string path)
         {
-            Console.WriteLine("Hello World");
             Console.WriteLine(path);
 
             #region Check if the path is for a file or not
@@ -193,10 +312,10 @@ namespace BeyonSense.ViewModels
                 return;
 
             // Make all slashes back slashes
-            var normalizedPath = path.Replace('\\', '/');
+            var normalizedPath = path.Replace('/', '\\');
 
             // Find the last backslash in the path
-            var lastIndex = normalizedPath.LastIndexOf('/');
+            var lastIndex = normalizedPath.LastIndexOf('\\');
 
             // If we don't find a backslash, return the path itself
             if (lastIndex <= 0)
@@ -210,10 +329,77 @@ namespace BeyonSense.ViewModels
             #region Check files: 6 bitmap images, (Optionally 1 csv file)
             // 3. Check the directory has 6 bmp files, and optionally one csv file
 
+            // Travere all the files in the dirPath
+            int num_Files = 0;
+            int num_bmp = 0;
+            int num_csv = 0;
+            string csvPath = "";
+
+            DirectoryInfo folder = new DirectoryInfo(dirPath);
+            if (folder.Exists)
+            {
+                
+                //loop for files in the folder
+                foreach (FileInfo fileInfo in folder.GetFiles())
+                {
+                    //each file path
+
+                    // Check exetension of each file or folder: using GetExtension(string)
+                    string filePath = dirPath + '\\' + fileInfo.Name;
+                    string exetension = Path.GetExtension(filePath);
+
+                    // Count the number of bitmap image and csv file
+
+                    switch (exetension)
+                    {
+                        case ".bmp":
+                            BmpList.Add(filePath);
+                            num_bmp++;
+                            break;
+
+                        case ".csv":
+                            csvPath = filePath;
+                            num_csv++;
+                            break;
+
+                        default:
+                            break;
+
+                    }
+
+                    num_Files++;
+
+                }
+
+                //Error message to choose correct directory again: six bitmap images, an optional csv file
+                if (num_bmp != 6 || num_csv > 1)
+                {
+                    MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
+                    return;
+                }
+
+                else
+                {
+                    BmpPath1 = BmpList[0];
+                    BmpPath2 = BmpList[1];
+                    BmpPath3 = BmpList[2];
+                    BmpPath4 = BmpList[3];
+                    BmpPath5 = BmpList[4];
+                    BmpPath6 = BmpList[5];
+
+                    //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
+                }
+            }
+
+
+            // If six bitmap images, none or one csv file exist, save all the paths in public variables (csv file path -> local variables)
+
 
             #endregion
 
             // 4. Change the public picture path list values -> binding to thumbnails
+
+
 
             // 5. If there is a csv file, change the public value of csv file
 
