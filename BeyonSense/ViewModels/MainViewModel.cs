@@ -409,6 +409,7 @@ namespace BeyonSense.ViewModels
                     BmpPath5 = BmpList[4];
                     BmpPath6 = BmpList[5];
 
+                    MainBmpImage = BmpList[0];
                     //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
                 }
             }

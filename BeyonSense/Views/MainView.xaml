@@ -141,7 +141,7 @@
 
                     <Button x:Name="BmpImage1" Grid.Row="0" Margin="5" 
                             HorizontalAlignment="Center"
-                            ToolTip="Wavelength 660 nm"
+                            ToolTip="Wavelength 725 nm"
                             IsEnabled="{Binding ClickableImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
@@ -170,7 +170,7 @@
 
                     <Button x:Name="BmpImage2" Grid.Row="1" Margin="5" 
                             HorizontalAlignment="Center"
-                            ToolTip="Wavelength 660 nm"
+                            ToolTip="Wavelength 825 nm"
                             IsEnabled="{Binding ClickableImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
@@ -198,7 +198,7 @@
 
                     <Button x:Name="BmpImage3" Grid.Row="2" Margin="5" 
                             HorizontalAlignment="Center"
-                            ToolTip="Wavelength 660 nm"
+                            ToolTip="Wavelength 875 nm"
                             IsEnabled="{Binding ClickableImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
@@ -227,7 +227,7 @@
 
                     <Button x:Name="BmpImage4" Grid.Row="3" Margin="5" 
                             HorizontalAlignment="Center"
-                            ToolTip="Wavelength 660 nm"
+                            ToolTip="Wavelength 930 nm"
                             IsEnabled="{Binding ClickableImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
@@ -256,7 +256,7 @@
 
                     <Button x:Name="BmpImage5" Grid.Row="4" Margin="5" 
                             HorizontalAlignment="Center"
-                            ToolTip="Wavelength 660 nm"
+                            ToolTip="Wavelength 985 nm"
                             IsEnabled="{Binding ClickableImage}">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
