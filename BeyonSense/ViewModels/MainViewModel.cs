@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -167,7 +168,58 @@ namespace BeyonSense.ViewModels
         {
             Console.WriteLine("Hello World");
             Console.WriteLine(path);
-            
+
+            #region Check if the path is for a file or not
+
+            FileAttributes attr = File.GetAttributes(path);
+
+            // The path is a directory path
+            if (attr.HasFlag(FileAttributes.Directory))
+
+                return;
+
+            // The path is a directory path
+            else
+            //MessageBox.Show("Its a file");
+
+            #endregion
+
+            #region Get parent directory path
+
+            // 2. If yes, get parent directory path
+
+            // If we have no path, return empty
+            if (string.IsNullOrEmpty(path))
+                return;
+
+            // Make all slashes back slashes
+            var normalizedPath = path.Replace('\\', '/');
+
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('/');
+
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return ;
+
+            var dirPath = normalizedPath.Substring(0,lastIndex);
+
+
+            #endregion
+
+            #region Check files: 6 bitmap images, (Optionally 1 csv file)
+            // 3. Check the directory has 6 bmp files, and optionally one csv file
+
+
+            #endregion
+
+            // 4. Change the public picture path list values -> binding to thumbnails
+
+            // 5. If there is a csv file, change the public value of csv file
+
+            // 5-1. Update table items
+
+            // 5-2. Generate colors as many as the number of table elements
 
         }
     }
