@@ -2,7 +2,9 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:cal="http://www.caliburnproject.org"
         xmlns:local="clr-namespace:BeyonSense"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
@@ -52,8 +54,8 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <Button Content="Open" Margin="10" Width="50"/>
-                                <TextBlock Text="C:\ML\Blocks\Simple_SVM.pth" Margin="10,12,0,0"/>
+                                <Button Content="Open" Margin="10,5" Width="Auto"/>
+                                <TextBlock Text="C://Users" Margin="10,12,0,0"/>
                             </StackPanel>
 
                         </Grid>
@@ -81,22 +83,31 @@
                                       Height="440">
 
                         <!-- Treeview -->
-                        <TreeView x:Name="FolderView" ItemsSource="{Binding Items}">
-
+                        <TreeView x:Name="DirectoryTree" ItemsSource="{Binding Items}"
+                                  SelectedValuePath="FullPath">
                             <TreeView.ItemContainerStyle>
                                 <Style TargetType="{x:Type TreeViewItem}">
                                     <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+
                                 </Style>
                             </TreeView.ItemContainerStyle>
 
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                    <StackPanel Orientation="Horizontal">
+                                    
+                                    <!-- Binding DataContext is needed if the structure is being nested -->
+                                    <StackPanel x:Name="TreeElement" Orientation="Horizontal"                                                
+                                                cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=DirectoryTree}"
+                                                cal:Message.Attach="[Event MouseDown] = [Action TreeElementMouseDown]">
+
+
                                         <Image Width="20" Margin="3" 
                                         Source="{Binding ImageName,
-                                            Converter={x:Static local:HeaderToImageConverter.Instance}}" />
-                                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                                            Converter={x:Static local:HeaderToImageConverter.Instance}}"/>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
                                     </StackPanel>
+
+                                    
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
 

@@ -1,15 +1,22 @@
-﻿using System;
+﻿using Caliburn.Micro;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
+
 
 namespace BeyonSense.ViewModels
 {
     /// <summary>
     /// The view model for the applications main Directory view
     /// </summary>
-    public class MainViewModel : BaseViewModel
+    
+
+    public class MainViewModel : Screen
     {
         #region Public Properties
 
@@ -18,6 +25,7 @@ namespace BeyonSense.ViewModels
         /// </summary>
         public ObservableCollection<DirectoryItemViewModel> Items { get; set; }
 
+        #region TEST
         // Test
         private Color color;
 
@@ -26,6 +34,20 @@ namespace BeyonSense.ViewModels
             get { return color; }
             set { color = value; }
         }
+
+        private DirectoryItemViewModel _selectedFile;
+
+        public DirectoryItemViewModel SelectedFile
+        {
+            get { return _selectedFile; }
+            set { 
+                _selectedFile = value;
+                NotifyOfPropertyChange(() => SelectedFile);
+            }
+
+        }
+
+        #endregion
 
         #endregion
 
@@ -118,7 +140,7 @@ namespace BeyonSense.ViewModels
         /// </summary>
         public MainViewModel(string path)
         {
-
+            #region Directory TreeView
             // Get the logical drives
             var children = DirectoryStructure.GetRootFolder(path);
 
@@ -126,17 +148,27 @@ namespace BeyonSense.ViewModels
             this.Items = new ObservableCollection<DirectoryItemViewModel>(
                 children.Select(root => new DirectoryItemViewModel(root.FullPath, DirectoryItemType.Folder)));
 
+            #endregion
+
+            #region ColorBox Test
             /// TODO: THIS LINES WILL BE REMOVED.
             /// THESE LINES ARE ONLY FOR TEST
             List<Color> new_color = ColorGenerator(10);
             this.Colour = new_color[9];
             ///
+            #endregion
+
         }
 
         #endregion
 
+        // stackpanel click event handler
+        public void TreeElementMouseDown(string path)
+        {
+            Console.WriteLine("Hello World");
+            Console.WriteLine(path);
+            
 
-
-
+        }
     }
 }

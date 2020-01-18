@@ -1,18 +1,7 @@
 ﻿using BeyonSense.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using WinForms = System.Windows.Forms;
 
 namespace BeyonSense.Views
@@ -44,7 +33,15 @@ namespace BeyonSense.Views
                 this.DataContext = new MainViewModel(sPath);
 
             }
-
         }
+
+
+        // TODO: Change this method into MVVM sturcture ;-; Idk
+        //private void TreeElement_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        //{
+        //    string path = (string)FolderView.SelectedValue;
+        //    Console.WriteLine(path);
+        //}
+
     }
 }
