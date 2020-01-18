@@ -14,20 +14,20 @@ using WinForms = System.Windows.Forms;
 namespace BeyonSense.ViewModels
 {
     /// <summary>
-    /// The view model for the applications main Directory view
+    /// The View Model for the Main View
     /// </summary>
     
 
     public class MainViewModel : Screen
     {
-
-        /// <summary>
-        /// A list of all directories on the machine
-        /// </summary>
+        #region A list of all directories
+        // A list of all directories from a selected directory
         public ObservableCollection<DirectoryItemViewModel> Items { get; set; }
 
-        #region TEST
-        
+        #endregion
+
+        #region Color variable
+
         private Color color;
 
         public Color Colour
@@ -230,6 +230,7 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Selected Root Path
         private string rootPath;
 
         public string RootPath
@@ -246,6 +247,8 @@ namespace BeyonSense.ViewModels
                 }
             }
         }
+
+        #endregion
 
         #region Constructor
 
@@ -267,6 +270,33 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Open Button Event Handler: Folder Explorer
+        /// <summary>
+        /// Show a folder explorer when the open button is clicked
+        /// </summary>
+        public void Open()
+        {
+            // Folder dialog
+            WinForms.FolderBrowserDialog folderDialog = new WinForms.FolderBrowserDialog();
+            folderDialog.ShowNewFolderButton = false;
+
+            // Selected Path
+            folderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+            WinForms.DialogResult result = folderDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                //Selected Folder Path
+                RootPath = folderDialog.SelectedPath;
+            }
+        }
+
+        #endregion
+
+        #region Show Directory Tree on MainView
+        /// <summary>
+        /// Show directory tree from the selected directory
+        /// </summary>
+        /// <param name="path">Selected path from folder explorer</param>
         public void StartDirectoryTree(string path)
         {
             #region Directory TreeView
@@ -279,28 +309,15 @@ namespace BeyonSense.ViewModels
 
             #endregion
         }
+        #endregion
 
+        #region Tree Element Click Event Handler
 
-        // open button
-
-        public void Open()
-        {
-            //folder dialog
-            WinForms.FolderBrowserDialog folderDialog = new WinForms.FolderBrowserDialog();
-            folderDialog.ShowNewFolderButton = false;
-            folderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
-            WinForms.DialogResult result = folderDialog.ShowDialog();
-            if (result == System.Windows.Forms.DialogResult.OK)
-            {
-                //Selected Folder
-                //< Selected Path >
-                RootPath = folderDialog.SelectedPath;
-
-            }
-        }
-
-
-        // stackpanel click event handler
+        /// <summary>
+        /// Get a selecte file path when a stackpanel of each treeview item is clicked
+        /// </summary>
+        /// <param name="path">a path of selected file</param>
+        /// 
         public void TreeElementMouseDown(string path)
         {
             Console.WriteLine(path);
@@ -314,7 +331,6 @@ namespace BeyonSense.ViewModels
 
                 return;
 
-            // The path is a directory path
             else
             //MessageBox.Show("Its a file");
 
@@ -322,9 +338,9 @@ namespace BeyonSense.ViewModels
 
             #region Get parent directory path
 
-            // 2. If yes, get parent directory path
+            // If the paht is a file path, get parent directory path
 
-            // If we have no path, return empty
+            // Exception: If we have no path, return empty
             if (string.IsNullOrEmpty(path))
                 return;
 
@@ -338,21 +354,22 @@ namespace BeyonSense.ViewModels
             if (lastIndex <= 0)
                 return ;
 
+            //  Remove file name from the file path so we can get a parent directory path
             var dirPath = normalizedPath.Substring(0,lastIndex);
-
 
             #endregion
 
-            #region Check files: 6 bitmap images, (Optionally 1 csv file)
-            // 3. Check the directory has 6 bmp files, and optionally one csv file
+            #region Check the number of files: 6 bitmap images, (Optionally 1 csv file)
+            
+            // Check the directory has 6 bmp files, and optionally one csv file
 
-            // Travere all the files in the dirPath
             int num_Files = 0;
             int num_bmp = 0;
             int num_csv = 0;
             string csvPath = "";
             List<string> BmpList = new List<string>();
 
+            // Travere all the files in the dirPath
             DirectoryInfo folder = new DirectoryInfo(dirPath);
             if (folder.Exists)
             {
@@ -361,15 +378,12 @@ namespace BeyonSense.ViewModels
                 foreach (FileInfo fileInfo in folder.GetFiles())
                 {
                     //each file path
-
-                    // Check exetension of each file or folder: using GetExtension(string)
                     string filePath = dirPath + '\\' + fileInfo.Name;
+                    
+                    // Check exetension of each file or folder: using GetExtension(string str)
                     string exetension = Path.GetExtension(filePath);
 
                     // Count the number of bitmap image and csv file
-
-                    
-
                     switch (exetension)
                     {
                         case ".bmp":
@@ -378,6 +392,7 @@ namespace BeyonSense.ViewModels
                             break;
 
                         case ".csv":
+                            // Save a csv file path to the local variable
                             csvPath = filePath;
                             num_csv++;
                             break;
@@ -400,8 +415,13 @@ namespace BeyonSense.ViewModels
 
                 else
                 {
+                    //MessageBox.Show(csvPath);
+                    
+                    // Enable clickable thumbnails when bitmap images are successfully loaded.
                     ClickableImage = true;
-                    // If six bitmap images, none or one csv file exist, save all the paths in public variables (csv file path -> local variables)
+
+                    // If six bitmap images, none or one csv file exist, save all the paths in public variables
+                    // Change the public picture bitmap images path values to bind image sources for six thumbnails
                     BmpPath1 = BmpList[0];
                     BmpPath2 = BmpList[1];
                     BmpPath3 = BmpList[2];
@@ -409,19 +429,13 @@ namespace BeyonSense.ViewModels
                     BmpPath5 = BmpList[4];
                     BmpPath6 = BmpList[5];
 
+                    // Automatically, show first bitmap image as a main image
                     MainBmpImage = BmpList[0];
+
                     //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
                 }
             }
-
-
-            
-
-
             #endregion
-
-            // 4. Change the public picture path list values -> binding to thumbnails
-
 
 
             // 5. If there is a csv file, change the public value of csv file
@@ -432,11 +446,18 @@ namespace BeyonSense.ViewModels
 
         }
 
+        #endregion
+
+        #region Thumbnail Click Event Handler
+        /// <summary>
+        /// Change main image when a thumbnail is clicked
+        /// </summary>
+        /// <param name="path"></param>
         public void PopupMainImage(string path)
         {
             //MessageBox.Show(path);
-
             MainBmpImage = path;
         }
+        #endregion
     }
 }

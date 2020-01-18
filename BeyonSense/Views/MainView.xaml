@@ -139,6 +139,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
+                    <!-- Six clickable thumbnails -->
                     <Button x:Name="BmpImage1" Grid.Row="0" Margin="5" 
                             HorizontalAlignment="Center"
                             ToolTip="Wavelength 725 nm"
@@ -314,7 +315,7 @@
                 
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
-                    <!-- TODO: Image source binding-->
+                    <!-- Image source binding-->
                     <Image Source="{Binding MainBmpImage}" Margin="5"/>
                 </Grid>
 
