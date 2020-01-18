@@ -41,17 +41,19 @@ namespace BeyonSense.ViewModels
 
         #region Bitmap image paths
 
-        private List<string> bmpList = new List<string>();
+        #region Bitmap clickable bool
 
-        public List<string> BmpList
+        private bool clickableImage = false;
+        public bool ClickableImage
         {
-            get { return bmpList; }
+            get { return clickableImage; }
             set
             {
-                bmpList = value;
-                NotifyOfPropertyChange(() => BmpList);
+                clickableImage = value;
+                NotifyOfPropertyChange(() => ClickableImage);
             }
         }
+        #endregion
 
         #region Bitmap path 1
 
@@ -130,6 +132,22 @@ namespace BeyonSense.ViewModels
             }
         }
         #endregion
+
+        #endregion
+
+        #region Main Bitmap image path
+
+        private string mainBmpImage = "/Pictures/no_image.png";
+
+        public string MainBmpImage
+        {
+            get { return mainBmpImage; }
+            set
+            {
+                mainBmpImage = value;
+                NotifyOfPropertyChange(() => MainBmpImage);
+            }
+        }
 
         #endregion
 
@@ -237,7 +255,6 @@ namespace BeyonSense.ViewModels
         public MainViewModel()
         {
 
-
             #region ColorBox Test
             /// TODO: THIS LINES WILL BE REMOVED.
             /// THESE LINES ARE ONLY FOR TEST
@@ -334,6 +351,7 @@ namespace BeyonSense.ViewModels
             int num_bmp = 0;
             int num_csv = 0;
             string csvPath = "";
+            List<string> BmpList = new List<string>();
 
             DirectoryInfo folder = new DirectoryInfo(dirPath);
             if (folder.Exists)
@@ -349,6 +367,8 @@ namespace BeyonSense.ViewModels
                     string exetension = Path.GetExtension(filePath);
 
                     // Count the number of bitmap image and csv file
+
+                    
 
                     switch (exetension)
                     {
@@ -370,7 +390,7 @@ namespace BeyonSense.ViewModels
                     num_Files++;
 
                 }
-
+                 
                 //Error message to choose correct directory again: six bitmap images, an optional csv file
                 if (num_bmp != 6 || num_csv > 1)
                 {
@@ -380,6 +400,8 @@ namespace BeyonSense.ViewModels
 
                 else
                 {
+                    ClickableImage = true;
+                    // If six bitmap images, none or one csv file exist, save all the paths in public variables (csv file path -> local variables)
                     BmpPath1 = BmpList[0];
                     BmpPath2 = BmpList[1];
                     BmpPath3 = BmpList[2];
@@ -392,7 +414,7 @@ namespace BeyonSense.ViewModels
             }
 
 
-            // If six bitmap images, none or one csv file exist, save all the paths in public variables (csv file path -> local variables)
+            
 
 
             #endregion
@@ -407,6 +429,13 @@ namespace BeyonSense.ViewModels
 
             // 5-2. Generate colors as many as the number of table elements
 
+        }
+
+        public void PopupMainImage(string path)
+        {
+            //MessageBox.Show(path);
+
+            MainBmpImage = path;
         }
     }
 }
