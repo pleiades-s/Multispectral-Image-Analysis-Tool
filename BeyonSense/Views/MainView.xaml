@@ -96,9 +96,15 @@
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
                                     
                                     <!-- Binding DataContext is needed if the structure is being nested -->
-                                    <StackPanel x:Name="TreeElement" Orientation="Horizontal"                                                
-                                                cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=DirectoryTree}"
-                                                cal:Message.Attach="[Event MouseDown] = [Action TreeElementMouseDown]">
+                                    <StackPanel x:Name="TreeElement" Orientation="Horizontal"
+                                                cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=DirectoryTree}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseDown">
+                                                <cal:ActionMessage MethodName="TreeElementMouseDown">
+                                                    <cal:Parameter Value="{Binding FullPath}"/>
+                                                </cal:ActionMessage>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
 
 
                                         <Image Width="20" Margin="3" 
