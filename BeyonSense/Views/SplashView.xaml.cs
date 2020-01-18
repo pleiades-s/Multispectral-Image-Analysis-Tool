@@ -3,20 +3,19 @@ using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
-namespace BeyonSense
+namespace BeyonSense.Views
 {
     /// <summary>
     /// Interaction logic for SplashWindow.xaml
     /// </summary>
-    public partial class SplashWindow : Window
+    public partial class SplashView : Window
     {
         DispatcherTimer dT = new DispatcherTimer();
 
-        public SplashWindow()
+        public SplashView()
         {
             InitializeComponent();
         }
-
 
 
         /// <summary>
@@ -49,12 +48,16 @@ namespace BeyonSense
         /// <param name="e"></param>
         void doubleanimation_Completed(object sender, EventArgs e)
         {
-            MainWindow mainwindow = new MainWindow();
-            mainwindow.Show();
+            MainView mainView = new MainView();
+            mainView.Show();
+
+
             this.Close();
 
 
         }
         #endregion
+
+
     }
 }
