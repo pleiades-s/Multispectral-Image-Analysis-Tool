@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using BeyonSense.Models;
+using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -149,6 +150,47 @@ namespace BeyonSense.ViewModels
             }
         }
 
+        #endregion
+
+
+        #region Labeling Class Info
+
+        #region Csv Path variables
+        private string csvPath;
+
+        public string CsvPath
+        {
+            get { return csvPath; }
+            set
+            {
+                csvPath = value;
+
+                if (!String.IsNullOrEmpty(csvPath))
+                {
+                    // Read csv file if there is a csv file in the selecte folder
+                    CsvLoader(csvPath);
+                }
+
+                else
+                {
+                    // Reset the table if there is no csv file in the selected folder
+                    ClassPoints.Clear();
+                }
+
+            }
+        }
+        #endregion
+
+        private ObservableCollection<ClassInfo> classPoints = new ObservableCollection<ClassInfo>();
+
+        public ObservableCollection<ClassInfo> ClassPoints
+        {
+            get{ return classPoints; }
+            set { 
+                classPoints = value;
+                NotifyOfPropertyChange(() => ClassPoints);
+            }
+        }
         #endregion
 
         #region Color generator function
@@ -366,7 +408,7 @@ namespace BeyonSense.ViewModels
             int num_Files = 0;
             int num_bmp = 0;
             int num_csv = 0;
-            string csvPath = "";
+            string _csvPath = "";
             List<string> BmpList = new List<string>();
 
             // Travere all the files in the dirPath
@@ -393,7 +435,7 @@ namespace BeyonSense.ViewModels
 
                         case ".csv":
                             // Save a csv file path to the local variable
-                            csvPath = filePath;
+                            _csvPath = filePath;
                             num_csv++;
                             break;
 
@@ -432,17 +474,13 @@ namespace BeyonSense.ViewModels
                     // Automatically, show first bitmap image as a main image
                     MainBmpImage = BmpList[0];
 
+                    // Set public variable CsvPath as the csv file path
+                    CsvPath = _csvPath;
+
                     //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
                 }
             }
             #endregion
-
-
-            // 5. If there is a csv file, change the public value of csv file
-
-            // 5-1. Update table items
-
-            // 5-2. Generate colors as many as the number of table elements
 
         }
 
@@ -459,5 +497,40 @@ namespace BeyonSense.ViewModels
             MainBmpImage = path;
         }
         #endregion
+
+        #region Csv Loader
+
+        public void CsvLoader(string path)
+        {
+
+            // 5. If there is a csv file, change the public value of csv file
+
+            // 5-1. Update table items
+            //MessageBox.Show("CsvPath: " + path);
+
+            int numElements = 0;
+
+            numElements = 4;
+
+            List<Color> textColor = ColorGenerator(4);
+
+            ObservableCollection<ClassInfo> DummyList = new ObservableCollection<ClassInfo>();
+
+            for (int i = 0; i < numElements; i++)
+            {
+                DummyList.Add(new ClassInfo() { ClassName = "Red", TextColor = textColor[i] });
+                DummyList[i].PointCalculator();
+            }
+
+            ClassPoints = DummyList;
+
+            // 5-2. Generate colors as many as the number of table elements
+
+
+        }
+        #endregion
+
+
+
     }
 }

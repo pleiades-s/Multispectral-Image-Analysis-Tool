@@ -87,6 +87,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Models\ClassInfo.cs" />
     <Compile Include="Models\DirectoryItem.cs" />
     <Compile Include="Models\DirectoryItemType.cs" />
     <Compile Include="DirectoryStructure.cs" />
