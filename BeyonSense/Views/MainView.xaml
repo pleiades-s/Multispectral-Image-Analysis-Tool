@@ -61,8 +61,14 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <Button Content="Open" Margin="10,5" Width="Auto"/>
-                                <TextBlock Text="C://Users" Margin="10,12,0,0"/>
+                                <Button Content="Open" Margin="10,5" Width="Auto">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <cal:ActionMessage MethodName="FileOpen" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <TextBlock Text="{Binding PthPath}" Margin="10,12,0,0"/>
                             </StackPanel>
 
                         </Grid>

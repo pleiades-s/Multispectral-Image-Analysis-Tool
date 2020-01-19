@@ -1,5 +1,6 @@
 ﻿using BeyonSense.Models;
 using Caliburn.Micro;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,8 +29,9 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Color variable
+        #region Color variable for Color Box
 
+        // Initial Value is Transparent
         private Color color = Color.FromArgb(0, 255, 255, 255);
 
         public Color Colour
@@ -240,6 +242,21 @@ namespace BeyonSense.ViewModels
         }
 
 
+        #endregion
+
+        #region Selected Parameter Dictionary File Path
+
+        private string pthPath;
+        
+        public string PthPath
+        {
+            get { return pthPath; }
+            set
+            {
+                pthPath = value;
+                NotifyOfPropertyChange(() => PthPath);
+            }
+        }
         #endregion
 
         #region Color generator function
@@ -554,19 +571,36 @@ namespace BeyonSense.ViewModels
             // Generate colors as many as the number of table elements
             List<Color> textColor = ColorGenerator(numElements);
 
-            ObservableCollection<ClassInfo> DummyList = new ObservableCollection<ClassInfo>();
+            ObservableCollection<ClassInfo> dummyList = new ObservableCollection<ClassInfo>();
 
             for (int i = 0; i < numElements; i++)
             {
-                DummyList.Add(new ClassInfo() { ClassName = "Red", TextColor = textColor[i] });
-                DummyList[i].PointCalculator();
+                dummyList.Add(new ClassInfo() { ClassName = "Red", TextColor = textColor[i] });
+                dummyList[i].PointCalculator();
             }
 
             // Update table items
-            ClassPoints = DummyList;
+            ClassPoints = dummyList;
 
         }
         #endregion
 
+        #region Open Button Click Handler: Parameter Dictionary File Explorer
+
+        public void FileOpen()
+        {
+            
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            // Search file filter by exetension
+            openFileDialog.Filter = "State Dict.(*.pth)|*.pth|All files (*.*)|*.*";
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                // Get full path of the selected file
+                PthPath = openFileDialog.FileName;
+            }
+        }
+        #endregion
     }
 }
