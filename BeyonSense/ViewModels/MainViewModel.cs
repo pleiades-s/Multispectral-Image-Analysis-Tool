@@ -669,6 +669,7 @@ namespace BeyonSense.ViewModels
 
         #region Point Calculator
 
+        // https://csharpindepth.com/Articles/Random
 
         public Random rnd = new Random();
 
@@ -754,7 +755,7 @@ namespace BeyonSense.ViewModels
                         {
                             // If there is same class name, add the value
                             ack = 1;
-                            ClassPoints[j].NumPoints = PixelCalculator(_classBoundaries[i].Points);
+                            ClassPoints[j].NumPoints += PixelCalculator(_classBoundaries[i].Points);
 
                         }
                     }
