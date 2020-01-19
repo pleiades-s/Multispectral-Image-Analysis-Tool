@@ -30,7 +30,7 @@ namespace BeyonSense.ViewModels
 
         #region Color variable
 
-        private Color color;
+        private Color color = Color.FromArgb(0, 255, 255, 255);
 
         public Color Colour
         {
@@ -231,7 +231,7 @@ namespace BeyonSense.ViewModels
                 }
                 else
                 {
-                    Colour = Color.FromArgb(255, 255, 255, 255);
+                    Colour = Color.FromArgb(0, 255, 255, 255);
                     NumPoints = "";
                 }
                 NotifyOfPropertyChange(() => SelectedRow);
@@ -559,8 +559,6 @@ namespace BeyonSense.ViewModels
                 DummyList[i].PointCalculator();
             }
 
-            NumPoints = DummyList[0].NumPoints.ToString();
-            Colour = textColor[0];
             // Update table items
             ClassPoints = DummyList;
 
