@@ -1,4 +1,5 @@
-﻿using Caliburn.Micro;
+﻿using BeyonSense.Models;
+using Caliburn.Micro;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,6 +21,7 @@ namespace BeyonSense.ViewModels
 
     public class MainViewModel : Screen
     {
+
         #region A list of all directories
         // A list of all directories from a selected directory
         public ObservableCollection<DirectoryItemViewModel> Items { get; set; }
@@ -28,7 +30,7 @@ namespace BeyonSense.ViewModels
 
         #region Color variable
 
-        private Color color;
+        private Color color = Color.FromArgb(0, 255, 255, 255);
 
         public Color Colour
         {
@@ -36,6 +38,21 @@ namespace BeyonSense.ViewModels
             set { color = value; }
         }
 
+        #endregion
+
+        #region The number of points variable
+
+        private string numPoints;
+        
+        public string NumPoints
+        {
+            get { return numPoints; }
+            set
+            {
+                numPoints = value;
+                NotifyOfPropertyChange(() => numPoints);
+            }
+        }
 
         #endregion
 
@@ -151,6 +168,80 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Labeling Class Info
+
+        #region Csv Path variables
+        private string csvPath;
+
+        public string CsvPath
+        {
+            get { return csvPath; }
+            set
+            {
+                csvPath = value;
+
+                if (!String.IsNullOrEmpty(csvPath))
+                {
+                    // Read csv file if there is a csv file in the selecte folder
+                    CsvLoader(csvPath);
+                }
+
+                else
+                {
+                    // Reset the table if there is no csv file in the selected folder
+                    ClassPoints.Clear();
+                }
+
+            }
+        }
+        #endregion
+
+        #region ClassInfo Collection
+        // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
+
+        private ObservableCollection<ClassInfo> classPoints = new ObservableCollection<ClassInfo>();
+
+        public ObservableCollection<ClassInfo> ClassPoints
+        {
+            get{ return classPoints; }
+            set { 
+                classPoints = value;
+                NotifyOfPropertyChange(() => ClassPoints);
+            }
+        }
+        #endregion
+
+        #endregion
+
+        #region Selected Row
+
+        private ClassInfo selectedRow;
+
+        public ClassInfo SelectedRow {
+            get { return selectedRow; }
+
+            set 
+            { 
+                selectedRow = value;
+
+                if (selectedRow != null)
+                {
+                    Colour = selectedRow.TextColor;
+                    NumPoints = selectedRow.NumPoints.ToString();
+                }
+                else
+                {
+                    Colour = Color.FromArgb(0, 255, 255, 255);
+                    NumPoints = "";
+                }
+                NotifyOfPropertyChange(() => SelectedRow);
+
+            }
+        }
+
+
+        #endregion
+
         #region Color generator function
 
         /// <summary>
@@ -221,7 +312,7 @@ namespace BeyonSense.ViewModels
                 byte g = BitConverter.GetBytes(generator_color[i, 1])[0];
                 byte b = BitConverter.GetBytes(generator_color[i, 2])[0];
 
-                random_color.Add(Color.FromRgb(r, g, b));
+                random_color.Add(Color.FromArgb(255, r, g, b));
 
             }
 
@@ -258,14 +349,6 @@ namespace BeyonSense.ViewModels
         public MainViewModel()
         {
 
-            #region ColorBox Test
-            /// TODO: THIS LINES WILL BE REMOVED.
-            /// THESE LINES ARE ONLY FOR TEST
-            List<Color> new_color = ColorGenerator(10);
-            this.Colour = new_color[9];
-            ///
-            #endregion
-
         }
 
         #endregion
@@ -300,7 +383,7 @@ namespace BeyonSense.ViewModels
         public void StartDirectoryTree(string path)
         {
             #region Directory TreeView
-            // Get the logical drives
+            // Get the selected directory path
             var children = DirectoryStructure.GetRootFolder(path);
 
             // Create the view models from the data
@@ -366,7 +449,7 @@ namespace BeyonSense.ViewModels
             int num_Files = 0;
             int num_bmp = 0;
             int num_csv = 0;
-            string csvPath = "";
+            string _csvPath = "";
             List<string> BmpList = new List<string>();
 
             // Travere all the files in the dirPath
@@ -393,7 +476,7 @@ namespace BeyonSense.ViewModels
 
                         case ".csv":
                             // Save a csv file path to the local variable
-                            csvPath = filePath;
+                            _csvPath = filePath;
                             num_csv++;
                             break;
 
@@ -432,17 +515,13 @@ namespace BeyonSense.ViewModels
                     // Automatically, show first bitmap image as a main image
                     MainBmpImage = BmpList[0];
 
+                    // Set public variable CsvPath as the csv file path
+                    CsvPath = _csvPath;
+
                     //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
                 }
             }
             #endregion
-
-
-            // 5. If there is a csv file, change the public value of csv file
-
-            // 5-1. Update table items
-
-            // 5-2. Generate colors as many as the number of table elements
 
         }
 
@@ -459,5 +538,32 @@ namespace BeyonSense.ViewModels
             MainBmpImage = path;
         }
         #endregion
+
+        #region Csv Loader
+
+        public void CsvLoader(string path)
+        {
+            int numElements = 0;
+
+            // TEST: Assume there are four classes in the csv file
+            numElements = 4;
+
+            // Generate colors as many as the number of table elements
+            List<Color> textColor = ColorGenerator(numElements);
+
+            ObservableCollection<ClassInfo> DummyList = new ObservableCollection<ClassInfo>();
+
+            for (int i = 0; i < numElements; i++)
+            {
+                DummyList.Add(new ClassInfo() { ClassName = "Red", TextColor = textColor[i] });
+                DummyList[i].PointCalculator();
+            }
+
+            // Update table items
+            ClassPoints = DummyList;
+
+        }
+        #endregion
+
     }
 }
