@@ -669,11 +669,13 @@ namespace BeyonSense.ViewModels
 
         #region Point Calculator
 
-        public int pointCalculator(ObservableCollection<int[]> _boundaryPoints)
+
+        public Random rnd = new Random();
+
+        public int PixelCalculator(ObservableCollection<int[]> _boundaryPoints)
         {
             // TODO
-            Random rnd = new Random();
-            int returnvalue = rnd.Next(100, 500);
+            int returnvalue = rnd.Next(100, 300);
             Console.WriteLine("Random " + returnvalue.ToString());
             return returnvalue;
         }
@@ -752,7 +754,7 @@ namespace BeyonSense.ViewModels
                         {
                             // If there is same class name, add the value
                             ack = 1;
-                            ClassPoints[j].NumPoints = pointCalculator(_classBoundaries[i].Points);
+                            ClassPoints[j].NumPoints = PixelCalculator(_classBoundaries[i].Points);
 
                         }
                     }
@@ -764,7 +766,7 @@ namespace BeyonSense.ViewModels
                         ClassPoints.Add(new ClassPixels()
                         {
                             ClassName = _classBoundaries[i].ClassName,
-                            NumPoints = pointCalculator(_classBoundaries[i].Points)
+                            NumPoints = PixelCalculator(_classBoundaries[i].Points)
                         });
                     }
 
@@ -776,8 +778,7 @@ namespace BeyonSense.ViewModels
 
             //_classBoundaries의 원소만큼 color 생성
             int k = ClassPoints.Count;
-            List<Color> _color = new List<Color>();
-            _color = ColorGenerator(k);
+            List<Color> _color = ColorGenerator(k);
 
             for(int i = 0; i < k; i++)
             {
