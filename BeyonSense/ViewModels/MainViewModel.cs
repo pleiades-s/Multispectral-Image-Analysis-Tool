@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
+using System.Drawing;
 using WinForms = System.Windows.Forms;
 
 
@@ -152,7 +152,6 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-
         #region Labeling Class Info
 
         #region Csv Path variables
@@ -181,6 +180,9 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region ClassInfo Collection
+        // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
+
         private ObservableCollection<ClassInfo> classPoints = new ObservableCollection<ClassInfo>();
 
         public ObservableCollection<ClassInfo> ClassPoints
@@ -191,6 +193,8 @@ namespace BeyonSense.ViewModels
                 NotifyOfPropertyChange(() => ClassPoints);
             }
         }
+        #endregion
+
         #endregion
 
         #region Color generator function
@@ -263,7 +267,7 @@ namespace BeyonSense.ViewModels
                 byte g = BitConverter.GetBytes(generator_color[i, 1])[0];
                 byte b = BitConverter.GetBytes(generator_color[i, 2])[0];
 
-                random_color.Add(Color.FromRgb(r, g, b));
+                random_color.Add(Color.FromArgb(r, g, b));
 
             }
 
@@ -502,17 +506,13 @@ namespace BeyonSense.ViewModels
 
         public void CsvLoader(string path)
         {
-
-            // 5. If there is a csv file, change the public value of csv file
-
-            // 5-1. Update table items
-            //MessageBox.Show("CsvPath: " + path);
-
             int numElements = 0;
 
+            // TEST: Assume there are four classes in the csv file
             numElements = 4;
 
-            List<Color> textColor = ColorGenerator(4);
+            // Generate colors as many as the number of table elements
+            List<Color> textColor = ColorGenerator(numElements);
 
             ObservableCollection<ClassInfo> DummyList = new ObservableCollection<ClassInfo>();
 
@@ -522,10 +522,8 @@ namespace BeyonSense.ViewModels
                 DummyList[i].PointCalculator();
             }
 
+            // Update table items
             ClassPoints = DummyList;
-
-            // 5-2. Generate colors as many as the number of table elements
-
 
         }
         #endregion

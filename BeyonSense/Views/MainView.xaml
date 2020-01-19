@@ -327,10 +327,11 @@
                         Height="200" ItemsSource="{Binding ClassPoints}"
                         HorizontalAlignment="Center"
                               Margin="0,10">
+
                         <DataGrid.Columns>
                             <DataGridTextColumn
-                                MinWidth="50" Header="Class" Binding="{Binding ClassName}">
-                            </DataGridTextColumn>
+                                MinWidth="50" Header="Class" Binding="{Binding ClassName}"
+                                Foreground="{Binding TextColor}"/>
 
                             <DataGridTextColumn
                                 MinWidth="50" Header="Points" Binding="{Binding NumPoints}"
