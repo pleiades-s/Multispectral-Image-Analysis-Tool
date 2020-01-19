@@ -259,6 +259,21 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region Toggle Boolean Variable
+
+        private bool toggleBool = false;
+
+        public bool ToggleBool
+        {
+            get { return toggleBool; }
+            set
+            {
+                toggleBool = value;
+                NotifyOfPropertyChange(() => ToggleBool);
+            }
+        }
+        #endregion
+
         #region Color generator function
 
         /// <summary>
@@ -601,6 +616,25 @@ namespace BeyonSense.ViewModels
                 PthPath = openFileDialog.FileName;
             }
         }
+        #endregion
+        
+        #region Toggle Click Event Handler
+
+        public void ToggleClick()
+        {
+            if (!ToggleBool)
+            {
+                ToggleBool = true;
+            }
+            else
+            {
+                ToggleBool = false;
+                
+                // Clear file path
+                PthPath = "";
+            }
+        }
+
         #endregion
     }
 }

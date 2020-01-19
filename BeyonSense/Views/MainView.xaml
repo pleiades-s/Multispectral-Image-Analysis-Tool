@@ -57,11 +57,17 @@
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                 <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,3,0,0"/>
                                 <!-- Toggle Button -->
-                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40"/>
+                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                                            <cal:ActionMessage MethodName="ToggleClick" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </local:ToggleSwitch>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <Button Content="Open" Margin="10,5" Width="Auto">
+                                <Button Content="Open" Margin="10,5" Width="Auto" IsEnabled="{Binding ToggleBool}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
                                             <cal:ActionMessage MethodName="FileOpen" />
