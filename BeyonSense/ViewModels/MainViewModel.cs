@@ -300,7 +300,7 @@ namespace BeyonSense.ViewModels
         public void StartDirectoryTree(string path)
         {
             #region Directory TreeView
-            // Get the logical drives
+            // Get the selected directory path
             var children = DirectoryStructure.GetRootFolder(path);
 
             // Create the view models from the data
