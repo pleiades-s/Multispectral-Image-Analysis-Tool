@@ -545,6 +545,9 @@ namespace BeyonSense.ViewModels
         {
             int numElements = 0;
 
+            // TODO: READ CSV -> CLASS INSTANCES
+
+
             // TEST: Assume there are four classes in the csv file
             numElements = 4;
 

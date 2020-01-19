@@ -329,6 +329,7 @@
                         SelectionMode="Extended" SelectionUnit="FullRow"
                         CanUserReorderColumns="False" CanUserResizeColumns="False" 
                         CanUserResizeRows="False" CanUserSortColumns="False"
+                        IsReadOnly="True"
                         SelectedItem="{Binding Path=SelectedRow, Mode=OneWayToSource}">
 
                         <DataGrid.Columns>
