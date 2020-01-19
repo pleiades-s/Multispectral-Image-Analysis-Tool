@@ -325,17 +325,18 @@
                     <!-- TODO: Contents binding-->
                     <DataGrid AutoGenerateColumns="False" 
                         Height="200" ItemsSource="{Binding ClassPoints}"
-                        HorizontalAlignment="Center"
-                              Margin="0,10">
+                        HorizontalAlignment="Center" Margin="0,10"
+                        SelectionMode="Extended" SelectionUnit="FullRow"
+                        CanUserReorderColumns="False" CanUserResizeColumns="False" 
+                        CanUserResizeRows="False" CanUserSortColumns="False"
+                        SelectedItem="{Binding Path=SelectedRow, Mode=OneWayToSource}">
 
                         <DataGrid.Columns>
                             <DataGridTextColumn
-                                MinWidth="50" Header="Class" Binding="{Binding ClassName}"
-                                Foreground="{Binding TextColor}"/>
+                                MinWidth="50" Header="Class" Binding="{Binding ClassName}"/>
 
                             <DataGridTextColumn
-                                MinWidth="50" Header="Points" Binding="{Binding NumPoints}"
-                                Foreground="{Binding TextColor}"/>
+                                MinWidth="50" Header="Points" Binding="{Binding NumPoints}"/>
                         </DataGrid.Columns>
                     </DataGrid>
                     
@@ -370,7 +371,7 @@
                         
                         <!-- TextBox-->
                         <!-- TODO: #Pixel binding-->
-                        <TextBlock Grid.Column="1" Text="100" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding NumPoints}" HorizontalAlignment="Center"/>
                     </Grid>
 
                     <!-- Save and Train Buttons-->

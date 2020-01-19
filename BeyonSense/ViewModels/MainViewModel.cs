@@ -8,7 +8,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Drawing;
+using System.Windows.Media;
 using WinForms = System.Windows.Forms;
 
 
@@ -21,6 +21,7 @@ namespace BeyonSense.ViewModels
 
     public class MainViewModel : Screen
     {
+
         #region A list of all directories
         // A list of all directories from a selected directory
         public ObservableCollection<DirectoryItemViewModel> Items { get; set; }
@@ -37,6 +38,21 @@ namespace BeyonSense.ViewModels
             set { color = value; }
         }
 
+        #endregion
+
+        #region The number of points variable
+
+        private string numPoints;
+        
+        public string NumPoints
+        {
+            get { return numPoints; }
+            set
+            {
+                numPoints = value;
+                NotifyOfPropertyChange(() => numPoints);
+            }
+        }
 
         #endregion
 
@@ -197,6 +213,35 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Selected Row
+
+        private ClassInfo selectedRow;
+
+        public ClassInfo SelectedRow {
+            get { return selectedRow; }
+
+            set 
+            { 
+                selectedRow = value;
+
+                if (selectedRow != null)
+                {
+                    Colour = selectedRow.TextColor;
+                    NumPoints = selectedRow.NumPoints.ToString();
+                }
+                else
+                {
+                    Colour = Color.FromArgb(255, 255, 255, 255);
+                    NumPoints = "";
+                }
+                NotifyOfPropertyChange(() => SelectedRow);
+
+            }
+        }
+
+
+        #endregion
+
         #region Color generator function
 
         /// <summary>
@@ -267,7 +312,7 @@ namespace BeyonSense.ViewModels
                 byte g = BitConverter.GetBytes(generator_color[i, 1])[0];
                 byte b = BitConverter.GetBytes(generator_color[i, 2])[0];
 
-                random_color.Add(Color.FromArgb(r, g, b));
+                random_color.Add(Color.FromArgb(255, r, g, b));
 
             }
 
@@ -303,14 +348,6 @@ namespace BeyonSense.ViewModels
         /// </summary>
         public MainViewModel()
         {
-
-            #region ColorBox Test
-            /// TODO: THIS LINES WILL BE REMOVED.
-            /// THESE LINES ARE ONLY FOR TEST
-            List<Color> new_color = ColorGenerator(10);
-            this.Colour = new_color[9];
-            ///
-            #endregion
 
         }
 
@@ -522,13 +559,13 @@ namespace BeyonSense.ViewModels
                 DummyList[i].PointCalculator();
             }
 
+            NumPoints = DummyList[0].NumPoints.ToString();
+            Colour = textColor[0];
             // Update table items
             ClassPoints = DummyList;
 
         }
         #endregion
-
-
 
     }
 }
