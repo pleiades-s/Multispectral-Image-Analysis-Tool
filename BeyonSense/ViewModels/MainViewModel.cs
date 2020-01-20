@@ -18,7 +18,7 @@ namespace BeyonSense.ViewModels
     /// <summary>
     /// The View Model for the Main View
     /// </summary>
-    
+
 
     public class MainViewModel : Screen
     {
@@ -51,7 +51,8 @@ namespace BeyonSense.ViewModels
         public string BmpPath1
         {
             get { return bmpPath1; }
-            set { 
+            set
+            {
                 bmpPath1 = value;
                 NotifyOfPropertyChange(() => BmpPath1);
             }
@@ -144,7 +145,7 @@ namespace BeyonSense.ViewModels
         #region Selected Parameter Dictionary File Path
 
         private string pthPath;
-        
+
         public string PthPath
         {
             get { return pthPath; }
@@ -216,7 +217,7 @@ namespace BeyonSense.ViewModels
                 // New color is needed to be generated
                 Random random = new Random();
                 for (int i = 0; i < n - 6; i++)
-                {              
+                {
                     // Choose two basic color to be mixed
                     int index1 = random.Next(0, 6 + i);
                     int index2 = random.Next(0, 6 + i);
@@ -232,7 +233,7 @@ namespace BeyonSense.ViewModels
 
 
             List<Color> random_color = new List<Color>();
-            
+
             for (int i = 0; i < n; i++)
             {
 
@@ -382,15 +383,15 @@ namespace BeyonSense.ViewModels
 
             // If we don't find a backslash, return the path itself
             if (lastIndex <= 0)
-                return ;
+                return;
 
             //  Remove file name from the file path so we can get a parent directory path
-            var dirPath = normalizedPath.Substring(0,lastIndex);
+            var dirPath = normalizedPath.Substring(0, lastIndex);
 
             #endregion
 
             #region Check the number of files: 6 bitmap images, (Optionally 1 csv file)
-            
+
             // Check the directory has 6 bmp files, and optionally one csv file
 
             int num_Files = 0;
@@ -403,13 +404,13 @@ namespace BeyonSense.ViewModels
             DirectoryInfo folder = new DirectoryInfo(dirPath);
             if (folder.Exists)
             {
-                
+
                 //loop for files in the folder
                 foreach (FileInfo fileInfo in folder.GetFiles())
                 {
                     //each file path
                     string filePath = dirPath + '\\' + fileInfo.Name;
-                    
+
                     // Check exetension of each file or folder: using GetExtension(string str)
                     string exetension = Path.GetExtension(filePath);
 
@@ -435,7 +436,7 @@ namespace BeyonSense.ViewModels
                     num_Files++;
 
                 }
-                 
+
                 //Error message to choose correct directory again: six bitmap images, an optional csv file
                 if (num_bmp != 6 || num_csv > 1)
                 {
@@ -446,7 +447,7 @@ namespace BeyonSense.ViewModels
                 else
                 {
                     //MessageBox.Show(csvPath);
-                    
+
                     // Enable clickable thumbnails when bitmap images are successfully loaded.
                     ClickableImage = true;
 
@@ -490,7 +491,7 @@ namespace BeyonSense.ViewModels
 
         public void FileOpen()
         {
-            
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
 
             // Search file filter by exetension
@@ -503,7 +504,7 @@ namespace BeyonSense.ViewModels
             }
         }
         #endregion
-        
+
         #region Toggle Click Event Handler
 
         public void ToggleClick()
@@ -515,7 +516,7 @@ namespace BeyonSense.ViewModels
             else
             {
                 ToggleBool = false;
-                
+
                 // Clear file path
                 PthPath = "";
             }
@@ -629,7 +630,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Dictionary<csv path, Collection<ClassBoundary>> for LoadBoudary()
-        public Dictionary<string, ObservableCollection<ClassBoundary>> BoundaryPoint = new Dictionary<string, ObservableCollection<ClassBoundary>>();
+        public Dictionary<string, ObservableCollection<ClassCornerPoints>> BoundaryPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
         #endregion
 
         #endregion
@@ -753,18 +754,19 @@ namespace BeyonSense.ViewModels
             DirSearch(_rootPath);
 
             // Read csv file only if Dirsearch is successfully completed
-            if(!recursiveAlert){ 
+            if (!recursiveAlert)
+            {
 
                 // For each csv file
                 foreach (string _path in csvFilePaths)
                 {
                     // Read class name and boundary points
-                    ObservableCollection<ClassBoundary> _classBoundaries = new ObservableCollection<ClassBoundary>();
+                    ObservableCollection<ClassCornerPoints> _classBoundaries = new ObservableCollection<ClassCornerPoints>();
 
 
                     using (var reader = new StreamReader(_path))
                     {
-                        string _className="";
+                        string _className = "";
                         ObservableCollection<int[]> _boundaryPoints = new ObservableCollection<int[]>();
                         int _numLine = 0;
                         while (!reader.EndOfStream)
@@ -774,7 +776,7 @@ namespace BeyonSense.ViewModels
                             if (_numLine != 0)
                             {
                                 var values = line.Split(',');
-                                                  
+
                                 _className = values[0];
                                 //Console.WriteLine(values[0]);
 
@@ -791,7 +793,7 @@ namespace BeyonSense.ViewModels
                                         _position[1] = StrToInt(values[i + 1]);
                                     }
 
-                                    catch(IndexOutOfRangeException e)
+                                    catch (IndexOutOfRangeException e)
                                     {
                                         MessageBox.Show("Your csv files might have wrong format.\n");
                                         return;
@@ -802,7 +804,7 @@ namespace BeyonSense.ViewModels
                                 }
 
                                 // Each line = each class
-                                _classBoundaries.Add(new ClassBoundary() { ClassName = _className, Points = _boundaryPoints });
+                                _classBoundaries.Add(new ClassCornerPoints() { ClassName = _className, Points = _boundaryPoints });
                             }
 
                             _numLine++;
@@ -818,16 +820,16 @@ namespace BeyonSense.ViewModels
 
 
                     // TODO: Calculate the number of inside points and Add ClassPoints 
-                
-                    for(int i = 0; i < _classBoundaries.Count; i++)
+
+                    for (int i = 0; i < _classBoundaries.Count; i++)
                     {
 
                         //_classBoundaries 에서 ClassPoints에 이름이 있는지 없는지 확인
                         int ack = 0;
 
-                        for(int j = 0; j < ClassPoints.Count; j++)
+                        for (int j = 0; j < ClassPoints.Count; j++)
                         {
-                            if(_classBoundaries[i].ClassName == ClassPoints[j].ClassName)
+                            if (_classBoundaries[i].ClassName == ClassPoints[j].ClassName)
                             {
                                 // If there is same class name, add the value
                                 ack = 1;
@@ -848,8 +850,8 @@ namespace BeyonSense.ViewModels
                         }
 
                     }
-                
-                
+
+
 
                 }
 
@@ -883,7 +885,7 @@ namespace BeyonSense.ViewModels
             Dictionary<Color, int> ColorDictionary = new Dictionary<Color, int>();
 
             // Allocate Dictionary elements
-            foreach(Color color in _color)
+            foreach (Color color in _color)
             {
                 ColorDictionary.Add(color, 0);
             }
@@ -894,7 +896,7 @@ namespace BeyonSense.ViewModels
                 // It already has class color
                 if (ClassPoints[i].ClassColor == Colors.Transparent)
                 {
-                    ColorDictionary[ClassPoints[i].ClassColor] += 1;                    
+                    ColorDictionary[ClassPoints[i].ClassColor] += 1;
                 }
 
                 // It has no color yet
@@ -906,7 +908,7 @@ namespace BeyonSense.ViewModels
                         // Assign unused Color
                         if (element.Value == 0)
                         {
-                            
+
                             ClassPoints[i].ClassColor = element.Key;
 
                             // Change Used integer
@@ -916,7 +918,7 @@ namespace BeyonSense.ViewModels
                             break;
                         }
                     }
-                }     
+                }
             }
         }
         #endregion
@@ -932,13 +934,13 @@ namespace BeyonSense.ViewModels
             // Read Dictionary
 
             // For each class
-                
-                // Find value of boundary points in the dictionary
 
-                // Show the boundary on MainView
+            // Find value of boundary points in the dictionary
 
-                // Specify color of boundary is same with the class
-            
+            // Show the boundary on MainView
+
+            // Specify color of boundary is same with the class
+
         }
         #endregion
 
