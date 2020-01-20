@@ -629,7 +629,7 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Dictionary<csv path, Collection<ClassBoundary>> for LoadBoudary()
+        #region Dictionary<csv path, Collection<ClassCornerPoints>> for LoadBoudary()
         public Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
         #endregion
 
@@ -724,10 +724,10 @@ namespace BeyonSense.ViewModels
         /// <summary>
         /// Calculate inside pixels
         /// </summary>
-        /// <param name="_boundaryPoints">Boundary Point Collection</param>
+        /// <param name="_cornerPoint">Corner Point Collection</param>
         /// <returns>int the number of pixel</returns>
         /// 
-        public int PixelCalculator(ObservableCollection<int[]> _boundaryPoints)
+        public int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
         {
 
             // TODO: 경계 모든 픽셀 구하기
@@ -742,7 +742,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         /// <summary>
-        /// Make ClassPoints Collection and BoundaryPoints Dictionary
+        /// Make ClassPoints Collection and Corner Points Dictionary
         /// </summary>
         /// <param name="_rootPath">A selected path by folder explorer</param>
         /// 
@@ -760,14 +760,14 @@ namespace BeyonSense.ViewModels
                 // For each csv file
                 foreach (string _path in csvFilePaths)
                 {
-                    // Read class name and boundary points
-                    ObservableCollection<ClassCornerPoints> _classBoundaries = new ObservableCollection<ClassCornerPoints>();
+                    // Read class name and corner points
+                    ObservableCollection<ClassCornerPoints> _classCorners = new ObservableCollection<ClassCornerPoints>();
 
 
                     using (var reader = new StreamReader(_path))
                     {
                         string _className = "";
-                        ObservableCollection<int[]> _boundaryPoints = new ObservableCollection<int[]>();
+                        ObservableCollection<int[]> _cornerPoints = new ObservableCollection<int[]>();
                         int _numLine = 0;
                         while (!reader.EndOfStream)
                         {
@@ -800,11 +800,11 @@ namespace BeyonSense.ViewModels
                                     }
 
                                     //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
-                                    _boundaryPoints.Add(_position);
+                                    _cornerPoints.Add(_position);
                                 }
 
                                 // Each line = each class
-                                _classBoundaries.Add(new ClassCornerPoints() { ClassName = _className, Points = _boundaryPoints });
+                                _classCorners.Add(new ClassCornerPoints() { ClassName = _className, Points = _cornerPoints });
                             }
 
                             _numLine++;
@@ -816,24 +816,24 @@ namespace BeyonSense.ViewModels
 
                     // Allocate new dictionary { Class name: Boundary point Collection<T> } <-- We'd start from here if user add new boundary
                     // Each csv file
-                    CornerPoint.Add(_path, _classBoundaries);
+                    CornerPoint.Add(_path, _classCorners);
 
 
                     // TODO: Calculate the number of inside points and Add ClassPoints 
 
-                    for (int i = 0; i < _classBoundaries.Count; i++)
+                    for (int i = 0; i < _classCorners.Count; i++)
                     {
 
-                        //_classBoundaries 에서 ClassPoints에 이름이 있는지 없는지 확인
+                        //_classCorners 에서 ClassPoints에 이름이 있는지 없는지 확인
                         int ack = 0;
 
                         for (int j = 0; j < ClassPoints.Count; j++)
                         {
-                            if (_classBoundaries[i].ClassName == ClassPoints[j].ClassName)
+                            if (_classCorners[i].ClassName == ClassPoints[j].ClassName)
                             {
                                 // If there is same class name, add the value
                                 ack = 1;
-                                ClassPoints[j].NumPoints += PixelCalculator(_classBoundaries[i].Points);
+                                ClassPoints[j].NumPoints += PixelCalculator(_classCorners[i].Points);
 
                             }
                         }
@@ -844,8 +844,8 @@ namespace BeyonSense.ViewModels
                         {
                             ClassPoints.Add(new ClassPixels()
                             {
-                                ClassName = _classBoundaries[i].ClassName,
-                                NumPoints = PixelCalculator(_classBoundaries[i].Points)
+                                ClassName = _classCorners[i].ClassName,
+                                NumPoints = PixelCalculator(_classCorners[i].Points)
                             });
                         }
 
