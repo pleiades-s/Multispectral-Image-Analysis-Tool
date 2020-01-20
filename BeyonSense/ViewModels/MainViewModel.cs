@@ -269,7 +269,7 @@ namespace BeyonSense.ViewModels
                     #region Initialize variables for each project
 
                     // Dictionary Clear
-                    BoundaryPoint.Clear();
+                    CornerPoint.Clear();
 
                     // ObservableCollection<ClassPoint> Clear
                     ClassPoints.Clear();
@@ -630,7 +630,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Dictionary<csv path, Collection<ClassBoundary>> for LoadBoudary()
-        public Dictionary<string, ObservableCollection<ClassCornerPoints>> BoundaryPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
+        public Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
         #endregion
 
         #endregion
@@ -816,7 +816,7 @@ namespace BeyonSense.ViewModels
 
                     // Allocate new dictionary { Class name: Boundary point Collection<T> } <-- We'd start from here if user add new boundary
                     // Each csv file
-                    BoundaryPoint.Add(_path, _classBoundaries);
+                    CornerPoint.Add(_path, _classBoundaries);
 
 
                     // TODO: Calculate the number of inside points and Add ClassPoints 
