@@ -181,15 +181,15 @@ namespace BeyonSense.ViewModels
         public List<Color> ColorGenerator(int n)
         {
 
-            int[,] basic_color = new int[8, 3] { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 255, 0 },
+            int[,] basic_color = new int[6, 3] { { 255, 0, 0 }, { 0, 255, 0 },
                                                 { 0, 0, 255 }, { 255, 255, 0 }, { 0, 255, 255 },
-                                                { 255, 0, 255 }, { 255, 255, 255 } };
+                                                { 255, 0, 255 } };
 
             int[,] generator_color = new int[n, 3];
 
 
-            #region Less than 8
-            if (n <= 8)
+            #region Less than 6
+            if (n <= 6)
             {
 
                 for (int i = 0; i < n; i++)
@@ -202,11 +202,11 @@ namespace BeyonSense.ViewModels
             }
             #endregion
 
-            #region eqaul to or more than 8
+            #region eqaul to or more than 6
             else
             {
                 // Add basis colors which are eight colors
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     generator_color[i, 0] = basic_color[i, 0];
                     generator_color[i, 1] = basic_color[i, 1];
@@ -214,18 +214,17 @@ namespace BeyonSense.ViewModels
                 }
 
                 // New color is needed to be generated
-                for (int i = 0; i < n - 8; i++)
-                {
-                    Random random = new Random();
-
+                Random random = new Random();
+                for (int i = 0; i < n - 6; i++)
+                {              
                     // Choose two basic color to be mixed
-                    int index1 = random.Next(0, 8 + i);
-                    int index2 = random.Next(0, 8 + i);
+                    int index1 = random.Next(0, 6 + i);
+                    int index2 = random.Next(0, 6 + i);
 
                     // Allocate new R, G, B value
-                    generator_color[i + 8, 0] = (int)(generator_color[index1, 0] + generator_color[index2, 0]) / 2;
-                    generator_color[i + 8, 1] = (int)(generator_color[index1, 1] + generator_color[index2, 1]) / 2;
-                    generator_color[i + 8, 2] = (int)(generator_color[index1, 2] + generator_color[index2, 2]) / 2;
+                    generator_color[i + 6, 0] = (int)(generator_color[index1, 0] + generator_color[index2, 0]) / 2;
+                    generator_color[i + 6, 1] = (int)(generator_color[index1, 1] + generator_color[index2, 1]) / 2;
+                    generator_color[i + 6, 2] = (int)(generator_color[index1, 2] + generator_color[index2, 2]) / 2;
                 }
             }
 
@@ -250,7 +249,8 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Selected Root Path
+        #region Selected Root Path from Folder Explorer
+
         private string rootPath;
 
         public string RootPath
@@ -264,15 +264,24 @@ namespace BeyonSense.ViewModels
                 if (!String.IsNullOrEmpty(rootPath))
                 {
                     StartDirectoryTree(rootPath);
-                    PointCalculator(rootPath);
 
-                    // TODO: Dictionary Clear
-                    // TODO: ObservableCollection<ClassPoint> Clear
+                    #region Initialize variables for each project
+
+                    // Dictionary Clear
+                    BoundaryPoint.Clear();
+
+                    // ObservableCollection<ClassPoint> Clear
+                    ClassPoints.Clear();
 
                     // Color, NumPoints Clear
                     Colour = Color.FromArgb(0, 255, 255, 255);
                     NumPoints = "";
                     csvFilePaths.Clear();
+
+                    #endregion
+
+                    // Calculate inside pixels and update table elements
+                    PointCalculator(rootPath);
                 }
             }
         }
@@ -514,7 +523,10 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Csv path variables
+        #region Csv path variable to make boundaray
+        /// <summary>
+        /// A selected csv file path
+        /// </summary>
         private string csvPath;
 
         public string CsvPath
@@ -603,8 +615,8 @@ namespace BeyonSense.ViewModels
         #region ClassInfo Collection
         // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
 
+        #region Table Item Source
         private ObservableCollection<ClassPixels> classPoints = new ObservableCollection<ClassPixels>();
-
         public ObservableCollection<ClassPixels> ClassPoints
         {
             get { return classPoints; }
@@ -614,12 +626,16 @@ namespace BeyonSense.ViewModels
                 NotifyOfPropertyChange(() => ClassPoints);
             }
         }
+        #endregion
 
+        #region Dictionary<csv path, Collection<ClassBoundary>> for LoadBoudary()
         public Dictionary<string, ObservableCollection<ClassBoundary>> BoundaryPoint = new Dictionary<string, ObservableCollection<ClassBoundary>>();
+        #endregion
 
         #endregion
 
-        #region Walking Directory
+        #region All Csv File Paths
+        // Every csv file path under the selected folder
         private List<string> _csvFilePaths = new List<string>();
         public List<string> csvFilePaths
         {
@@ -629,7 +645,14 @@ namespace BeyonSense.ViewModels
                 _csvFilePaths = value;
             }
         }
+        #endregion
 
+        #region Walking Directory
+        /// <summary>
+        /// Get every csv file paths and add into csvFilePaths variable
+        /// </summary>
+        /// <param name="sDir">string _rootDir</param>
+        
         public void DirSearch(string sDir)
         {
             try
@@ -638,13 +661,15 @@ namespace BeyonSense.ViewModels
                 {
                     foreach (string f in Directory.GetFiles(d))
                     {
-                        Console.WriteLine(f);
+                        //Console.WriteLine(f);
 
-                        // Csv file
+                        // Check it file exetension is csv or not
                         if (Path.GetExtension(f) == ".csv")
                         {
+                            // Add csv file path in the list
                             csvFilePaths.Add(f);
-                            Console.WriteLine(f);
+
+                            //Console.WriteLine(f);
                         }
                     }
                     DirSearch(d);
@@ -652,11 +677,18 @@ namespace BeyonSense.ViewModels
             }
             catch (System.Exception excpt)
             {
-                Console.WriteLine(excpt.Message);
+                Console.WriteLine("DirSearch Exception: " + excpt);
+                MessageBox.Show("Please Choose a correct project folder");
             }
         }
         #endregion
 
+        #region String -> Int Converter
+        /// <summary>
+        /// Converter: String to Integer
+        /// </summary>
+        /// <param name="str">string num</param>
+        /// <returns>int num</returns>
         public int StrToInt(string str)
         {
             int i = 0;
@@ -667,20 +699,37 @@ namespace BeyonSense.ViewModels
             return i;
         }
 
+        #endregion
+
         #region Point Calculator
 
-        // https://csharpindepth.com/Articles/Random
+        #region PixelCalculator
 
+        // https://csharpindepth.com/Articles/Random
         public Random rnd = new Random();
 
+        /// <summary>
+        /// Calculate inside pixels
+        /// </summary>
+        /// <param name="_boundaryPoints">Boundary Point Collection</param>
+        /// <returns>int the number of pixel</returns>
+        /// 
         public int PixelCalculator(ObservableCollection<int[]> _boundaryPoints)
         {
             // TODO
+
+
             int returnvalue = rnd.Next(100, 300);
             Console.WriteLine("Random " + returnvalue.ToString());
             return returnvalue;
         }
+        #endregion
 
+        /// <summary>
+        /// Make ClassPoints Collection and BoundaryPoints Dictionary
+        /// </summary>
+        /// <param name="_rootPath">A selected path by folder explorer</param>
+        /// 
         public void PointCalculator(string _rootPath)
         {
             // [This method is called when a folder is selected by folder explorer]
@@ -779,22 +828,81 @@ namespace BeyonSense.ViewModels
 
             //_classBoundaries의 원소만큼 color 생성
             int k = ClassPoints.Count;
-            List<Color> _color = ColorGenerator(k);
+            AllocateColors(k);
 
-            for(int i = 0; i < k; i++)
-            {
-                ClassPoints[i].ClassColor = _color[i];
-            }
+            //List<Color> _color = ColorGenerator(k);
+
+            //for(int i = 0; i < k; i++)
+            //{
+            //    ClassPoints[i].ClassColor = _color[i];
+            //}
 
 
         }
 
         #endregion
 
+        #region Allocate colors
+        //TODO: If new class is added, call this function 
+
+        /// <summary>
+        /// Allocate color to ClassPoints without changing color which is already allocated
+        /// </summary>
+        /// <param name="count">ClassPoint.Count</param>
+        public void AllocateColors(int count)
+        {
+            // Generate colors 
+            List<Color> _color = ColorGenerator(count);
+
+            // Color classcolor : int Used
+            Dictionary<Color, int> ColorDictionary = new Dictionary<Color, int>();
+
+            // Allocate Dictionary elements
+            foreach(Color color in _color)
+            {
+                ColorDictionary.Add(color, 0);
+            }
+
+            // Iterater for each class
+            for (int i = 0; i < count; i++)
+            {
+                // It already has class color
+                if (ClassPoints[i].ClassColor == Colors.Transparent)
+                {
+                    ColorDictionary[ClassPoints[i].ClassColor] += 1;                    
+                }
+
+                // It has no color yet
+                else
+                {
+                    // Iterate Dictionary
+                    foreach (KeyValuePair<Color, int> element in ColorDictionary)
+                    {
+                        // Assign unused Color
+                        if (element.Value == 0)
+                        {
+                            
+                            ClassPoints[i].ClassColor = element.Key;
+
+                            // Change Used integer
+                            ColorDictionary[element.Key] += 1;
+
+                            // We have to break the loop to use only one new color
+                            break;
+                        }
+                    }
+                }     
+            }
+        }
+        #endregion
+
         #region Load Boundary
 
         public void LoadBoundary(string path)
         {
+            // Test
+            MessageBox.Show("We gotta make lines on the picture!");
+
 
             // Read Dictionary
 
