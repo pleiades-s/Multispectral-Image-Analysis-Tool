@@ -7,19 +7,12 @@ using System.Windows.Media;
 
 namespace BeyonSense.Models
 {
-    public class ClassInfo
+    public class ClassPixels
     {
         public string ClassName { get; set; }
 
-        public List<int[]> Points { get; set; }
-
-        public Color TextColor { get; set; }
-
         public int NumPoints { get; set; }
 
-        public void PointCalculator()
-        {
-            NumPoints = 100;
-        }
+        public Color ClassColor { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using BeyonSense.Models;
 using Caliburn.Micro;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -25,34 +26,6 @@ namespace BeyonSense.ViewModels
         #region A list of all directories
         // A list of all directories from a selected directory
         public ObservableCollection<DirectoryItemViewModel> Items { get; set; }
-
-        #endregion
-
-        #region Color variable
-
-        private Color color = Color.FromArgb(0, 255, 255, 255);
-
-        public Color Colour
-        {
-            get { return color; }
-            set { color = value; }
-        }
-
-        #endregion
-
-        #region The number of points variable
-
-        private string numPoints;
-        
-        public string NumPoints
-        {
-            get { return numPoints; }
-            set
-            {
-                numPoints = value;
-                NotifyOfPropertyChange(() => numPoints);
-            }
-        }
 
         #endregion
 
@@ -168,78 +141,34 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Labeling Class Info
+        #region Selected Parameter Dictionary File Path
 
-        #region Csv Path variables
-        private string csvPath;
-
-        public string CsvPath
+        private string pthPath;
+        
+        public string PthPath
         {
-            get { return csvPath; }
+            get { return pthPath; }
             set
             {
-                csvPath = value;
-
-                if (!String.IsNullOrEmpty(csvPath))
-                {
-                    // Read csv file if there is a csv file in the selecte folder
-                    CsvLoader(csvPath);
-                }
-
-                else
-                {
-                    // Reset the table if there is no csv file in the selected folder
-                    ClassPoints.Clear();
-                }
-
+                pthPath = value;
+                NotifyOfPropertyChange(() => PthPath);
             }
         }
         #endregion
 
-        #region ClassInfo Collection
-        // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
+        #region Toggle Boolean Variable
 
-        private ObservableCollection<ClassInfo> classPoints = new ObservableCollection<ClassInfo>();
+        private bool toggleBool = false;
 
-        public ObservableCollection<ClassInfo> ClassPoints
+        public bool ToggleBool
         {
-            get{ return classPoints; }
-            set { 
-                classPoints = value;
-                NotifyOfPropertyChange(() => ClassPoints);
+            get { return toggleBool; }
+            set
+            {
+                toggleBool = value;
+                NotifyOfPropertyChange(() => ToggleBool);
             }
         }
-        #endregion
-
-        #endregion
-
-        #region Selected Row
-
-        private ClassInfo selectedRow;
-
-        public ClassInfo SelectedRow {
-            get { return selectedRow; }
-
-            set 
-            { 
-                selectedRow = value;
-
-                if (selectedRow != null)
-                {
-                    Colour = selectedRow.TextColor;
-                    NumPoints = selectedRow.NumPoints.ToString();
-                }
-                else
-                {
-                    Colour = Color.FromArgb(0, 255, 255, 255);
-                    NumPoints = "";
-                }
-                NotifyOfPropertyChange(() => SelectedRow);
-
-            }
-        }
-
-
         #endregion
 
         #region Color generator function
@@ -252,15 +181,15 @@ namespace BeyonSense.ViewModels
         public List<Color> ColorGenerator(int n)
         {
 
-            int[,] basic_color = new int[8, 3] { { 0, 0, 0 }, { 255, 0, 0 }, { 0, 255, 0 },
+            int[,] basic_color = new int[6, 3] { { 255, 0, 0 }, { 0, 255, 0 },
                                                 { 0, 0, 255 }, { 255, 255, 0 }, { 0, 255, 255 },
-                                                { 255, 0, 255 }, { 255, 255, 255 } };
+                                                { 255, 0, 255 } };
 
             int[,] generator_color = new int[n, 3];
 
 
-            #region Less than 8
-            if (n <= 8)
+            #region Less than 6
+            if (n <= 6)
             {
 
                 for (int i = 0; i < n; i++)
@@ -273,11 +202,11 @@ namespace BeyonSense.ViewModels
             }
             #endregion
 
-            #region eqaul to or more than 8
+            #region eqaul to or more than 6
             else
             {
                 // Add basis colors which are eight colors
-                for (int i = 0; i < 8; i++)
+                for (int i = 0; i < 6; i++)
                 {
                     generator_color[i, 0] = basic_color[i, 0];
                     generator_color[i, 1] = basic_color[i, 1];
@@ -285,18 +214,17 @@ namespace BeyonSense.ViewModels
                 }
 
                 // New color is needed to be generated
-                for (int i = 0; i < n - 8; i++)
-                {
-                    Random random = new Random();
-
+                Random random = new Random();
+                for (int i = 0; i < n - 6; i++)
+                {              
                     // Choose two basic color to be mixed
-                    int index1 = random.Next(0, 8 + i);
-                    int index2 = random.Next(0, 8 + i);
+                    int index1 = random.Next(0, 6 + i);
+                    int index2 = random.Next(0, 6 + i);
 
                     // Allocate new R, G, B value
-                    generator_color[i + 8, 0] = (int)(generator_color[index1, 0] + generator_color[index2, 0]) / 2;
-                    generator_color[i + 8, 1] = (int)(generator_color[index1, 1] + generator_color[index2, 1]) / 2;
-                    generator_color[i + 8, 2] = (int)(generator_color[index1, 2] + generator_color[index2, 2]) / 2;
+                    generator_color[i + 6, 0] = (int)(generator_color[index1, 0] + generator_color[index2, 0]) / 2;
+                    generator_color[i + 6, 1] = (int)(generator_color[index1, 1] + generator_color[index2, 1]) / 2;
+                    generator_color[i + 6, 2] = (int)(generator_color[index1, 2] + generator_color[index2, 2]) / 2;
                 }
             }
 
@@ -321,7 +249,8 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Selected Root Path
+        #region Selected Root Path from Folder Explorer
+
         private string rootPath;
 
         public string RootPath
@@ -335,6 +264,24 @@ namespace BeyonSense.ViewModels
                 if (!String.IsNullOrEmpty(rootPath))
                 {
                     StartDirectoryTree(rootPath);
+
+                    #region Initialize variables for each project
+
+                    // Dictionary Clear
+                    BoundaryPoint.Clear();
+
+                    // ObservableCollection<ClassPoint> Clear
+                    ClassPoints.Clear();
+
+                    // Color, NumPoints Clear
+                    Colour = Color.FromArgb(0, 255, 255, 255);
+                    NumPoints = "";
+                    csvFilePaths.Clear();
+
+                    #endregion
+
+                    // Calculate inside pixels and update table elements
+                    PointCalculator(rootPath);
                 }
             }
         }
@@ -539,31 +486,462 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Csv Loader
+        #region Open Button Click Handler: Parameter Dictionary File Explorer
 
-        public void CsvLoader(string path)
+        public void FileOpen()
         {
-            int numElements = 0;
+            
+            OpenFileDialog openFileDialog = new OpenFileDialog();
 
-            // TEST: Assume there are four classes in the csv file
-            numElements = 4;
+            // Search file filter by exetension
+            openFileDialog.Filter = "State Dict.(*.pth)|*.pth|All files (*.*)|*.*";
 
-            // Generate colors as many as the number of table elements
-            List<Color> textColor = ColorGenerator(numElements);
-
-            ObservableCollection<ClassInfo> DummyList = new ObservableCollection<ClassInfo>();
-
-            for (int i = 0; i < numElements; i++)
+            if (openFileDialog.ShowDialog() == true)
             {
-                DummyList.Add(new ClassInfo() { ClassName = "Red", TextColor = textColor[i] });
-                DummyList[i].PointCalculator();
+                // Get full path of the selected file
+                PthPath = openFileDialog.FileName;
+            }
+        }
+        #endregion
+        
+        #region Toggle Click Event Handler
+
+        public void ToggleClick()
+        {
+            if (!ToggleBool)
+            {
+                ToggleBool = true;
+            }
+            else
+            {
+                ToggleBool = false;
+                
+                // Clear file path
+                PthPath = "";
+            }
+        }
+
+        #endregion
+
+        #region Csv path variable to make boundaray
+        /// <summary>
+        /// A selected csv file path
+        /// </summary>
+        private string csvPath;
+
+        public string CsvPath
+        {
+            get { return csvPath; }
+            set
+            {
+                csvPath = value;
+
+                if (!String.IsNullOrEmpty(csvPath))
+                {
+                    // Read csv file if there is a csv file in the selecte folder
+                    LoadBoundary(csvPath);
+                }
+
+                else
+                {
+                    // Reset the table if there is no csv file in the selected folder
+                    // ClassPoints.Clear();
+                }
+
+            }
+        }
+        #endregion
+
+        #region Selected Row
+
+        private ClassPixels selectedRow;
+
+        public ClassPixels SelectedRow
+        {
+            get { return selectedRow; }
+
+            set
+            {
+                selectedRow = value;
+
+                if (selectedRow != null)
+                {
+                    Colour = selectedRow.ClassColor;
+                    NumPoints = selectedRow.NumPoints.ToString();
+                }
+                else
+                {
+                    Colour = Color.FromArgb(0, 255, 255, 255);
+                    NumPoints = "";
+                }
+                NotifyOfPropertyChange(() => SelectedRow);
+
+            }
+        }
+
+        #region Color variable for Color Box
+
+        // Initial Value is Transparent
+        private Color color = Color.FromArgb(0, 255, 255, 255);
+
+        public Color Colour
+        {
+            get { return color; }
+            set { color = value; }
+        }
+
+        #endregion
+
+
+        #region The number of points variable for TextBlock
+
+        private string numPoints;
+
+        public string NumPoints
+        {
+            get { return numPoints; }
+            set
+            {
+                numPoints = value;
+                NotifyOfPropertyChange(() => numPoints);
+            }
+        }
+
+        #endregion
+
+
+        #endregion
+
+        #region ClassInfo Collection
+        // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
+
+        #region Table Item Source
+        private ObservableCollection<ClassPixels> classPoints = new ObservableCollection<ClassPixels>();
+        public ObservableCollection<ClassPixels> ClassPoints
+        {
+            get { return classPoints; }
+            set
+            {
+                classPoints = value;
+                NotifyOfPropertyChange(() => ClassPoints);
+            }
+        }
+        #endregion
+
+        #region Dictionary<csv path, Collection<ClassBoundary>> for LoadBoudary()
+        public Dictionary<string, ObservableCollection<ClassBoundary>> BoundaryPoint = new Dictionary<string, ObservableCollection<ClassBoundary>>();
+        #endregion
+
+        #endregion
+
+        #region All Csv File Paths
+        // Every csv file path under the selected folder
+        private List<string> _csvFilePaths = new List<string>();
+        public List<string> csvFilePaths
+        {
+            get { return _csvFilePaths; }
+            set
+            {
+                _csvFilePaths = value;
+            }
+        }
+        #endregion
+
+        #region Walking Directory
+        /// <summary>
+        /// Get every csv file paths and add into csvFilePaths variable
+        /// </summary>
+        /// <param name="sDir">string _rootDir</param>
+
+        public int recursiveCount = 0;
+        public bool recursiveAlert = false;
+
+        public void DirSearch(string sDir)
+        {
+            if (recursiveCount > 3 && !recursiveAlert)
+            {
+                MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
+                recursiveAlert = true;
+                return;
             }
 
-            // Update table items
-            ClassPoints = DummyList;
+            try
+            {
+                foreach (string d in Directory.GetDirectories(sDir))
+                {
+                    foreach (string f in Directory.GetFiles(d))
+                    {
+                        //Console.WriteLine(f);
+
+                        // Check it file exetension is csv or not
+                        if (Path.GetExtension(f) == ".csv")
+                        {
+                            // Add csv file path in the list
+                            csvFilePaths.Add(f);
+
+                            //Console.WriteLine(f);
+                        }
+                    }
+                    DirSearch(d);
+                    recursiveCount++;
+                }
+            }
+            catch (System.Exception excpt)
+            {
+                Console.WriteLine("DirSearch Exception: " + excpt);
+                MessageBox.Show("Please choose a correct project folder");
+            }
 
         }
         #endregion
+
+        #region String -> Int Converter
+        /// <summary>
+        /// Converter: String to Integer
+        /// </summary>
+        /// <param name="str">string num</param>
+        /// <returns>int num</returns>
+        public int StrToInt(string str)
+        {
+            int i = 0;
+            if (!Int32.TryParse(str, out i))
+            {
+                i = -1;
+            }
+            return i;
+        }
+
+        #endregion
+
+        #region Point Calculator
+
+        #region PixelCalculator
+
+        // https://csharpindepth.com/Articles/Random
+        public Random rnd = new Random();
+
+        /// <summary>
+        /// Calculate inside pixels
+        /// </summary>
+        /// <param name="_boundaryPoints">Boundary Point Collection</param>
+        /// <returns>int the number of pixel</returns>
+        /// 
+        public int PixelCalculator(ObservableCollection<int[]> _boundaryPoints)
+        {
+
+            // TODO: 경계 모든 픽셀 구하기
+
+            // TODO: 내부 픽셀 개수 구하기
+
+
+            int returnvalue = rnd.Next(100, 300);
+            Console.WriteLine("Random " + returnvalue.ToString());
+            return returnvalue;
+        }
+        #endregion
+
+        /// <summary>
+        /// Make ClassPoints Collection and BoundaryPoints Dictionary
+        /// </summary>
+        /// <param name="_rootPath">A selected path by folder explorer</param>
+        /// 
+        public void PointCalculator(string _rootPath)
+        {
+            // [This method is called when a folder is selected by folder explorer]
+
+            // Traverse all the directory and find all existing csv file paths
+            DirSearch(_rootPath);
+
+            // Read csv file only if Dirsearch is successfully completed
+            if(!recursiveAlert){ 
+
+                // For each csv file
+                foreach (string _path in csvFilePaths)
+                {
+                    // Read class name and boundary points
+                    ObservableCollection<ClassBoundary> _classBoundaries = new ObservableCollection<ClassBoundary>();
+
+
+                    using (var reader = new StreamReader(_path))
+                    {
+                        string _className="";
+                        ObservableCollection<int[]> _boundaryPoints = new ObservableCollection<int[]>();
+                        int _numLine = 0;
+                        while (!reader.EndOfStream)
+                        {
+                            var line = reader.ReadLine();
+
+                            if (_numLine != 0)
+                            {
+                                var values = line.Split(',');
+                                                  
+                                _className = values[0];
+                                //Console.WriteLine(values[0]);
+
+                                for (int i = 1; i < values.Length; i += 2)
+                                {
+
+                                    int[] _position = new int[2];
+                                    // x position
+                                    _position[0] = StrToInt(values[i]);
+
+                                    // y position
+                                    try
+                                    {
+                                        _position[1] = StrToInt(values[i + 1]);
+                                    }
+
+                                    catch(IndexOutOfRangeException e)
+                                    {
+                                        MessageBox.Show("Your csv files might have wrong format.\n");
+                                        return;
+                                    }
+
+                                    //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
+                                    _boundaryPoints.Add(_position);
+                                }
+
+                                // Each line = each class
+                                _classBoundaries.Add(new ClassBoundary() { ClassName = _className, Points = _boundaryPoints });
+                            }
+
+                            _numLine++;
+
+
+                        }
+                    }
+
+
+                    // Allocate new dictionary { Class name: Boundary point Collection<T> } <-- We'd start from here if user add new boundary
+                    // Each csv file
+                    BoundaryPoint.Add(_path, _classBoundaries);
+
+
+                    // TODO: Calculate the number of inside points and Add ClassPoints 
+                
+                    for(int i = 0; i < _classBoundaries.Count; i++)
+                    {
+
+                        //_classBoundaries 에서 ClassPoints에 이름이 있는지 없는지 확인
+                        int ack = 0;
+
+                        for(int j = 0; j < ClassPoints.Count; j++)
+                        {
+                            if(_classBoundaries[i].ClassName == ClassPoints[j].ClassName)
+                            {
+                                // If there is same class name, add the value
+                                ack = 1;
+                                ClassPoints[j].NumPoints += PixelCalculator(_classBoundaries[i].Points);
+
+                            }
+                        }
+
+                        // New class
+                        // If not, make new class and allocate the value
+                        if (ack == 0)
+                        {
+                            ClassPoints.Add(new ClassPixels()
+                            {
+                                ClassName = _classBoundaries[i].ClassName,
+                                NumPoints = PixelCalculator(_classBoundaries[i].Points)
+                            });
+                        }
+
+                    }
+                
+                
+
+                }
+
+                #region Initialize Class Color
+                //Allocate colors as many as the number of ClassPoints.Count
+                int k = ClassPoints.Count;
+                AllocateColors(k);
+                #endregion
+            }
+
+            // Set this value to 0
+            recursiveCount = 0;
+            recursiveAlert = false;
+        }
+
+        #endregion
+
+        #region Allocate colors
+        //TODO: If new class is added, call this function 
+
+        /// <summary>
+        /// Allocate color to ClassPoints without changing color which is already allocated
+        /// </summary>
+        /// <param name="count">ClassPoint.Count</param>
+        public void AllocateColors(int count)
+        {
+            // Generate colors 
+            List<Color> _color = ColorGenerator(count);
+
+            // Color classcolor : int Used
+            Dictionary<Color, int> ColorDictionary = new Dictionary<Color, int>();
+
+            // Allocate Dictionary elements
+            foreach(Color color in _color)
+            {
+                ColorDictionary.Add(color, 0);
+            }
+
+            // Iterater for each class
+            for (int i = 0; i < count; i++)
+            {
+                // It already has class color
+                if (ClassPoints[i].ClassColor == Colors.Transparent)
+                {
+                    ColorDictionary[ClassPoints[i].ClassColor] += 1;                    
+                }
+
+                // It has no color yet
+                else
+                {
+                    // Iterate Dictionary
+                    foreach (KeyValuePair<Color, int> element in ColorDictionary)
+                    {
+                        // Assign unused Color
+                        if (element.Value == 0)
+                        {
+                            
+                            ClassPoints[i].ClassColor = element.Key;
+
+                            // Change Used integer
+                            ColorDictionary[element.Key] += 1;
+
+                            // We have to break the loop to use only one new color
+                            break;
+                        }
+                    }
+                }     
+            }
+        }
+        #endregion
+
+        #region Load Boundary
+
+        public void LoadBoundary(string path)
+        {
+            // Test
+            MessageBox.Show("We gotta make lines on the picture!");
+
+
+            // Read Dictionary
+
+            // For each class
+                
+                // Find value of boundary points in the dictionary
+
+                // Show the boundary on MainView
+
+                // Specify color of boundary is same with the class
+            
+        }
+        #endregion
+
 
     }
 }

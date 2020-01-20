@@ -17,11 +17,12 @@
         <!-- TODO: Grid background 추가: UI beautifying-->
         <!-- TODO: Resize 할 때, element 위치관계 확인하기 -->
         <Grid>
-            <!-- Row 0 -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
+            
+            <!-- Row 0 -->
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -46,7 +47,7 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Border BorderThickness="3" BorderBrush="Black" CornerRadius="5" Margin="0,0,0,20"
-                            Width="350">
+                            Width="350" Height="70">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
@@ -56,12 +57,24 @@
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
                                 <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,3,0,0"/>
                                 <!-- Toggle Button -->
-                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40"/>
+                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="MouseLeftButtonDown">
+                                            <cal:ActionMessage MethodName="ToggleClick" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </local:ToggleSwitch>
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <Button Content="Open" Margin="10,5" Width="Auto"/>
-                                <TextBlock Text="C://Users" Margin="10,12,0,0"/>
+                                <Button Content="Open" Margin="10,5" Width="Auto" IsEnabled="{Binding ToggleBool}">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <cal:ActionMessage MethodName="FileOpen" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
+                                <TextBlock Text="{Binding PthPath}" Margin="10,12,0,0"/>
                             </StackPanel>
 
                         </Grid>
@@ -71,6 +84,7 @@
                     
                 </StackPanel>
             </Grid>
+            
             <!-- Row 1-->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -126,7 +140,6 @@
                         </TreeView>
                     </ScrollViewer>
                 </StackPanel>
-
 
                 <!-- Column 1: Thumbnails-->
                 <Grid Grid.Column="1">
@@ -321,14 +334,16 @@
 
                 <!-- Column 3: Table and Buttons-->
                 <StackPanel Grid.Column ="3" Orientation="Vertical">
+
                     <!-- Table -->
-                    <!-- TODO: Contents binding-->
+                    <!-- Contents binding-->
                     <DataGrid AutoGenerateColumns="False" 
                         Height="200" ItemsSource="{Binding ClassPoints}"
                         HorizontalAlignment="Center" Margin="0,10"
                         SelectionMode="Extended" SelectionUnit="FullRow"
                         CanUserReorderColumns="False" CanUserResizeColumns="False" 
                         CanUserResizeRows="False" CanUserSortColumns="False"
+                        IsReadOnly="True"
                         SelectedItem="{Binding Path=SelectedRow, Mode=OneWayToSource}">
 
                         <DataGrid.Columns>
@@ -339,8 +354,8 @@
                                 MinWidth="50" Header="Points" Binding="{Binding NumPoints}"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    
-                    <!-- ColorBox-->
+
+                    <!-- ColorBox -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -349,7 +364,7 @@
 
                         <!-- TextBox-->
                         <TextBlock Grid.Column="0" Text="Color" HorizontalAlignment="Center"/>
-                        
+
                         <!-- Rectangle -->
                         <Rectangle Grid.Column ="1" Margin="20,0">
                             <Rectangle.Fill>
@@ -358,7 +373,7 @@
                         </Rectangle>
 
                     </Grid>
-                    
+
                     <!-- Num of points-->
                     <Grid Margin="0,10">
                         <Grid.ColumnDefinitions>
@@ -368,13 +383,13 @@
 
                         <!-- TextBox-->
                         <TextBlock Grid.Column="0" Text="Num of Pixel" HorizontalAlignment="Center"/>
-                        
+
                         <!-- TextBox-->
-                        <!-- TODO: #Pixel binding-->
+                        <!-- #Pixel binding-->
                         <TextBlock Grid.Column="1" Text="{Binding NumPoints}" HorizontalAlignment="Center"/>
                     </Grid>
 
-                    <!-- Save and Train Buttons-->
+                    <!-- TODO: Save and Train Buttons-->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -389,9 +404,7 @@
                         <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
                                 Width="50" Height="30"/>
                     </Grid>
-                    
                 </StackPanel>
-
             </Grid>
         </Grid>
     </Border>
