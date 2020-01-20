@@ -652,9 +652,19 @@ namespace BeyonSense.ViewModels
         /// Get every csv file paths and add into csvFilePaths variable
         /// </summary>
         /// <param name="sDir">string _rootDir</param>
-        
+
+        public int recursiveCount = 0;
+        public bool recursiveAlert = false;
+
         public void DirSearch(string sDir)
         {
+            if (recursiveCount > 3 && !recursiveAlert)
+            {
+                MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
+                recursiveAlert = true;
+                return;
+            }
+
             try
             {
                 foreach (string d in Directory.GetDirectories(sDir))
@@ -673,13 +683,15 @@ namespace BeyonSense.ViewModels
                         }
                     }
                     DirSearch(d);
+                    recursiveCount++;
                 }
             }
             catch (System.Exception excpt)
             {
                 Console.WriteLine("DirSearch Exception: " + excpt);
-                MessageBox.Show("Please Choose a correct project folder");
+                MessageBox.Show("Please choose a correct project folder");
             }
+
         }
         #endregion
 
@@ -716,7 +728,10 @@ namespace BeyonSense.ViewModels
         /// 
         public int PixelCalculator(ObservableCollection<int[]> _boundaryPoints)
         {
-            // TODO
+
+            // TODO: 경계 모든 픽셀 구하기
+
+            // TODO: 내부 픽셀 개수 구하기
 
 
             int returnvalue = rnd.Next(100, 300);
@@ -737,107 +752,117 @@ namespace BeyonSense.ViewModels
             // Traverse all the directory and find all existing csv file paths
             DirSearch(_rootPath);
 
-            // For each csv file
-            foreach (string _path in csvFilePaths)
-            {
-                // Read class name and boundary points
-                ObservableCollection<ClassBoundary> _classBoundaries = new ObservableCollection<ClassBoundary>();
+            // Read csv file only if Dirsearch is successfully completed
+            if(!recursiveAlert){ 
 
-
-                using (var reader = new StreamReader(_path))
+                // For each csv file
+                foreach (string _path in csvFilePaths)
                 {
-                    string _className="";
-                    ObservableCollection<int[]> _boundaryPoints = new ObservableCollection<int[]>();
-                    int _numLine = 0;
-                    while (!reader.EndOfStream)
+                    // Read class name and boundary points
+                    ObservableCollection<ClassBoundary> _classBoundaries = new ObservableCollection<ClassBoundary>();
+
+
+                    using (var reader = new StreamReader(_path))
                     {
-                        var line = reader.ReadLine();
-
-                        if (_numLine != 0)
+                        string _className="";
+                        ObservableCollection<int[]> _boundaryPoints = new ObservableCollection<int[]>();
+                        int _numLine = 0;
+                        while (!reader.EndOfStream)
                         {
-                            var values = line.Split(',');
-                                                  
-                            _className = values[0];
-                            //Console.WriteLine(values[0]);
+                            var line = reader.ReadLine();
 
-                            for (int i = 1; i < values.Length; i += 2)
+                            if (_numLine != 0)
                             {
+                                var values = line.Split(',');
+                                                  
+                                _className = values[0];
+                                //Console.WriteLine(values[0]);
 
-                                int[] _position = new int[2];
-                                // x position
-                                _position[0] = StrToInt(values[i]);
+                                for (int i = 1; i < values.Length; i += 2)
+                                {
 
-                                // y position
-                                _position[1] = StrToInt(values[i + 1]);
+                                    int[] _position = new int[2];
+                                    // x position
+                                    _position[0] = StrToInt(values[i]);
 
-                                //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
-                                _boundaryPoints.Add(_position);
+                                    // y position
+                                    try
+                                    {
+                                        _position[1] = StrToInt(values[i + 1]);
+                                    }
+
+                                    catch(IndexOutOfRangeException e)
+                                    {
+                                        MessageBox.Show("Your csv files might have wrong format.\n");
+                                        return;
+                                    }
+
+                                    //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
+                                    _boundaryPoints.Add(_position);
+                                }
+
+                                // Each line = each class
+                                _classBoundaries.Add(new ClassBoundary() { ClassName = _className, Points = _boundaryPoints });
                             }
 
-                            // Each line = each class
-                            _classBoundaries.Add(new ClassBoundary() { ClassName = _className, Points = _boundaryPoints });
-                        }
+                            _numLine++;
 
-                        _numLine++;
-
-
-                    }
-                }
-
-
-                // Allocate new dictionary { Class name: Boundary point Collection<T> } <-- We'd start from here if user add new boundary
-                // Each csv file
-                BoundaryPoint.Add(_path, _classBoundaries);
-
-
-                // TODO: Calculate the number of inside points and Add ClassPoints 
-                
-                for(int i = 0; i < _classBoundaries.Count; i++)
-                {
-
-                    //_classBoundaries 에서 ClassPoints에 이름이 있는지 없는지 확인
-                    int ack = 0;
-
-                    for(int j = 0; j < ClassPoints.Count; j++)
-                    {
-                        if(_classBoundaries[i].ClassName == ClassPoints[j].ClassName)
-                        {
-                            // If there is same class name, add the value
-                            ack = 1;
-                            ClassPoints[j].NumPoints += PixelCalculator(_classBoundaries[i].Points);
 
                         }
                     }
 
-                    // New class
-                    // If not, make new class and allocate the value
-                    if (ack == 0)
+
+                    // Allocate new dictionary { Class name: Boundary point Collection<T> } <-- We'd start from here if user add new boundary
+                    // Each csv file
+                    BoundaryPoint.Add(_path, _classBoundaries);
+
+
+                    // TODO: Calculate the number of inside points and Add ClassPoints 
+                
+                    for(int i = 0; i < _classBoundaries.Count; i++)
                     {
-                        ClassPoints.Add(new ClassPixels()
+
+                        //_classBoundaries 에서 ClassPoints에 이름이 있는지 없는지 확인
+                        int ack = 0;
+
+                        for(int j = 0; j < ClassPoints.Count; j++)
                         {
-                            ClassName = _classBoundaries[i].ClassName,
-                            NumPoints = PixelCalculator(_classBoundaries[i].Points)
-                        });
+                            if(_classBoundaries[i].ClassName == ClassPoints[j].ClassName)
+                            {
+                                // If there is same class name, add the value
+                                ack = 1;
+                                ClassPoints[j].NumPoints += PixelCalculator(_classBoundaries[i].Points);
+
+                            }
+                        }
+
+                        // New class
+                        // If not, make new class and allocate the value
+                        if (ack == 0)
+                        {
+                            ClassPoints.Add(new ClassPixels()
+                            {
+                                ClassName = _classBoundaries[i].ClassName,
+                                NumPoints = PixelCalculator(_classBoundaries[i].Points)
+                            });
+                        }
+
                     }
+                
+                
 
                 }
-                
-                
 
+                #region Initialize Class Color
+                //Allocate colors as many as the number of ClassPoints.Count
+                int k = ClassPoints.Count;
+                AllocateColors(k);
+                #endregion
             }
 
-            //_classBoundaries의 원소만큼 color 생성
-            int k = ClassPoints.Count;
-            AllocateColors(k);
-
-            //List<Color> _color = ColorGenerator(k);
-
-            //for(int i = 0; i < k; i++)
-            //{
-            //    ClassPoints[i].ClassColor = _color[i];
-            //}
-
-
+            // Set this value to 0
+            recursiveCount = 0;
+            recursiveAlert = false;
         }
 
         #endregion
