@@ -47,7 +47,7 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Border BorderThickness="3" BorderBrush="Black" CornerRadius="5" Margin="0,0,0,20"
-                            Width="350">
+                            Width="350" Height="70">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="*"/>
