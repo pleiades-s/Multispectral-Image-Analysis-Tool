@@ -712,13 +712,19 @@ namespace BeyonSense.ViewModels
 
         public void DirSearch(string sDir)
         {
-            if (recursiveCount > 3 && !recursiveAlert)
-            {
-                MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
-                recursiveAlert = true;
-                return;
+            if (recursiveCount > 3) {
+                if (!recursiveAlert)
+                {
+                    MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
+                    recursiveAlert = true;
+                    return;
+                }
+                else
+                {
+                    return;
+                }
             }
-
+            
             try
             {
                 foreach (string d in Directory.GetDirectories(sDir))
@@ -804,6 +810,16 @@ namespace BeyonSense.ViewModels
 
             // Traverse all the directory and find all existing csv file paths
             DirSearch(_rootPath);
+
+
+            if (recursiveAlert)
+            {            
+                // Set this value to 0
+                recursiveCount = 0;
+                recursiveAlert = false;
+
+                return;
+            }
 
             // Set this value to 0
             recursiveCount = 0;
