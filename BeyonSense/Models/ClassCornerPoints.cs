@@ -8,7 +8,7 @@ using System.Windows.Media;
 
 namespace BeyonSense.Models
 {
-    public class ClassBoundary
+    public class ClassCornerPoints
     {
         public string ClassName { get; set; }
 

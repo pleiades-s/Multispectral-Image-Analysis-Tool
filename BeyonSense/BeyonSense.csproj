@@ -88,23 +88,34 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
-    <Compile Include="Models\ClassBoundary.cs" />
+    <Compile Include="Models\ClassCornerPoints.cs" />
     <Compile Include="Models\ClassPixels.cs" />
     <Compile Include="Models\DirectoryItem.cs" />
     <Compile Include="Models\DirectoryItemType.cs" />
     <Compile Include="DirectoryStructure.cs" />
+    <Compile Include="UserControls\TablePlusButton.xaml.cs">
+      <DependentUpon>TablePlusButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="ViewModels\Base\RelayCommand.cs" />
     <Compile Include="ViewModels\DirectoryItemViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Converters\HeaderToImageConverter.cs" />
+    <Compile Include="ViewModels\PopupViewModel.cs" />
     <Compile Include="ViewModels\SplashViewModel.cs" />
+    <Compile Include="Views\PopupView.xaml.cs">
+      <DependentUpon>PopupView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\SplashView.xaml.cs">
       <DependentUpon>SplashView.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserControls\ToggleSwitch.xaml.cs">
       <DependentUpon>ToggleSwitch.xaml</DependentUpon>
     </Compile>
+    <Page Include="UserControls\TablePlusButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -117,6 +128,10 @@
       <DependentUpon>MainView.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\PopupView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SplashView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
