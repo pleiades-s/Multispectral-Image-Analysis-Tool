@@ -289,7 +289,7 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Constructor
+        #region Default Constructor
 
         /// <summary>
         /// Default constructor
@@ -617,6 +617,7 @@ namespace BeyonSense.ViewModels
         // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
 
         #region Table Item Source
+
         private ObservableCollection<ClassPixels> classPoints = new ObservableCollection<ClassPixels>();
         public ObservableCollection<ClassPixels> ClassPoints
         {
@@ -630,6 +631,9 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Dictionary<csv path, Collection<ClassCornerPoints>> for LoadBoudary()
+        /// <summary>
+        /// Managing point position for each csv file
+        /// </summary>
         public Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
         #endregion
 
@@ -654,6 +658,7 @@ namespace BeyonSense.ViewModels
         /// </summary>
         /// <param name="sDir">string _rootDir</param>
 
+        // Warning variables preventing to open deep directory tree
         public int recursiveCount = 0;
         public bool recursiveAlert = false;
 
@@ -713,10 +718,8 @@ namespace BeyonSense.ViewModels
         }
 
         #endregion
-
-        #region Point Calculator
-
-        #region PixelCalculator
+        
+        #region TODO: PixelCalculator
 
         // https://csharpindepth.com/Articles/Random
         public Random rnd = new Random();
@@ -740,7 +743,8 @@ namespace BeyonSense.ViewModels
             return returnvalue;
         }
         #endregion
-
+                
+        #region Point Calculator
         /// <summary>
         /// Make ClassPoints Collection and Corner Points Dictionary
         /// </summary>
@@ -793,6 +797,7 @@ namespace BeyonSense.ViewModels
                                         _position[1] = StrToInt(values[i + 1]);
                                     }
 
+                                    // Exception handler: Wrong csv format
                                     catch (IndexOutOfRangeException e)
                                     {
                                         MessageBox.Show("Your csv files might have wrong format.\n");
@@ -806,15 +811,12 @@ namespace BeyonSense.ViewModels
                                 // Each line = each class
                                 _classCorners.Add(new ClassCornerPoints() { ClassName = _className, Points = _cornerPoints });
                             }
-
-                            _numLine++;
-
-
+                            _numLine++;                            
                         }
                     }
 
 
-                    // Allocate new dictionary { Class name: Boundary point Collection<T> } <-- We'd start from here if user add new boundary
+                    // Allocate new dictionary { Class name: Corner point Collection<T> } <-- We'd start from here if user add new boundary
                     // Each csv file
                     CornerPoint.Add(_path, _classCorners);
 
@@ -824,7 +826,7 @@ namespace BeyonSense.ViewModels
                     for (int i = 0; i < _classCorners.Count; i++)
                     {
 
-                        //_classCorners 에서 ClassPoints에 이름이 있는지 없는지 확인
+                        // Check if ClassPoints has same class name as _classCorners[i].ClassName
                         int ack = 0;
 
                         for (int j = 0; j < ClassPoints.Count; j++)
@@ -849,10 +851,7 @@ namespace BeyonSense.ViewModels
                             });
                         }
 
-                    }
-
-
-
+                    }                                                         
                 }
 
                 #region Initialize Class Color
@@ -923,13 +922,14 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Load Boundary
+        #region TODO: Load Boundary
 
         public void LoadBoundary(string path)
         {
             // Test
             MessageBox.Show("We gotta make lines on the picture!");
 
+            // 여기서 cs.line() 함수로 테두리를 그리자
 
             // Read Dictionary
 
