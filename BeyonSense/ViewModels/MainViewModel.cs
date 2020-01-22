@@ -172,6 +172,30 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region Shuffle color
+
+        public Random random = new Random();
+
+        public Tuple<int, int> RandomNumber(int[,] boolArray, int num)
+        {
+
+            Tuple<int, int> _tuple = Tuple.Create(random.Next(0, num), random.Next(0, num));
+
+            int idx1 = Math.Max(_tuple.Item1, _tuple.Item2);
+            int idx2 = Math.Min(_tuple.Item1, _tuple.Item2);
+
+            while (boolArray[idx1, idx2] != 0)
+            {
+                _tuple = Tuple.Create(random.Next(0, num), random.Next(0, num));
+                idx1 = Math.Max(_tuple.Item1, _tuple.Item2);
+                idx2 = Math.Min(_tuple.Item1, _tuple.Item2);
+            }
+
+            return Tuple.Create(idx1, idx2);
+        }
+
+        #endregion
+
         #region Color generator function
 
         /// <summary>
@@ -179,6 +203,8 @@ namespace BeyonSense.ViewModels
         /// </summary>
         /// <param name="n"> The number of colors</param>
         /// <returns> int 2-dimension array N x 3 </returns>
+
+
         public List<Color> ColorGenerator(int n)
         {
 
@@ -187,6 +213,19 @@ namespace BeyonSense.ViewModels
                                                 { 255, 0, 255 } };
 
             int[,] generator_color = new int[n, 3];
+
+            // Boolean array to check whether a random value is repeated or not
+            int[,] randomBoolean = new int[n, n];
+
+            // Initialize boolean array set to 0
+            for (int i = 0; i < n ; i++)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    randomBoolean[i, j] = 0;
+                }
+            }
+
 
 
             #region Less than 6
@@ -215,17 +254,24 @@ namespace BeyonSense.ViewModels
                 }
 
                 // New color is needed to be generated
-                Random random = new Random();
+
+                // TODO: 
+
                 for (int i = 0; i < n - 6; i++)
                 {
-                    // Choose two basic color to be mixed
-                    int index1 = random.Next(0, 6 + i);
-                    int index2 = random.Next(0, 6 + i);
+
+                    Tuple<int, int> _tuple = RandomNumber(randomBoolean, 6 + i);
+                    int index1 = _tuple.Item1, index2 = _tuple.Item2;
+                    randomBoolean[index1, index2] = 1;
+
+
+                    Console.WriteLine(index1.ToString() + " " + index2.ToString());
 
                     // Allocate new R, G, B value
                     generator_color[i + 6, 0] = (int)(generator_color[index1, 0] + generator_color[index2, 0]) / 2;
                     generator_color[i + 6, 1] = (int)(generator_color[index1, 1] + generator_color[index2, 1]) / 2;
                     generator_color[i + 6, 2] = (int)(generator_color[index1, 2] + generator_color[index2, 2]) / 2;
+                   
                 }
             }
 
@@ -279,6 +325,8 @@ namespace BeyonSense.ViewModels
                     NumPoints = "";
                     csvFilePaths.Clear();
 
+                    // Plus Button Reset
+                    PlusBool = false;
                     #endregion
 
                     // Calculate inside pixels and update table elements
@@ -757,6 +805,10 @@ namespace BeyonSense.ViewModels
             // Traverse all the directory and find all existing csv file paths
             DirSearch(_rootPath);
 
+            // Set this value to 0
+            recursiveCount = 0;
+            recursiveAlert = false;
+
             // Read csv file only if Dirsearch is successfully completed
             if (!recursiveAlert)
             {
@@ -801,6 +853,7 @@ namespace BeyonSense.ViewModels
                                     catch (IndexOutOfRangeException e)
                                     {
                                         MessageBox.Show("Your csv files might have wrong format.\n");
+                                        ClassPoints.Clear();
                                         return;
                                     }
 
@@ -859,11 +912,12 @@ namespace BeyonSense.ViewModels
                 int k = ClassPoints.Count;
                 AllocateColors(k);
                 #endregion
+
+                PlusBool = true;
             }
 
-            // Set this value to 0
-            recursiveCount = 0;
-            recursiveAlert = false;
+
+
         }
 
         #endregion
@@ -941,6 +995,30 @@ namespace BeyonSense.ViewModels
 
             // Specify color of boundary is same with the class
 
+        }
+        #endregion
+
+        #region Plus Button Enable Bool
+
+        private bool plusBool = false;
+
+        public bool PlusBool
+        {
+            get { return plusBool; }
+            set
+            {
+                plusBool = value;
+                NotifyOfPropertyChange(() => PlusBool);
+            }
+        }
+
+        #endregion
+
+        #region Plus Button Click Event Handler
+
+        public void PlusClick()
+        {
+            Console.WriteLine("Plus");
         }
         #endregion
 

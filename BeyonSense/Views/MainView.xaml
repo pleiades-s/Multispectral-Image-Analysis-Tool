@@ -363,7 +363,14 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- ? -->
-                        <local:TablePlusButton Grid.Column="0" x:Name="PlusButton" Height="20" Width="25"/>
+                        <local:TablePlusButton Grid.Column="0" x:Name="PlusButton" Height="20" Width="25"
+                                               IsEnabled="{Binding PlusBool}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <cal:ActionMessage MethodName="PlusClick" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </local:TablePlusButton>
 
                         <!-- ? -->
                         <Button Grid.Column ="1" Content="OK" Height="10"
