@@ -330,6 +330,12 @@ namespace BeyonSense.ViewModels
                     PlusBool = false;
                     #endregion
 
+                    // Button Rest
+                    SaveBool = false;
+                    TrainBool = false;
+                    OKBool = false;
+
+
                     // Calculate inside pixels and update table elements
                     PointCalculator(rootPath);
                 }
@@ -931,7 +937,9 @@ namespace BeyonSense.ViewModels
                 AllocateColors(k);
                 #endregion
 
+                // Enable Buttons
                 PlusBool = true;
+                TrainBool = true;
             }
 
 
@@ -1054,6 +1062,7 @@ namespace BeyonSense.ViewModels
                 if (!String.IsNullOrWhiteSpace(_name))
                 {
                     ClickPoint(_name);
+                    OKBool = true;
                 }
             }
 
@@ -1078,6 +1087,8 @@ namespace BeyonSense.ViewModels
             // PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행
             // Main image에서 포인트 클릭할 수 있게 해야 함.
             // Add 버튼이 눌리면 끝나야 함
+
+            SaveBool = true;
 
             // ESC 처리할 수 있으면 더 좋고
 
@@ -1168,8 +1179,55 @@ namespace BeyonSense.ViewModels
                 CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
             }
 
-
         }
+        #endregion
+
+        #region Save Button Enable Bool
+
+        private bool saveBool = false;
+
+        public bool SaveBool
+        {
+            get { return saveBool; }
+            set
+            {
+                saveBool = value;
+                NotifyOfPropertyChange(() => SaveBool);
+            }
+        }
+
+        #endregion
+
+        #region Train Button Enable Bool
+
+        private bool trainBool = false;
+
+        public bool TrainBool
+        {
+            get { return trainBool; }
+            set
+            {
+                trainBool = value;
+                NotifyOfPropertyChange(() => TrainBool);
+            }
+        }
+
+        #endregion
+
+        #region Save Button Enable Bool
+
+        private bool oKBool = false;
+
+        public bool OKBool
+        {
+            get { return oKBool; }
+            set
+            {
+                oKBool = value;
+                NotifyOfPropertyChange(() => OKBool);
+            }
+        }
+
         #endregion
 
         #region Save Button Click Event Handler

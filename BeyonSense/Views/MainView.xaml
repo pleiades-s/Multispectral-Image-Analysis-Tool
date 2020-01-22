@@ -374,7 +374,8 @@
 
                         <!-- ? -->
                         <Button Grid.Column ="1" Content="OK" Height="10"
-                                FontSize ="10" HorizontalAlignment="Center">
+                                FontSize ="10" HorizontalAlignment="Center"
+                                IsEnabled="{Binding OKBool}">
                         </Button>
 
                     </Grid>
@@ -423,7 +424,7 @@
 
                         <!-- Save Button-->
                         <Button Grid.Column="0" Content="Save" HorizontalAlignment="Center" 
-                                Width="50" Height="30">
+                                Width="50" Height="30" IsEnabled="{Binding SaveBool}">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <cal:ActionMessage MethodName="Save" />
@@ -433,7 +434,7 @@
 
                         <!-- Train Button-->
                         <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
-                                Width="50" Height="30"/>
+                                Width="50" Height="30" IsEnabled="{Binding TrainBool}"/>
                     </Grid>
                 </StackPanel>
             </Grid>
