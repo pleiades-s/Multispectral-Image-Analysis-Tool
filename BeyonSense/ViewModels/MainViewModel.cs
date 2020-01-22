@@ -839,8 +839,6 @@ namespace BeyonSense.ViewModels
 
                     using (var reader = new StreamReader(_path))
                     {
-                        string _className = "";
-                        ObservableCollection<int[]> _cornerPoints = new ObservableCollection<int[]>();
                         int _numLine = 0;
                         while (!reader.EndOfStream)
                         {
@@ -848,6 +846,9 @@ namespace BeyonSense.ViewModels
 
                             if (_numLine != 0)
                             {
+                                string _className = "";
+                                ObservableCollection<int[]> _cornerPoints = new ObservableCollection<int[]>();
+
                                 var values = line.Split(',');
 
                                 _className = values[0];
@@ -1072,6 +1073,8 @@ namespace BeyonSense.ViewModels
         /// <param name="newLabelName">new label name from Popup window</param>
         private void ClickPoint(string newLabelName)
         {
+            // Add button enable boolean 추가하고 ClickPoint가 실행되면 IsEnable true
+
             // PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행
             // Main image에서 포인트 클릭할 수 있게 해야 함.
             // Add 버튼이 눌리면 끝나야 함
@@ -1081,7 +1084,7 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Add Button Handler
+        #region TODO: Add Button Handler
         /// <summary>
         /// Add button click event handler
         /// </summary>
@@ -1160,6 +1163,55 @@ namespace BeyonSense.ViewModels
                 CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
             }
 
+
+        }
+        #endregion
+
+        #region Save Button Click Event Handler
+        /// <summary>
+        /// Write metadata in csv format
+        /// </summary>
+        public void Save()
+        {
+            Console.WriteLine("Save button");
+
+            // dictionary loop
+            foreach(KeyValuePair<string, ObservableCollection<ClassCornerPoints>> collection in CornerPoint)
+            {
+                // csv fd 읽기
+                using (var w = new StreamWriter(collection.Key))
+                {
+                    // Write header
+                    string header = "class,pixels";
+                    w.WriteLine(header);
+                    w.Flush();
+
+                    // value.count 만큼 loop
+                    for (int i = 0; i < collection.Value.Count; i++)
+                    {
+                        //value[i].ClassName
+                        string line = collection.Value[i].ClassName;
+
+                        //value[i].Points loop
+                        for (int j = 0; j < collection.Value[i].Points.Count; j++) 
+                        {
+                            //value[i].Points[j][,]
+
+                            //x position
+                            line += ",";
+                            line += collection.Value[i].Points[j][0].ToString();
+
+                            // y position
+                            line += ",";
+                            line += collection.Value[i].Points[j][1].ToString();
+
+                        }
+
+                        w.WriteLine(line);
+                        w.Flush();
+                    }
+                }
+            }
 
         }
         #endregion

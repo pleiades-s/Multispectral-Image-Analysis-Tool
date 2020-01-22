@@ -423,7 +423,13 @@
 
                         <!-- Save Button-->
                         <Button Grid.Column="0" Content="Save" HorizontalAlignment="Center" 
-                                Width="50" Height="30"/>
+                                Width="50" Height="30">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="Save" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
 
                         <!-- Train Button-->
                         <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
