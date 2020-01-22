@@ -1183,38 +1183,51 @@ namespace BeyonSense.ViewModels
             // Dictionary loop
             foreach(KeyValuePair<string, ObservableCollection<ClassCornerPoints>> collection in CornerPoint)
             {
-                // csv stream
-                using (var w = new StreamWriter(collection.Key))
+                try
                 {
-                    // Write header
-                    string header = "class,pixels";
-                    w.WriteLine(header);
-                    w.Flush();
-
-                    // value.count loop
-                    for (int i = 0; i < collection.Value.Count; i++)
+                    // csv stream
+                    using (var w = new StreamWriter(collection.Key))
                     {
-                        //value[i].ClassName
-                        string line = collection.Value[i].ClassName;
-
-                        //value[i].Points loop
-                        for (int j = 0; j < collection.Value[i].Points.Count; j++) 
-                        {
-                            //value[i].Points[j][,]
-
-                            //x position
-                            line += ",";
-                            line += collection.Value[i].Points[j][0].ToString();
-
-                            // y position
-                            line += ",";
-                            line += collection.Value[i].Points[j][1].ToString();
-
-                        }
-
-                        w.WriteLine(line);
+                        // Write header
+                        string header = "class,pixels";
+                        w.WriteLine(header);
                         w.Flush();
+
+                        // value.count loop
+                        for (int i = 0; i < collection.Value.Count; i++)
+                        {
+                            //value[i].ClassName
+                            string line = collection.Value[i].ClassName;
+
+                            //value[i].Points loop
+                            for (int j = 0; j < collection.Value[i].Points.Count; j++)
+                            {
+                                //value[i].Points[j][,]
+
+                                //x position
+                                line += ",";
+                                line += collection.Value[i].Points[j][0].ToString();
+
+                                // y position
+                                line += ",";
+                                line += collection.Value[i].Points[j][1].ToString();
+
+                            }
+
+                            w.WriteLine(line);
+                            w.Flush();
+                        }
                     }
+                }
+                catch (IOException e)
+                {
+                    MessageBox.Show("Saving Error");
+                    Console.WriteLine("Write Csv Error" + e);
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show("Saving Error");
+                    Console.WriteLine("Write Csv Error" + e);
                 }
             }
 
