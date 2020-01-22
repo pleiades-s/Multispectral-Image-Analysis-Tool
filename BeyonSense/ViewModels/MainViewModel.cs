@@ -1094,7 +1094,9 @@ namespace BeyonSense.ViewModels
         {
             // 인자는 ClickPoint에서 넘어오는 것을 간주함.
 
-
+            #region Update table item source
+      
+            // Check if new label name exist or not
             int ack = 0;
             for (int i = 0; i < ClassPoints.Count; i++)
             {
@@ -1115,10 +1117,11 @@ namespace BeyonSense.ViewModels
                 ClassPoints.Add(new ClassPixels() { ClassName = newLabelName, NumPoints = PixelCalculator(newCornerPoints) });
             }
 
-            // Get current directory path
-            string _path = MainBmpImage;
+            #endregion
 
             #region Get parent directory path
+            // Get current directory path
+            string _path = MainBmpImage;
 
             // If the paht is a file path, get parent directory path
 
@@ -1156,7 +1159,9 @@ namespace BeyonSense.ViewModels
                 
             }
 
-            // dictionary에 csv path가 없는 경우: new csv file 생성해야 함.
+            // dictionary에 csv path가 없는 경우: new csv file 생성해야 함. 
+            
+            // 여기 아직 확인 안 함!
             else
             {
                 // dictionary.Add(csv 새로운 path, new ObservableCollection<ClassCornerPoints>{생성한 ClassCornerPoints})
@@ -1175,10 +1180,10 @@ namespace BeyonSense.ViewModels
         {
             Console.WriteLine("Save button");
 
-            // dictionary loop
+            // Dictionary loop
             foreach(KeyValuePair<string, ObservableCollection<ClassCornerPoints>> collection in CornerPoint)
             {
-                // csv fd 읽기
+                // csv stream
                 using (var w = new StreamWriter(collection.Key))
                 {
                     // Write header
@@ -1186,7 +1191,7 @@ namespace BeyonSense.ViewModels
                     w.WriteLine(header);
                     w.Flush();
 
-                    // value.count 만큼 loop
+                    // value.count loop
                     for (int i = 0; i < collection.Value.Count; i++)
                     {
                         //value[i].ClassName
@@ -1215,7 +1220,6 @@ namespace BeyonSense.ViewModels
 
         }
         #endregion
-
 
     }
 }
