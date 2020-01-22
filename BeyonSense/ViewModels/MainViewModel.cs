@@ -1038,12 +1038,129 @@ namespace BeyonSense.ViewModels
             Console.WriteLine("Plus");
             PopupView popupView = new PopupView();
 
+            string _name = "";
+
+            // Popup window is opened and closed by OK button
             if (popupView.ShowDialog() == true)
+            {
+                Console.WriteLine("Popup window is closed by OK button");
                 Console.WriteLine(popupView.Answer);
+
+                // New label name
+                _name = popupView.Answer;
+
+                // _name is not null, empty or blank
+                if (!String.IsNullOrWhiteSpace(_name))
+                {
+                    ClickPoint(_name);
+                }
+            }
+
+            // Popup window is closed by Cancel or ESC button
             else
             {
-                Console.WriteLine("Popup is closed");
+                Console.WriteLine("Popup window is closed by Cancel button or ESC key");
+
             }
+        }
+        #endregion
+
+        #region TODO: Click points on image
+        /// <summary>
+        /// Event handler when user draw dots on main image
+        /// </summary>
+        /// <param name="newLabelName">new label name from Popup window</param>
+        private void ClickPoint(string newLabelName)
+        {
+            // PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행
+            // Main image에서 포인트 클릭할 수 있게 해야 함.
+            // Add 버튼이 눌리면 끝나야 함
+
+            // ESC 처리할 수 있으면 더 좋고
+
+        }
+        #endregion
+
+        #region Add Button Handler
+        /// <summary>
+        /// Add button click event handler
+        /// </summary>
+        /// <param name="newLabelName">new label name from Popup window</param>
+        /// <param name="newCornerPoints">new corner points from ClickPoint</param>
+        private void AddNewLabel(string newLabelName, ObservableCollection<int[]> newCornerPoints)
+        {
+            // 인자는 ClickPoint에서 넘어오는 것을 간주함.
+
+
+            int ack = 0;
+            for (int i = 0; i < ClassPoints.Count; i++)
+            {
+
+                if(ClassPoints[i].ClassName == newLabelName)
+                {
+                    // If new class name exiset in ClassPoint (table item source)
+                    ack = 1;
+                    ClassPoints[i].NumPoints += PixelCalculator(newCornerPoints);
+                    break;
+
+                }
+            }
+
+            // New class name doesn't exist in ClassPoint (table item source)
+            if(ack == 0)
+            {
+                ClassPoints.Add(new ClassPixels() { ClassName = newLabelName, NumPoints = PixelCalculator(newCornerPoints) });
+            }
+
+            // Get current directory path
+            string _path = MainBmpImage;
+
+            #region Get parent directory path
+
+            // If the paht is a file path, get parent directory path
+
+            // Exception: If we have no path, return empty
+            if (string.IsNullOrEmpty(_path))
+                return;
+
+            // Make all slashes back slashes
+            var normalizedPath = _path.Replace('/', '\\');
+
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('\\');
+
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return;
+
+            //  Remove file name from the file path so we can get a parent directory path
+            var dirPath = normalizedPath.Substring(0, lastIndex);
+
+            #endregion
+
+
+            // 생성: new ClassCornerPoints() { ClassName = newLabelName, Points = newCornerPoints })
+            ClassCornerPoints newLabelPoints = new ClassCornerPoints() { ClassName = newLabelName, Points = newCornerPoints };
+
+            // dictionary에 csv path 가 있는 경우
+            
+            if (CornerPoint.ContainsKey(dirPath))
+            {
+                // csv path가 있으면,
+                // path key 로 value 찾고 
+                // value.Add( 생성했던 ClassCornerPoints)
+                CornerPoint[dirPath].Add(newLabelPoints);
+                
+            }
+
+            // dictionary에 csv path가 없는 경우: new csv file 생성해야 함.
+            else
+            {
+                // dictionary.Add(csv 새로운 path, new ObservableCollection<ClassCornerPoints>{생성한 ClassCornerPoints})
+                CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
+            }
+
+
         }
         #endregion
 
