@@ -10,9 +10,9 @@
         WindowStartupLocation="CenterScreen"
         Title="BeyonSense" Height="600" Width="800"
         Icon="/Pictures/BeyonSense_Icon.png">
-    
+
     <!-- Window 위의 control panel customize해서 이쁘게 하기 -->
-    
+
     <Border Padding="10">
         <!-- TODO: Grid background 추가: UI beautifying-->
         <!-- TODO: Resize 할 때, element 위치관계 확인하기 -->
@@ -21,14 +21,14 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
-            
+
             <!-- Row 0 -->
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                
+
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button x:Name="Open" Content="Open"
                              HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
@@ -39,7 +39,7 @@
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
                     </Button>
-            
+
                     <Button x:Name="Capture" Content="Capture" 
                              HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
                              Grid.Row="0" Width="100" Margin="20,0,0,20"/>
@@ -80,11 +80,11 @@
                         </Grid>
 
                     </Border>
-                    
-                    
+
+
                 </StackPanel>
             </Grid>
-            
+
             <!-- Row 1-->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
@@ -97,7 +97,7 @@
                 <!-- Column 0: Image set -->
                 <StackPanel Grid.Column="0" Orientation="Vertical">
                     <TextBlock Text="Image Set"/>
-                    
+
                     <!-- TODO: ScrollViewer 크기를 꽉 차게 못 하나?-->
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                       Height="440">
@@ -114,7 +114,7 @@
 
                             <TreeView.ItemTemplate>
                                 <HierarchicalDataTemplate ItemsSource="{Binding Children}">
-                                    
+
                                     <!-- Binding DataContext is needed if the structure is being nested -->
                                     <StackPanel x:Name="TreeElement" Orientation="Horizontal"
                                                 cal:Action.TargetWithoutContext="{Binding DataContext, ElementName=DirectoryTree}">
@@ -133,7 +133,7 @@
                                         <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
                                     </StackPanel>
 
-                                    
+
                                 </HierarchicalDataTemplate>
                             </TreeView.ItemTemplate>
 
@@ -325,7 +325,7 @@
                         </Button.Template>
                     </Button>
                 </Grid>
-                
+
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
                     <!-- Image source binding-->
@@ -337,7 +337,7 @@
 
                     <!-- Table -->
                     <!-- Contents binding-->
-                    <DataGrid AutoGenerateColumns="False" 
+                    <DataGrid AutoGenerateColumns="False"
                         Height="200" ItemsSource="{Binding ClassPoints}"
                         HorizontalAlignment="Center" Margin="0,10"
                         SelectionMode="Extended" SelectionUnit="FullRow"
@@ -354,6 +354,24 @@
                                 MinWidth="50" Header="Points" Binding="{Binding NumPoints}"/>
                         </DataGrid.Columns>
                     </DataGrid>
+
+                    <!-- Adding element in the table -->
+                    <Grid Height="30" Margin="0,0,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- ? -->
+                        <local:TablePlusButton Grid.Column="0" x:Name="PlusButton" Height="20" Width="25"/>
+
+                        <!-- ? -->
+                        <Button Grid.Column ="1" Content="OK" Height="10"
+                                FontSize ="10" HorizontalAlignment="Center">
+                        </Button>
+
+                    </Grid>
+
 
                     <!-- ColorBox -->
                     <Grid>

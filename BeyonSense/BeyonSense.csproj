@@ -93,6 +93,9 @@
     <Compile Include="Models\DirectoryItem.cs" />
     <Compile Include="Models\DirectoryItemType.cs" />
     <Compile Include="DirectoryStructure.cs" />
+    <Compile Include="UserControls\TablePlusButton.xaml.cs">
+      <DependentUpon>TablePlusButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModels\Base\BaseViewModel.cs" />
     <Compile Include="ViewModels\Base\RelayCommand.cs" />
     <Compile Include="ViewModels\DirectoryItemViewModel.cs" />
@@ -105,6 +108,10 @@
     <Compile Include="UserControls\ToggleSwitch.xaml.cs">
       <DependentUpon>ToggleSwitch.xaml</DependentUpon>
     </Compile>
+    <Page Include="UserControls\TablePlusButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
