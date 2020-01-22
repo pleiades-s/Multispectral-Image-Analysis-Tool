@@ -1,4 +1,5 @@
 ﻿using BeyonSense.Models;
+using BeyonSense.Views;
 using Caliburn.Micro;
 using Microsoft.Win32;
 using System;
@@ -1035,6 +1036,14 @@ namespace BeyonSense.ViewModels
         public void PlusClick()
         {
             Console.WriteLine("Plus");
+            PopupView popupView = new PopupView();
+
+            if (popupView.ShowDialog() == true)
+                Console.WriteLine(popupView.Answer);
+            else
+            {
+                Console.WriteLine("Popup is closed");
+            }
         }
         #endregion
 
