@@ -7,14 +7,38 @@
              mc:Ignorable="d" 
              d:DesignHeight="20" d:DesignWidth="20">
 
+    <UserControl.Resources>
+        <Style x:Key="Circle" TargetType="Ellipse">
+            <Setter Property="Stroke" Value="Black"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Stroke" Value="LightGray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="Cross" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Black"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="LightGray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <Viewbox>
         <Grid Width="20" Height="20">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="0*"/>
             </Grid.RowDefinitions>
-            <Ellipse Stroke="Black" x:Name="Plus" MouseLeftButtonDown="Plus_MouseLeftButtonDown"/>
-            <TextBlock HorizontalAlignment="Center" Text="+" TextAlignment="Center" VerticalAlignment="Center" Margin="6,0,6,3.2"/>
+            <Ellipse x:Name="Plus" MouseLeftButtonDown="Plus_MouseLeftButtonDown"
+                     Style="{StaticResource Circle}">
+            </Ellipse>
+            <TextBlock HorizontalAlignment="Center" Text="+" TextAlignment="Center" 
+                       VerticalAlignment="Center" Margin="6,0,6,3.2" 
+                       Style="{StaticResource Cross}"/>
         </Grid>
     </Viewbox>
 
