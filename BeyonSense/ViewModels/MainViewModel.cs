@@ -132,9 +132,9 @@ namespace BeyonSense.ViewModels
 
         #region Main Bitmap image path
 
-        private string mainBmpImage = "/Pictures/no_image.png";
+        private BitmapSource mainBmpImage;
 
-        public string MainBmpImage
+        public BitmapSource MainBmpImage
         {
             get { return mainBmpImage; }
             set
@@ -354,7 +354,14 @@ namespace BeyonSense.ViewModels
         /// </summary>
         public MainViewModel()
         {
+            
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri("pack://application:,,,/Pictures/no_image.png");
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
 
+            MainBmpImage = src;
         }
 
         #endregion
@@ -519,7 +526,7 @@ namespace BeyonSense.ViewModels
                     BmpPath6 = BmpList[5];
 
                     // Automatically, show first bitmap image as a main image
-                    MainBmpImage = BmpList[0];
+                    MainBmpImage = StringToBmpSource(BmpList[0]);
 
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
@@ -541,7 +548,17 @@ namespace BeyonSense.ViewModels
         public void PopupMainImage(string path)
         {
             //MessageBox.Show(path);
-            MainBmpImage = path;
+            //MainBmpImage = path;
+
+            System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri(fi.FullName, UriKind.Absolute);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+
+            MainBmpImage = src;
+
         }
         #endregion
 
@@ -1234,8 +1251,11 @@ namespace BeyonSense.ViewModels
             Console.WriteLine("Actual Width: " + MyWidth.ToString());
             Console.WriteLine("Actual Height: " + MyHeight.ToString());
 
-            Console.WriteLine("x: " + (e.GetPosition(elem).X * 800 / MyWidth).ToString());
-            Console.WriteLine("y: " + (e.GetPosition(elem).Y * 600 / MyHeight).ToString());
+            int Clicked_X = (int)(e.GetPosition(elem).X * 800 / MyWidth);
+            int Clicked_Y = (int)(e.GetPosition(elem).Y * 800 / MyHeight);
+
+            Console.WriteLine("x: " + Clicked_X.ToString());
+            Console.WriteLine("y: " + Clicked_Y.ToString());
 
             // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
 
@@ -1296,7 +1316,7 @@ namespace BeyonSense.ViewModels
 
             #region Get parent directory path
             // Get current directory path
-            string _path = MainBmpImage;
+            string _path = BmpPath1;
 
             // If the paht is a file path, get parent directory path
 
@@ -1455,6 +1475,18 @@ namespace BeyonSense.ViewModels
 
         }
         #endregion
+
+        private BitmapSource StringToBmpSource(string path)
+        {
+            System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri(fi.FullName, UriKind.Absolute);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+
+            return src;
+        }
 
     }
 }
