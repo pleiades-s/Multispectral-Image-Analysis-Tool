@@ -14,5 +14,6 @@ namespace BeyonSense.Models
 
         public ObservableCollection<int[]> Points { get; set; }
 
+        public Color ClassColor { get; set; }
     }
 }

@@ -539,7 +539,7 @@ namespace BeyonSense.ViewModels
 
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
-
+                    DrawLabel();
                     //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
                 }
             }
@@ -567,6 +567,8 @@ namespace BeyonSense.ViewModels
             src.EndInit();
 
             MainBmpImage = src;
+
+            DrawLabel();
 
             ImageBool = false;
 
@@ -1071,6 +1073,8 @@ namespace BeyonSense.ViewModels
                 // Enable Buttons
                 PlusBool = true;
                 TrainBool = true;
+
+                
             }
 
 
@@ -1300,19 +1304,8 @@ namespace BeyonSense.ViewModels
             ClickedPosition.Add(new double[2] { Clicked_X, Clicked_Y });
             // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
 
-            // 1. Main image에서 포인트 클릭할 수 있게 해야 함.
-            // 1-1. ESC key -> exit
-
-            // 2. Add 버튼이 눌리면 끝나야 함
-
-            // 최소 세 개 이상 점을 찍었을 때 
+            // 점 세 개 이상 일 때.
             SaveBool = true;
-                // AddNewLabel 함수 호출
-
-            // 도형이 만들어지지 못하면 exit
-            // SaveBool = false; OKBool = False;
-
-            // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
 
 
 
@@ -1345,6 +1338,20 @@ namespace BeyonSense.ViewModels
         public void AddNewLabel()
         {
             Console.WriteLine("Ok button is clicked.");
+
+            // 1. Main image에서 포인트 클릭할 수 있게 해야 함.
+            // 1-1. ESC key -> exit
+
+            // 2. Add 버튼이 눌리면 끝나야 함
+
+            // 최소 세 개 이상 점을 찍었을 때 
+
+            // AddNewLabel 함수 호출
+
+            // 도형이 만들어지지 못하면 exit
+            // SaveBool = false; OKBool = False;
+
+            // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
 
             OKBool = false;
             ImageBool = false;
@@ -1464,6 +1471,64 @@ namespace BeyonSense.ViewModels
 
         }
         #endregion
+
+
+        public void DrawLabel()
+        {
+            // 1. 현재 csv file path 가져옴
+
+            // 2. dictionary IsContain 해보기
+
+            // 3. 없으면 끝, 있으면 다음
+
+            // 4. ObserableCollection 반복하면서 그림 그리기
+            if (String.IsNullOrEmpty(CsvPath)) return;
+
+            if (CornerPoint.ContainsKey(CsvPath))
+            {
+                foreach (ClassCornerPoints classCornerPoints in CornerPoint[CsvPath])
+                {
+                    DrawingVisual dv = new DrawingVisual();
+                    using (DrawingContext dc = dv.RenderOpen())
+                    {
+                        dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+
+                        // 점, 선 반복 그리기
+
+                        Pen pen = new Pen(Brushes.Green, 5);
+
+                        int i = 0;
+
+                        for (i = 0; i < classCornerPoints.Points.Count - 1; i++)
+                        {
+                            var x1 = classCornerPoints.Points[i][0];
+                            var y1 = classCornerPoints.Points[i][1];
+                            var x2 = classCornerPoints.Points[i + 1][0];
+                            var y2 = classCornerPoints.Points[i + 1][1];
+
+                            dc.DrawEllipse(Brushes.Green, null, new Point(x1, y1), 5, 5);
+                            dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
+
+                        }
+
+                        // 마지막 점 이랑 선
+                        var x_last = classCornerPoints.Points[i][0];
+                        var y_last = classCornerPoints.Points[i][1];
+                        var x_first = classCornerPoints.Points[0][0];
+                        var y_first = classCornerPoints.Points[0][1];
+                        dc.DrawEllipse(Brushes.Green, null, new Point(x_last, y_last), 5, 5);
+                        dc.DrawLine(pen, new Point(x_last, y_last), new Point(x_first, y_first));
+
+                    }
+
+                    RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+                    rtb.Render(dv);
+
+                    MainBmpImage = rtb;
+                }
+            }
+            
+        }
 
         #region Save Button Enable Bool
 
