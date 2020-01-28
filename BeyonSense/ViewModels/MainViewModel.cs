@@ -625,19 +625,6 @@ namespace BeyonSense.ViewModels
             set
             {
                 csvPath = value;
-
-                if (!String.IsNullOrEmpty(csvPath))
-                {
-                    // Read csv file if there is a csv file in the selecte folder
-                    LoadBoundary(csvPath);
-                }
-
-                else
-                {
-                    // Reset the table if there is no csv file in the selected folder
-                    // ClassPoints.Clear();
-                }
-
             }
         }
         #endregion
@@ -1067,7 +1054,14 @@ namespace BeyonSense.ViewModels
                 #region Initialize Class Color
                 //Allocate colors as many as the number of ClassPoints.Count
                 int k = ClassPoints.Count;
-                AllocateColors(k);
+
+                // Generate colors 
+                List<Color> _color = ColorGenerator(k);
+                for (int i = 0; i < k; i++)
+                {
+                    ClassPoints[i].ClassColor = _color[i];
+                }
+                
                 #endregion
 
                 // Enable Buttons
@@ -1083,17 +1077,31 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Allocate colors
-        //TODO: If new class is added, call this function 
-
-        /// <summary>
-        /// Allocate color to ClassPoints without changing color which is already allocated
-        /// </summary>
-        /// <param name="count">ClassPoint.Count</param>
-        public void AllocateColors(int count)
+        // 
+        private Color SearchColor(string className)
         {
+            foreach(ClassPixels classPixels in ClassPoints)
+            {
+                if (className == classPixels.ClassName) return classPixels.ClassColor;
+            }
+
+            return Colors.Transparent;
+            
+        }
+
+
+        #region Allocate colors
+
+        // 새로운 색깔 return 
+
+        public Color AllocateColors()
+        {
+            // return value
+            Color returnColor = Colors.Transparent;
+
+            int count = ClassPoints.Count;
             // Generate colors 
-            List<Color> _color = ColorGenerator(count);
+            List<Color> _color = ColorGenerator(count + 1);
 
             // Color classcolor : int Used
             Dictionary<Color, int> ColorDictionary = new Dictionary<Color, int>();
@@ -1104,60 +1112,29 @@ namespace BeyonSense.ViewModels
                 ColorDictionary.Add(color, 0);
             }
 
-            // Iterater for each class
             for (int i = 0; i < count; i++)
             {
-                // It already has class color
-                if (ClassPoints[i].ClassColor == Colors.Transparent)
+                if (ColorDictionary.ContainsKey(ClassPoints[i].ClassColor))
                 {
                     ColorDictionary[ClassPoints[i].ClassColor] += 1;
                 }
 
-                // It has no color yet
-                else
+            }
+
+            foreach (KeyValuePair<Color, int> element in ColorDictionary)
+            {
+                // Assign unused Color
+                if (element.Value == 0)
                 {
-                    // Iterate Dictionary
-                    foreach (KeyValuePair<Color, int> element in ColorDictionary)
-                    {
-                        // Assign unused Color
-                        if (element.Value == 0)
-                        {
-
-                            ClassPoints[i].ClassColor = element.Key;
-
-                            // Change Used integer
-                            ColorDictionary[element.Key] += 1;
-
-                            // We have to break the loop to use only one new color
-                            break;
-                        }
-                    }
+                    return element.Key;
                 }
             }
+
+
+            return returnColor;
         }
         #endregion
 
-        #region TODO: Load Boundary
-
-        public void LoadBoundary(string path)
-        {
-            // Test
-            MessageBox.Show("We gotta make lines on the picture!");
-
-            // 여기서 cs.line() 함수로 테두리를 그리자
-
-            // Read Dictionary
-
-            // For each class
-
-            // Find value of boundary points in the dictionary
-
-            // Show the boundary on MainView
-
-            // Specify color of boundary is same with the class
-
-        }
-        #endregion
 
         #region Plus Button Enable Bool
 
@@ -1260,6 +1237,7 @@ namespace BeyonSense.ViewModels
 
         private ObservableCollection<double[]> ClickedPosition = new ObservableCollection<double[]>();
 
+        private Color newLabelColor = Colors.Transparent;
 
         #region TODO: Click points on image
         /// <summary>
@@ -1277,16 +1255,34 @@ namespace BeyonSense.ViewModels
             Console.WriteLine("x: " + Clicked_X.ToString());
             Console.WriteLine("y: " + Clicked_Y.ToString());
 
+
+            
+
+            if(newLabelColor == Colors.Transparent)
+            {
+                // 1. searchcolor 
+                if (Colors.Transparent == (newLabelColor = SearchColor(newLabelName)))
+                {
+                    // 2. 없으면 색 새로 만들기
+                    newLabelColor = AllocateColors();
+                }
+                
+            }
+
+            SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
+            
+
+
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
                 dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
-                dc.DrawEllipse(Brushes.Green, null, new Point(Clicked_X, Clicked_Y), 5, 5);
+                dc.DrawEllipse(newlabelBrush, null, new Point(Clicked_X, Clicked_Y), 5, 5);
 
                 if (ClickedPosition.Count > 0)
                 {
                     // ClickedPosition의 마지막 원소 좌표와 현재 클릭된 좌표를 잇는 선 그리기
-                    Pen pen = new Pen(Brushes.Green, 5);
+                    Pen pen = new Pen(newlabelBrush, 5);
                     
                     double _x = ClickedPosition.Last()[0];
                     double _y = ClickedPosition.Last()[1];
@@ -1356,12 +1352,14 @@ namespace BeyonSense.ViewModels
             OKBool = false;
             ImageBool = false;
 
+            SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
+
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
                 dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
-                Pen pen = new Pen(Brushes.Green, 5);
+                Pen pen = new Pen(newlabelBrush, 5);
 
                 double x1 = ClickedPosition.ElementAt(0)[0];
                 double y1 = ClickedPosition.ElementAt(0)[1];
@@ -1382,7 +1380,7 @@ namespace BeyonSense.ViewModels
 
             ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
             ClickedPosition.Clear();
-
+            newLabelColor = Colors.Transparent;
 
             // 자료구조에 반영하는 부분
 
@@ -1491,11 +1489,15 @@ namespace BeyonSense.ViewModels
                     DrawingVisual dv = new DrawingVisual();
                     using (DrawingContext dc = dv.RenderOpen())
                     {
+                        SolidColorBrush classBrush = new SolidColorBrush(SearchColor(classCornerPoints.ClassName));
+                        // TODO: ClassPoints 에서 classname 검색해서 해당 색깔 가져오기
+
                         dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
                         // 점, 선 반복 그리기
 
-                        Pen pen = new Pen(Brushes.Green, 5);
+
+                        Pen pen = new Pen(classBrush, 5);
 
                         int i = 0;
 
@@ -1506,7 +1508,7 @@ namespace BeyonSense.ViewModels
                             var x2 = classCornerPoints.Points[i + 1][0];
                             var y2 = classCornerPoints.Points[i + 1][1];
 
-                            dc.DrawEllipse(Brushes.Green, null, new Point(x1, y1), 5, 5);
+                            dc.DrawEllipse(classBrush, null, new Point(x1, y1), 5, 5);
                             dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
 
                         }
@@ -1516,7 +1518,7 @@ namespace BeyonSense.ViewModels
                         var y_last = classCornerPoints.Points[i][1];
                         var x_first = classCornerPoints.Points[0][0];
                         var y_first = classCornerPoints.Points[0][1];
-                        dc.DrawEllipse(Brushes.Green, null, new Point(x_last, y_last), 5, 5);
+                        dc.DrawEllipse(classBrush, null, new Point(x_last, y_last), 5, 5);
                         dc.DrawLine(pen, new Point(x_last, y_last), new Point(x_first, y_first));
 
                     }
