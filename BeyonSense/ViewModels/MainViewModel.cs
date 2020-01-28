@@ -795,10 +795,18 @@ namespace BeyonSense.ViewModels
         /// <returns>int the number of pixel</returns>
         /// 
         //public int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
-        public int PixelCalculator(int[,] points)
+        public int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
         {
             int num_pixel = 0;
-            int num_point = points.GetLength(0);
+            int num_point = _cornerPoint.Count;
+            int[,] points = new int[num_point, 2];
+
+            //list를 array로 변화
+            for (int i = 0; i < num_point; i++)
+            {
+                points[i, 0] = _cornerPoint[i][0];
+                points[i, 1] = _cornerPoint[i][1];
+            }
 
             //y축 범위 구하기
             int min = 100000000;//임의의 큰 값
