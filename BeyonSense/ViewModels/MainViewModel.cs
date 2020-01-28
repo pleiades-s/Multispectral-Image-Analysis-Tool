@@ -568,6 +568,9 @@ namespace BeyonSense.ViewModels
 
             MainBmpImage = src;
 
+            ImageBool = false;
+
+
         }
         #endregion
 
@@ -1189,7 +1192,7 @@ namespace BeyonSense.ViewModels
                 // _name is not null, empty or blank
                 if (!String.IsNullOrWhiteSpace(_name))
                 {
-                    //ClickPoint(_name);
+                    newLabelName = _name;
 
                     // Add button enable boolean
                     OKBool = true;
@@ -1223,7 +1226,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
 
-
+        #region ActualHeight, ActualWidth properties
         private double myheight;
         public double MyHeight
         {
@@ -1247,6 +1250,9 @@ namespace BeyonSense.ViewModels
                 //Console.WriteLine("MyWidth: " + mywidth.ToString());
             }
         }
+
+        #endregion
+
 
         private ObservableCollection<double[]> ClickedPosition = new ObservableCollection<double[]>();
 
@@ -1314,6 +1320,22 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        private string newLabelName;
+
+        private ObservableCollection<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
+        {
+            ObservableCollection<int[]> pos = new ObservableCollection<int[]>();
+
+            foreach ( double[] arr in corners)
+            {
+                int[] _array = new int[2] { (int)arr[0], (int)arr[1] };
+
+                pos.Add(_array);
+            }
+
+            return pos;
+        }
+
         #region TODO: Ok Button Handler
         /// <summary>
         /// Add button click event handler
@@ -1349,10 +1371,11 @@ namespace BeyonSense.ViewModels
 
             MainBmpImage = rtb;
 
+
+
+            ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
             ClickedPosition.Clear();
 
-
-            /*
 
             // 자료구조에 반영하는 부분
 
@@ -1360,7 +1383,7 @@ namespace BeyonSense.ViewModels
             // 인자는 ClickPoint에서 넘어오는 것을 간주함.
 
             #region Update table item source
-      
+
             // Check if new label name exist or not
             int ack = 0;
             for (int i = 0; i < ClassPoints.Count; i++)
@@ -1371,6 +1394,8 @@ namespace BeyonSense.ViewModels
                     // If new class name exiset in ClassPoint (table item source)
                     ack = 1;
                     ClassPoints[i].NumPoints += PixelCalculator(newCornerPoints);
+
+
                     break;
 
                 }
@@ -1415,12 +1440,12 @@ namespace BeyonSense.ViewModels
 
             // dictionary에 csv path 가 있는 경우
             
-            if (CornerPoint.ContainsKey(dirPath))
+            if (CornerPoint.ContainsKey(dirPath + '\\' + "metadata.csv"))
             {
                 // csv path가 있으면,
                 // path key 로 value 찾고 
                 // value.Add( 생성했던 ClassCornerPoints)
-                CornerPoint[dirPath].Add(newLabelPoints);
+                CornerPoint[dirPath + '\\' + "metadata.csv"].Add(newLabelPoints);
                 
             }
 
@@ -1432,7 +1457,11 @@ namespace BeyonSense.ViewModels
                 // dictionary.Add(csv 새로운 path, new ObservableCollection<ClassCornerPoints>{생성한 ClassCornerPoints})
                 CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
             }
-            */
+
+
+            
+
+
         }
         #endregion
 
