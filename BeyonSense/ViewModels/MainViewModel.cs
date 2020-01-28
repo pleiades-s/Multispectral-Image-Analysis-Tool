@@ -1,16 +1,19 @@
-﻿using BeyonSense.Models;
+﻿using Assisticant.Fields;
+using BeyonSense.Models;
 using BeyonSense.Views;
 using Caliburn.Micro;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using WinForms = System.Windows.Forms;
 
 
@@ -1061,8 +1064,13 @@ namespace BeyonSense.ViewModels
                 // _name is not null, empty or blank
                 if (!String.IsNullOrWhiteSpace(_name))
                 {
-                    ClickPoint(_name);
+                    //ClickPoint(_name);
+
+                    // Add button enable boolean
                     OKBool = true;
+
+                    // Main image is enable to be clicked
+                    ImageBool = true;
                 }
             }
 
@@ -1075,22 +1083,66 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region MainImage Bool
+        private bool imageBool = false;
+        public bool ImageBool
+        {
+            get { return imageBool; }
+            set
+            {
+                imageBool = value;
+                NotifyOfPropertyChange(() => ImageBool);
+            }
+        }
+
+        #endregion
+
+        // DataPiping
+        // https://blog.machinezoo.com/datapipe-pushing-read-only-dependency
+        public readonly Observable<double> MyWidth = new Observable<double>();
+        public readonly Observable<double> MyHeight = new Observable<double>();
+
+        // Fody 에러
+        // https://stackoverflow.com/questions/55379452/fody-propertychanged-could-not-inject-eventinvoker-method
+        public virtual void OnPropertyChanged(string propertyName)
+        {
+            var propertyChanged = PropertyChanged;
+            if (propertyChanged != null)
+            {
+                propertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+
         #region TODO: Click points on image
         /// <summary>
         /// Event handler when user draw dots on main image
         /// </summary>
         /// <param name="newLabelName">new label name from Popup window</param>
-        private void ClickPoint(string newLabelName)
+        public void ClickPoint(MouseEventArgs e, IInputElement elem)
         {
-            // Add button enable boolean 추가하고 ClickPoint가 실행되면 IsEnable true
 
-            // PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행
-            // Main image에서 포인트 클릭할 수 있게 해야 함.
-            // Add 버튼이 눌리면 끝나야 함
+            Console.WriteLine("Actual Height: " + MyHeight.ToString());
 
+
+            // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
+
+            // 1. Main image에서 포인트 클릭할 수 있게 해야 함.
+            // 1-1. ESC key -> exit
+
+            // 2. Add 버튼이 눌리면 끝나야 함
+
+            // 최소 세 개 이상 점을 찍었을 때 
             SaveBool = true;
+                // AddNewLabel 함수 호출
 
-            // ESC 처리할 수 있으면 더 좋고
+            // 도형이 만들어지지 못하면 exit
+            // SaveBool = false; OKBool = False;
+
+            // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
+
+
+
 
         }
         #endregion

@@ -6,6 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:local="clr-namespace:BeyonSense"
+        xmlns:jc="clr-namespace:JungleControls;assembly=JungleControls"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="BeyonSense" Height="600" Width="800"
@@ -329,7 +330,32 @@
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
                     <!-- Image source binding-->
-                    <Image Source="{Binding MainBmpImage}" Margin="5"/>
+                    <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5"
+                           IsEnabled="{Binding ImageBool}">
+                        <!--
+                        <u:DataPiping.DataPipes>
+                            <u:DataPipeCollection>
+                                <u:DataPipe Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}, Path=ActualWidth}"
+                         Target="{Binding Path=MyWidth, Mode=OneWayToSource}"/>
+                                <u:DataPipe Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}, Path=ActualHeight}"
+                         Target="{Binding Path=MyHeight, Mode=OneWayToSource}"/>
+                            </u:DataPipeCollection>
+                        </u:DataPiping.DataPipes>
+                        
+                        -->
+                        
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <cal:ActionMessage MethodName="ClickPoint">
+                                    <cal:Parameter Value="$eventArgs"/>
+                                    <cal:Parameter Value="$source"/>
+                                </cal:ActionMessage>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        
+                        
+
+                    </Image>
                 </Grid>
 
                 <!-- Column 3: Table and Buttons-->

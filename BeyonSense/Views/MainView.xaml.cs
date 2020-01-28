@@ -7,7 +7,7 @@ using WinForms = System.Windows.Forms;
 namespace BeyonSense.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// MainView behind code
     /// </summary>
     public partial class MainView : Window
     {
@@ -16,6 +16,5 @@ namespace BeyonSense.Views
             InitializeComponent();
             this.DataContext = new MainViewModel();
         }
-
     }
 }
