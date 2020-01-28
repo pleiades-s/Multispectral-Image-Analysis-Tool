@@ -14,6 +14,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
 using WinForms = System.Windows.Forms;
 
 
@@ -477,7 +478,7 @@ namespace BeyonSense.ViewModels
                     string filePath = dirPath + '\\' + fileInfo.Name;
 
                     // Check exetension of each file or folder: using GetExtension(string str)
-                    string exetension = Path.GetExtension(filePath);
+                    string exetension = System.IO.Path.GetExtension(filePath);
 
                     // Count the number of bitmap image and csv file
                     switch (exetension)
@@ -761,7 +762,7 @@ namespace BeyonSense.ViewModels
                         //Console.WriteLine(f);
 
                         // Check it file exetension is csv or not
-                        if (Path.GetExtension(f) == ".csv")
+                        if (System.IO.Path.GetExtension(f) == ".csv")
                         {
                             // Add csv file path in the list
                             csvFilePaths.Add(f);
@@ -1251,11 +1252,29 @@ namespace BeyonSense.ViewModels
             Console.WriteLine("Actual Width: " + MyWidth.ToString());
             Console.WriteLine("Actual Height: " + MyHeight.ToString());
 
-            int Clicked_X = (int)(e.GetPosition(elem).X * 800 / MyWidth);
-            int Clicked_Y = (int)(e.GetPosition(elem).Y * 800 / MyHeight);
+            var Clicked_X = e.GetPosition(elem).X * 800 / MyWidth;
+            var Clicked_Y = e.GetPosition(elem).Y * 600 / MyHeight;
 
             Console.WriteLine("x: " + Clicked_X.ToString());
             Console.WriteLine("y: " + Clicked_Y.ToString());
+
+            Ellipse ellipse = new Ellipse();
+            ellipse.Fill = Brushes.Sienna;
+            ellipse.Width = 10;
+            ellipse.Height = 10;
+            ellipse.StrokeThickness = 2;
+
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                dc.DrawImage(MainBmpImage, new Rect(0, 0, 800, 600));
+                dc.DrawEllipse(Brushes.Green, null, new Point(Clicked_X, Clicked_Y), 5, 5);
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(800, 600, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+
+            MainBmpImage = rtb;
 
             // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
 
