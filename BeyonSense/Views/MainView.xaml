@@ -421,6 +421,11 @@
                         <Button Grid.Column ="1" Content="OK" Height="10"
                                 FontSize ="10" HorizontalAlignment="Center"
                                 IsEnabled="{Binding OKBool}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="AddNewLabel" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </Button>
 
                     </Grid>

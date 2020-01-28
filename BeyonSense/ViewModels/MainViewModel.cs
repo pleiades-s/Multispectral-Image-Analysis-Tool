@@ -1258,24 +1258,14 @@ namespace BeyonSense.ViewModels
         /// <param name="newLabelName">new label name from Popup window</param>
         public void ClickPoint(MouseEventArgs e, IInputElement elem)
         {
-           
-
             Console.WriteLine("Actual Width: " + MyWidth.ToString());
             Console.WriteLine("Actual Height: " + MyHeight.ToString());
 
             var Clicked_X = e.GetPosition(elem).X * BmpWidth / MyWidth;
             var Clicked_Y = e.GetPosition(elem).Y * BmpHeight / MyHeight;
 
-
-
             Console.WriteLine("x: " + Clicked_X.ToString());
             Console.WriteLine("y: " + Clicked_Y.ToString());
-
-            Ellipse ellipse = new Ellipse();
-            ellipse.Fill = Brushes.Sienna;
-            ellipse.Width = 10;
-            ellipse.Height = 10;
-            ellipse.StrokeThickness = 2;
 
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
@@ -1287,17 +1277,13 @@ namespace BeyonSense.ViewModels
                 {
                     // ClickedPosition의 마지막 원소 좌표와 현재 클릭된 좌표를 잇는 선 그리기
                     Pen pen = new Pen(Brushes.Green, 5);
-
-
-                    double _x = ClickedPosition[ClickedPosition.Count - 1][0];
-                    double _y = ClickedPosition[ClickedPosition.Count - 1][1];
+                    
+                    double _x = ClickedPosition.Last()[0];
+                    double _y = ClickedPosition.Last()[1];
 
                     dc.DrawLine(pen, new Point(_x, _y), new Point(Clicked_X, Clicked_Y));
                     
                 }
-
-
-
             }
 
             RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
@@ -1328,14 +1314,49 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region TODO: Add Button Handler
+        #region TODO: Ok Button Handler
         /// <summary>
         /// Add button click event handler
         /// </summary>
         /// <param name="newLabelName">new label name from Popup window</param>
         /// <param name="newCornerPoints">new corner points from ClickPoint</param>
-        private void AddNewLabel(string newLabelName, ObservableCollection<int[]> newCornerPoints)
+        public void AddNewLabel()
         {
+            Console.WriteLine("Ok button is clicked.");
+
+            OKBool = false;
+            ImageBool = false;
+
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+
+                Pen pen = new Pen(Brushes.Green, 5);
+
+                double x1 = ClickedPosition.ElementAt(0)[0];
+                double y1 = ClickedPosition.ElementAt(0)[1];
+
+                double x2 = ClickedPosition.ElementAt(ClickedPosition.Count - 1)[0];
+                double y2 = ClickedPosition.ElementAt(ClickedPosition.Count - 1)[1];
+
+                dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
+
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+
+            MainBmpImage = rtb;
+
+            ClickedPosition.Clear();
+
+
+            /*
+
+            // 자료구조에 반영하는 부분
+
+
             // 인자는 ClickPoint에서 넘어오는 것을 간주함.
 
             #region Update table item source
@@ -1411,7 +1432,7 @@ namespace BeyonSense.ViewModels
                 // dictionary.Add(csv 새로운 path, new ObservableCollection<ClassCornerPoints>{생성한 ClassCornerPoints})
                 CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
             }
-
+            */
         }
         #endregion
 
