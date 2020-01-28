@@ -1196,7 +1196,6 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-###  인트로 넘겨야 함
 
 
         private double myheight;
@@ -1230,10 +1229,13 @@ namespace BeyonSense.ViewModels
         /// <param name="newLabelName">new label name from Popup window</param>
         public void ClickPoint(MouseEventArgs e, IInputElement elem)
         {
+           
 
             Console.WriteLine("Actual Width: " + MyWidth.ToString());
             Console.WriteLine("Actual Height: " + MyHeight.ToString());
 
+            Console.WriteLine("x: " + (e.GetPosition(elem).X * 800 / MyWidth).ToString());
+            Console.WriteLine("y: " + (e.GetPosition(elem).Y * 600 / MyHeight).ToString());
 
             // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
 
