@@ -809,7 +809,7 @@ namespace BeyonSense.ViewModels
             }
 
             //y축 범위 구하기
-            int min = 100000000;//임의의 큰 값
+            int min = points[0,0];//임의의 값
             int max = 0;
             for (int i = 0; i < num_point; i++)
             {
