@@ -131,6 +131,14 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Bitmap image format: 600 x 800
+
+        private readonly int BmpHeight = 600;
+        private readonly int BmpWidth = 800;
+
+        #endregion
+
+
         #region Main Bitmap image path
 
         private BitmapSource mainBmpImage;
@@ -1240,6 +1248,9 @@ namespace BeyonSense.ViewModels
             }
         }
 
+        private ObservableCollection<double[]> ClickedPosition = new ObservableCollection<double[]>();
+
+
         #region TODO: Click points on image
         /// <summary>
         /// Event handler when user draw dots on main image
@@ -1252,8 +1263,10 @@ namespace BeyonSense.ViewModels
             Console.WriteLine("Actual Width: " + MyWidth.ToString());
             Console.WriteLine("Actual Height: " + MyHeight.ToString());
 
-            var Clicked_X = e.GetPosition(elem).X * 800 / MyWidth;
-            var Clicked_Y = e.GetPosition(elem).Y * 600 / MyHeight;
+            var Clicked_X = e.GetPosition(elem).X * BmpWidth / MyWidth;
+            var Clicked_Y = e.GetPosition(elem).Y * BmpHeight / MyHeight;
+
+
 
             Console.WriteLine("x: " + Clicked_X.ToString());
             Console.WriteLine("y: " + Clicked_Y.ToString());
@@ -1267,15 +1280,32 @@ namespace BeyonSense.ViewModels
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
-                dc.DrawImage(MainBmpImage, new Rect(0, 0, 800, 600));
+                dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
                 dc.DrawEllipse(Brushes.Green, null, new Point(Clicked_X, Clicked_Y), 5, 5);
+
+                if (ClickedPosition.Count > 0)
+                {
+                    // ClickedPosition의 마지막 원소 좌표와 현재 클릭된 좌표를 잇는 선 그리기
+                    Pen pen = new Pen(Brushes.Green, 5);
+
+
+                    double _x = ClickedPosition[ClickedPosition.Count - 1][0];
+                    double _y = ClickedPosition[ClickedPosition.Count - 1][1];
+
+                    dc.DrawLine(pen, new Point(_x, _y), new Point(Clicked_X, Clicked_Y));
+                    
+                }
+
+
+
             }
 
-            RenderTargetBitmap rtb = new RenderTargetBitmap(800, 600, 96, 96, PixelFormats.Pbgra32);
+            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
             rtb.Render(dv);
 
             MainBmpImage = rtb;
 
+            ClickedPosition.Add(new double[2] { Clicked_X, Clicked_Y });
             // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
 
             // 1. Main image에서 포인트 클릭할 수 있게 해야 함.
