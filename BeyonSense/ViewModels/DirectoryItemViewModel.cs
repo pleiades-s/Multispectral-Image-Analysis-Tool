@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Caliburn.Micro;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
 
@@ -7,21 +8,40 @@ namespace BeyonSense
     /// <summary>
     /// A view model for each directory item
     /// </summary>
-    public class DirectoryItemViewModel : BaseViewModel
+    public class DirectoryItemViewModel : Screen
     {
         #region Public Properties
 
         /// <summary>
         /// The type of this item
         /// </summary>
-        public DirectoryItemType Type { get; set; }
+        /// 
+        private DirectoryItemType type;
+        public DirectoryItemType Type {
+            get { return type; }
+            set {
+                type = value;
+                NotifyOfPropertyChange(() => Type);
+                    
+                } 
+        }
 
         public string ImageName => (Type == DirectoryItemType.File ? "file" : (IsExpanded ? "folder-open" : "folder-closed"));
 
         /// <summary>
         /// The full path to the item
         /// </summary>
-        public string FullPath { get; set; }
+        /// 
+        private string fullPath;
+        public string FullPath {
+            get { return fullPath; }
+            set 
+            {
+                fullPath = value;
+                NotifyOfPropertyChange(() => FullPath);
+            }
+            
+        }
 
         /// <summary>
         /// The name of this directory item
@@ -31,7 +51,17 @@ namespace BeyonSense
         /// <summary>
         /// A list of all children contained inside this item
         /// </summary>
-        public ObservableCollection<DirectoryItemViewModel> Children { get; set; }
+        /// 
+        private ObservableCollection<DirectoryItemViewModel> children;
+        public ObservableCollection<DirectoryItemViewModel> Children 
+        {
+            get { return children; }
+            set 
+            {
+                children = value;
+                NotifyOfPropertyChange(() => Children);
+            }
+        }
 
         /// <summary>
         /// Indicates if this item can be expanded
@@ -56,6 +86,8 @@ namespace BeyonSense
                 // If the UI tells us to close
                 else
                     this.ClearChildren();
+
+                NotifyOfPropertyChange(() => IsExpanded);
             }
         }
 
@@ -66,7 +98,17 @@ namespace BeyonSense
         /// <summary>
         /// The command to expand this item
         /// </summary>
-        public ICommand ExpandCommand { get; set; }
+        /// 
+        private ICommand expandCommand;
+        public ICommand ExpandCommand
+        {
+            get { return expandCommand; }
+            set
+            {
+                expandCommand = value;
+                NotifyOfPropertyChange(() => ExpandCommand);
+            }
+        }
 
         #endregion
 

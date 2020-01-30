@@ -7,23 +7,18 @@
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"
         Icon="/Pictures/BeyonSense_Icon.png"
-        Title="BeyonSense" Height="300" Width="300">
+        Title="BeyonSense" Height="170" Width="300">
 
     <Grid Margin="15">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Image Source="/Pictures/no_image.png" Width="32" Height="32" Grid.RowSpan="2" Margin="20,0" />
-
-        <Label Name="lblQuestion" Grid.Column="1">TYPE CLASS NAME</Label>
-        <TextBox Name="txtAnswer" Grid.Column="1" Grid.Row="1" MinWidth="180">Class Name</TextBox>
+        <Label Name="lblQuestion" Grid.Row="0" FontWeight="Bold">TYPE CLASS NAME</Label>
+        <TextBox Name="txtAnswer" Grid.Row="1" MinWidth="180" FontWeight="ExtraLight">Class Name</TextBox>
 
         <WrapPanel Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,15,0,0">
             <Button IsDefault="True" Name="btnDialogOk" Click="btnDialogOk_Click" MinWidth="60" Margin="0,0,10,0">OK</Button>

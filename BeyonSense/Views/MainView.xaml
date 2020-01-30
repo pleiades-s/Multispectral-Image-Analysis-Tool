@@ -4,9 +4,9 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:pb="clr-namespace:PushBindingExtension"
         xmlns:cal="http://www.caliburnproject.org"
         xmlns:local="clr-namespace:BeyonSense"
-        xmlns:jc="clr-namespace:JungleControls;assembly=JungleControls"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         Title="BeyonSense" Height="600" Width="800"
@@ -326,24 +326,34 @@
                         </Button.Template>
                     </Button>
                 </Grid>
+                
+                
+                
+                
+                
+                
+                
+                
 
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
                     <!-- Image source binding-->
                     <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5"
                            IsEnabled="{Binding ImageBool}">
-                        <!--
-                        <u:DataPiping.DataPipes>
-                            <u:DataPipeCollection>
-                                <u:DataPipe Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}, Path=ActualWidth}"
-                         Target="{Binding Path=MyWidth, Mode=OneWayToSource}"/>
-                                <u:DataPipe Source="{Binding RelativeSource={RelativeSource AncestorType={x:Type Image}}, Path=ActualHeight}"
-                         Target="{Binding Path=MyHeight, Mode=OneWayToSource}"/>
-                            </u:DataPipeCollection>
-                        </u:DataPiping.DataPipes>
-                        
-                        -->
-                        
+
+                        <Image.Style>
+                            <Style TargetType="Image">
+                                <Setter Property="pb:PushBindingManager.StylePushBindings">
+                                    <Setter.Value>
+                                        <pb:PushBindingCollection>
+                                            <pb:PushBinding TargetProperty="ActualHeight" Path="MyHeight"/>
+                                            <pb:PushBinding TargetProperty="ActualWidth" Path="MyWidth"/>
+                                        </pb:PushBindingCollection>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Image.Style>
+
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
                                 <cal:ActionMessage MethodName="ClickPoint">
@@ -352,12 +362,21 @@
                                 </cal:ActionMessage>
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        
-                        
 
                     </Image>
                 </Grid>
 
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
                 <!-- Column 3: Table and Buttons-->
                 <StackPanel Grid.Column ="3" Orientation="Vertical">
 
@@ -402,6 +421,11 @@
                         <Button Grid.Column ="1" Content="OK" Height="10"
                                 FontSize ="10" HorizontalAlignment="Center"
                                 IsEnabled="{Binding OKBool}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <cal:ActionMessage MethodName="AddNewLabel" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </Button>
 
                     </Grid>
