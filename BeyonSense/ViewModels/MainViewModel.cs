@@ -809,7 +809,7 @@ namespace BeyonSense.ViewModels
         /// <param name="_cornerPoint">Corner Point Collection</param>
         /// <returns>int the number of pixel</returns>
         
-        public int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
+       public int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
         {
             int num_pixel = 0;
             int num_point = _cornerPoint.Count;
@@ -823,7 +823,7 @@ namespace BeyonSense.ViewModels
             }
 
             //y축 범위 구하기
-            int min = 100000000;//임의의 큰 값
+            int min = points[0,0];//임의의 값
             int max = 0;
             for (int i = 0; i < num_point; i++)
             {
@@ -925,7 +925,7 @@ namespace BeyonSense.ViewModels
             return num_pixel;
         }
         #endregion
-
+        
         #region Point Calculator
         /// <summary>
         /// Make ClassPoints Collection and Corner Points Dictionary
