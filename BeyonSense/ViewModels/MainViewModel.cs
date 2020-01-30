@@ -744,8 +744,10 @@ namespace BeyonSense.ViewModels
             if (recursiveCount > 3) {
                 if (!recursiveAlert)
                 {
+                    Items.Clear();
                     MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
                     recursiveAlert = true;
+                    
                     return;
                 }
                 else
