@@ -209,6 +209,8 @@ namespace BeyonSense.ViewModels
 
         public List<Color> AddColors(int n)
         {
+            
+
             // The number of basic color
             const int numBasicColor = 6;
 
@@ -238,18 +240,20 @@ namespace BeyonSense.ViewModels
 
 
             // If there is any not used basic colors, allocate them in new color list
-            for (int i = numBasicColor - count ; i > 0 ; i--) 
+            for (int i = numBasicColor - count ; i > 0 ; i--)
             {
+                if (NewColors.Count == n)
+                {
+                    return NewColors;
+                }
+
                 int[] arr = new int[3] {BasicColor[numBasicColor - i, 0], 
                                         BasicColor[numBasicColor - i, 1],
                                         BasicColor[numBasicColor - i, 2] };
 
                 NewColors.Add(IntArrayToColor(arr));
 
-                if(NewColors.Count == n)
-                {
-                    return NewColors;
-                }
+
             }
 
             // Allocate new colors if there is no basic color we can use
@@ -259,6 +263,9 @@ namespace BeyonSense.ViewModels
 
             while (true)
             {
+
+                if (NewColors.Count == n) break;
+
                 int[] arr = new int[3] { rnd.Next(255) ,
                                         rnd.Next(255) ,
                                         rnd.Next(255) };
@@ -276,7 +283,6 @@ namespace BeyonSense.ViewModels
                     }
                 }
 
-                if (NewColors.Count == n) break;
             }
 
             return NewColors;
@@ -1615,7 +1621,16 @@ namespace BeyonSense.ViewModels
             src.CacheOption = BitmapCacheOption.OnLoad;
             src.EndInit();
 
-            return src;
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                dc.DrawImage(src, new Rect(0, 0, BmpWidth, BmpHeight));
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+
+            return rtb;
         }
 
     }
