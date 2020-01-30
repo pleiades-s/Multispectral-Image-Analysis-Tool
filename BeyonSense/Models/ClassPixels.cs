@@ -27,8 +27,17 @@ namespace BeyonSense.Models
         
         }
 
-        
 
-        public Color ClassColor { get; set; }
+        private Color classColor = Colors.Transparent;
+
+        public Color ClassColor
+        {
+            get { return classColor; }
+            set
+            {
+                classColor = value;
+            }
+        }
+
     }
 }

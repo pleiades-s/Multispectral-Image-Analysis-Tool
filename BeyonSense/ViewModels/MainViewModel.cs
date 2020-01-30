@@ -186,30 +186,6 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Shuffle color
-
-        public Random random = new Random();
-
-        public Tuple<int, int> RandomNumber(int[,] boolArray, int num)
-        {
-
-            Tuple<int, int> _tuple = Tuple.Create(random.Next(0, num), random.Next(0, num));
-
-            int idx1 = Math.Max(_tuple.Item1, _tuple.Item2);
-            int idx2 = Math.Min(_tuple.Item1, _tuple.Item2);
-
-            while (boolArray[idx1, idx2] != 0)
-            {
-                _tuple = Tuple.Create(random.Next(0, num), random.Next(0, num));
-                idx1 = Math.Max(_tuple.Item1, _tuple.Item2);
-                idx2 = Math.Min(_tuple.Item1, _tuple.Item2);
-            }
-
-            return Tuple.Create(idx1, idx2);
-        }
-
-        #endregion
-
         #region Color generator function
 
         /// <summary>
@@ -219,93 +195,91 @@ namespace BeyonSense.ViewModels
         /// <returns> int 2-dimension array N x 3 </returns>
 
 
-        public List<Color> ColorGenerator(int n)
+        // Change int r, int g, int b to Color(r,g,b)
+        private Color IntArrayToColor(int[] arr)
         {
 
-            int[,] basic_color = new int[6, 3] { { 255, 0, 0 }, { 0, 255, 0 },
-                                                { 0, 0, 255 }, { 255, 255, 0 }, { 0, 255, 255 },
-                                                { 255, 0, 255 } };
+            byte r = BitConverter.GetBytes(arr[0])[0];
+            byte g = BitConverter.GetBytes(arr[1])[0];
+            byte b = BitConverter.GetBytes(arr[2])[0];
 
-            int[,] generator_color = new int[n, 3];
+            return Color.FromArgb(255, r, g, b);
+        }
 
-            // Boolean array to check whether a random value is repeated or not
-            int[,] randomBoolean = new int[n, n];
 
-            // Initialize boolean array set to 0
-            for (int i = 0; i < n ; i++)
+        public List<Color> AddColors(int n)
+        {
+            // The number of basic color
+            const int numBasicColor = 6;
+
+            // Define basic color
+            int[,] BasicColor = new int[numBasicColor, 3] { { 255, 0, 0 }, { 0, 255, 0 }, { 0, 0, 255 },
+                                                            { 255, 255, 0 }, { 0, 255, 255 }, { 255, 0, 255 }};
+
+
+            // Used colors list
+            List<Color> UsedColors = new List<Color>();
+
+            // New colors list which is return variable
+            List<Color> NewColors = new List<Color>();
+
+            // The number of classes with actual color
+            int count = 0;
+
+            // Allocate used color in the list
+            for (int i = 0; i < ClassPoints.Count; i++)
             {
-                for (int j = 0; j < i; j++)
+                if(ClassPoints[i].ClassColor != Colors.Transparent)
                 {
-                    randomBoolean[i, j] = 0;
+                    UsedColors.Add(ClassPoints[i].ClassColor);
+                    count++;
                 }
             }
 
 
-
-            #region Less than 6
-            if (n <= 6)
+            // If there is any not used basic colors, allocate them in new color list
+            for (int i = numBasicColor - count ; i > 0 ; i--) 
             {
+                int[] arr = new int[3] {BasicColor[numBasicColor - i, 0], 
+                                        BasicColor[numBasicColor - i, 1],
+                                        BasicColor[numBasicColor - i, 2] };
 
-                for (int i = 0; i < n; i++)
+                NewColors.Add(IntArrayToColor(arr));
+
+                if(NewColors.Count == n)
                 {
-                    generator_color[i, 0] = basic_color[i, 0];
-                    generator_color[i, 1] = basic_color[i, 1];
-                    generator_color[i, 2] = basic_color[i, 2];
-
-                }
-            }
-            #endregion
-
-            #region eqaul to or more than 6
-            else
-            {
-                // Add basis colors which are eight colors
-                for (int i = 0; i < 6; i++)
-                {
-                    generator_color[i, 0] = basic_color[i, 0];
-                    generator_color[i, 1] = basic_color[i, 1];
-                    generator_color[i, 2] = basic_color[i, 2];
-                }
-
-                // New color is needed to be generated
-
-                // TODO: 
-
-                for (int i = 0; i < n - 6; i++)
-                {
-
-                    Tuple<int, int> _tuple = RandomNumber(randomBoolean, 6 + i);
-                    int index1 = _tuple.Item1, index2 = _tuple.Item2;
-                    randomBoolean[index1, index2] = 1;
-
-
-                    Console.WriteLine(index1.ToString() + " " + index2.ToString());
-
-                    // Allocate new R, G, B value
-                    generator_color[i + 6, 0] = (int)(generator_color[index1, 0] + generator_color[index2, 0]) / 2;
-                    generator_color[i + 6, 1] = (int)(generator_color[index1, 1] + generator_color[index2, 1]) / 2;
-                    generator_color[i + 6, 2] = (int)(generator_color[index1, 2] + generator_color[index2, 2]) / 2;
-                   
+                    return NewColors;
                 }
             }
 
-            #endregion
+            // Allocate new colors if there is no basic color we can use
+            Random rnd = new Random();
 
+            Color newColor;
 
-            List<Color> random_color = new List<Color>();
-
-            for (int i = 0; i < n; i++)
+            while (true)
             {
+                int[] arr = new int[3] { rnd.Next(255) ,
+                                        rnd.Next(255) ,
+                                        rnd.Next(255) };
 
-                byte r = BitConverter.GetBytes(generator_color[i, 0])[0];
-                byte g = BitConverter.GetBytes(generator_color[i, 1])[0];
-                byte b = BitConverter.GetBytes(generator_color[i, 2])[0];
+                newColor = IntArrayToColor(arr);
 
-                random_color.Add(Color.FromArgb(255, r, g, b));
+                // For vivid colors
+                if (arr[0] + arr[1] + arr[2] < 750)
+                {
+                    // If new color is not in the used color list
+                    if (!UsedColors.Contains(newColor))
+                    {
+                        UsedColors.Add(newColor);
+                        NewColors.Add(newColor);
+                    }
+                }
 
+                if (NewColors.Count == n) break;
             }
 
-            return random_color;
+            return NewColors;
         }
 
         #endregion
@@ -820,8 +794,8 @@ namespace BeyonSense.ViewModels
             //list를 array로 변화
             for (int i = 0; i < num_point; i++)
             {
-                points[i, 0] = _cornerPoint[i][0];
-                points[i, 1] = _cornerPoint[i][1];
+                points[i, 0] = _cornerPoint[i][1];
+                points[i, 1] = _cornerPoint[i][0];
             }
 
             //y축 범위 구하기
@@ -1060,7 +1034,7 @@ namespace BeyonSense.ViewModels
                 int k = ClassPoints.Count;
 
                 // Generate colors 
-                List<Color> _color = ColorGenerator(k);
+                List<Color> _color = AddColors(k);
                 for (int i = 0; i < k; i++)
                 {
                     ClassPoints[i].ClassColor = _color[i];
@@ -1081,7 +1055,7 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        // 
+
         private Color SearchColor(string className)
         {
             foreach(ClassPixels classPixels in ClassPoints)
@@ -1092,52 +1066,6 @@ namespace BeyonSense.ViewModels
             return Colors.Transparent;
             
         }
-
-
-        #region Allocate colors
-
-        // 새로운 색깔 return 
-
-        public Color AllocateColors()
-        {
-            // return value
-            Color returnColor = Colors.Transparent;
-
-            int count = ClassPoints.Count;
-            // Generate colors 
-            List<Color> _color = ColorGenerator(count + 1);
-
-            // Color classcolor : int Used
-            Dictionary<Color, int> ColorDictionary = new Dictionary<Color, int>();
-
-            // Allocate Dictionary elements
-            foreach (Color color in _color)
-            {
-                ColorDictionary.Add(color, 0);
-            }
-
-            for (int i = 0; i < count; i++)
-            {
-                if (ColorDictionary.ContainsKey(ClassPoints[i].ClassColor))
-                {
-                    ColorDictionary[ClassPoints[i].ClassColor] += 1;
-                }
-
-            }
-
-            foreach (KeyValuePair<Color, int> element in ColorDictionary)
-            {
-                // Assign unused Color
-                if (element.Value == 0)
-                {
-                    return element.Key;
-                }
-            }
-
-
-            return returnColor;
-        }
-        #endregion
 
 
         #region Plus Button Enable Bool
@@ -1268,7 +1196,7 @@ namespace BeyonSense.ViewModels
                 if (Colors.Transparent == (newLabelColor = SearchColor(newLabelName)))
                 {
                     // 2. 없으면 색 새로 만들기
-                    newLabelColor = AllocateColors();
+                    newLabelColor = AddColors(1)[0];
                 }
                 
             }
