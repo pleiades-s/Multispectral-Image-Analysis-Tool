@@ -517,6 +517,7 @@ namespace BeyonSense.ViewModels
 
                     // Automatically, show first bitmap image as a main image
                     MainBmpImage = StringToBmpSource(BmpList[0]);
+                    PlusBool = true;
 
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
@@ -1049,7 +1050,6 @@ namespace BeyonSense.ViewModels
                 #endregion
 
                 // Enable Buttons
-                PlusBool = true;
                 TrainBool = true;
 
                 
