@@ -60,6 +60,7 @@ namespace BeyonSense.ViewModels
             {
                 bmpPath1 = value;
                 NotifyOfPropertyChange(() => BmpPath1);
+                DrawLabel();
             }
         }
         #endregion
@@ -998,6 +999,7 @@ namespace BeyonSense.ViewModels
                                     {
                                         MessageBox.Show("Your csv files might have wrong format.\n");
                                         ClassPoints.Clear();
+                                        Console.WriteLine("CSV Fromat Error: " + e);
                                         return;
                                     }
 
@@ -1325,6 +1327,35 @@ namespace BeyonSense.ViewModels
             return pos;
         }
 
+
+        private string GetParentDirPath()
+        {
+            #region Get parent directory path
+            // Get current directory path
+            string _path = BmpPath1;
+
+            // If the paht is a file path, get parent directory path
+
+            // Exception: If we have no path, return empty
+            if (string.IsNullOrEmpty(_path))
+                return "";
+
+            // Make all slashes back slashes
+            var normalizedPath = _path.Replace('/', '\\');
+
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('\\');
+
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return "";
+
+            //  Remove file name from the file path so we can get a parent directory path
+            return normalizedPath.Substring(0, lastIndex);
+
+            #endregion
+        }
+
         #region TODO: Ok Button Handler
         /// <summary>
         /// Add button click event handler
@@ -1379,8 +1410,7 @@ namespace BeyonSense.ViewModels
 
 
             ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
-            ClickedPosition.Clear();
-            newLabelColor = Colors.Transparent;
+
 
             // 자료구조에 반영하는 부분
 
@@ -1409,7 +1439,7 @@ namespace BeyonSense.ViewModels
             // New class name doesn't exist in ClassPoint (table item source)
             if(ack == 0)
             {
-                ClassPoints.Add(new ClassPixels() { ClassName = newLabelName, NumPoints = PixelCalculator(newCornerPoints) });
+                ClassPoints.Add(new ClassPixels() { ClassName = newLabelName, NumPoints = PixelCalculator(newCornerPoints), ClassColor = newLabelColor });
             }
 
             #endregion
@@ -1463,8 +1493,9 @@ namespace BeyonSense.ViewModels
                 CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
             }
 
+            ClickedPosition.Clear();
+            newLabelColor = Colors.Transparent;
 
-            
 
 
         }
@@ -1480,7 +1511,10 @@ namespace BeyonSense.ViewModels
             // 3. 없으면 끝, 있으면 다음
 
             // 4. ObserableCollection 반복하면서 그림 그리기
-            if (String.IsNullOrEmpty(CsvPath)) return;
+            if (String.IsNullOrEmpty(CsvPath))
+            {
+                CsvPath = GetParentDirPath() + '\\' + "metadata.csv";
+            }
 
             if (CornerPoint.ContainsKey(CsvPath))
             {
