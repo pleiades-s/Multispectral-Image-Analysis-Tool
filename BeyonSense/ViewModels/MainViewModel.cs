@@ -588,8 +588,6 @@ namespace BeyonSense.ViewModels
             ImageBool = false;
             CanBeReverted = false;
 
-
-
         }
         #endregion
 
@@ -1699,11 +1697,13 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-
         #region Bitmap Rewind Stack
 
         private Stack DrawLayer = new Stack();
 
+        #endregion
+
+        #region Revert Boolean Variable
 
         private bool canBeReverted = false;
 
@@ -1716,6 +1716,10 @@ namespace BeyonSense.ViewModels
                 NotifyOfPropertyChange(() => canBeReverted);
             }
         }
+
+        #endregion
+
+        #region Revert Button Handler
 
         public void Revert()
         {
@@ -1742,8 +1746,8 @@ namespace BeyonSense.ViewModels
                 return;
 
         }
-        #endregion
 
+        #endregion
 
     }
 }
