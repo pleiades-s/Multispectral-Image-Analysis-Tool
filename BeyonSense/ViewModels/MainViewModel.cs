@@ -66,6 +66,16 @@ namespace BeyonSense.ViewModels
             {
                 bmpPath1 = value;
                 NotifyOfPropertyChange(() => BmpPath1);
+
+                // Initialize new class data for data integrity
+                newLabelName = "";
+                ClickedPosition.Clear();
+                newLabelColor = Colors.Transparent;
+
+                // Reset boolean variables
+                OKBool = false;
+                ImageBool = false;
+
                 DrawLabel();
             }
         }
@@ -144,7 +154,6 @@ namespace BeyonSense.ViewModels
         private readonly int BmpWidth = 800;
 
         #endregion
-
 
         #region Main Bitmap image source
 
@@ -565,6 +574,17 @@ namespace BeyonSense.ViewModels
             // Disable to click main image
             ImageBool = false;
 
+            // Initialize new class data for data integrity
+            newLabelName = "";
+            ClickedPosition.Clear();
+            newLabelColor = Colors.Transparent;
+
+            // Reset boolean variables
+            OKBool = false;
+            ImageBool = false;
+
+
+
         }
         #endregion
 
@@ -738,8 +758,6 @@ namespace BeyonSense.ViewModels
 
         }
         #endregion
-
-
 
         #region Walking Directory
         /// <summary>

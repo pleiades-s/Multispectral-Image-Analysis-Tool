@@ -145,11 +145,11 @@
                     </ScrollViewer>
                 </Grid>
 
-                
-                
-                
-                
-                
+
+
+
+
+
                 <!-- Column 1: Thumbnails-->
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
@@ -334,16 +334,20 @@
                         </Button.Template>
                     </Button>
                 </Grid>
-                
-                
-                
-                
+
+
+
+
 
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="145*"/>
+                        <RowDefinition Height="306*"/>
+                    </Grid.RowDefinitions>
                     <!-- Image source binding-->
-                    <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5"
-                           IsEnabled="{Binding ImageBool}">
+                    <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5,5,5.333,4.667"
+                           IsEnabled="{Binding ImageBool}" Grid.RowSpan="2">
 
                         <Image.Style>
                             <Style TargetType="Image">
@@ -370,17 +374,17 @@
                     </Image>
                 </Grid>
 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+
+
+
+
+
+
+
+
+
+
+
                 <!-- Column 3: Table and Buttons-->
                 <StackPanel Grid.Column ="3" Orientation="Vertical">
 
