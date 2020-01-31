@@ -139,8 +139,25 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Main Bitmap image source
 
-        #region Main Bitmap image path
+
+        #region Initialize default image
+        /// <summary>
+        /// Return bitmap source of default image
+        /// </summary>
+        /// <returns>Bitmap source of default image </returns>
+        private BitmapSource DefaultImageSource()
+        {
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri("pack://application:,,,/Pictures/no_image.png");
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+
+            return src;
+        }
+        #endregion
 
         private BitmapSource mainBmpImage;
 
@@ -156,7 +173,7 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Selected Parameter Dictionary File Path
+        #region Selected File Path by File Explorer
 
         private string pthPath;
 
@@ -186,16 +203,13 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Color generator function
+        #region Color generator functions
 
         /// <summary>
-        /// This function can generate n colors
+        /// Change int[3]{r, g, b} to Color(r, g, b)
         /// </summary>
-        /// <param name="n"> The number of colors</param>
-        /// <returns> int 2-dimension array N x 3 </returns>
-
-
-        // Change int r, int g, int b to Color(r,g,b)
+        /// <param name="arr">int[3]{r, g, b}</param>
+        /// <returns>Color(r, g, b)</returns>
         private Color IntArrayToColor(int[] arr)
         {
 
@@ -206,7 +220,11 @@ namespace BeyonSense.ViewModels
             return Color.FromArgb(255, r, g, b);
         }
 
-
+        /// <summary>
+        /// Make new colors 
+        /// </summary>
+        /// <param name="n">How many new colors are needed</param>
+        /// <returns>New color list</returns>
         public List<Color> AddColors(int n)
         {
             
@@ -272,7 +290,7 @@ namespace BeyonSense.ViewModels
 
                 newColor = IntArrayToColor(arr);
 
-                // For vivid colors
+                // For vivid colors becuase #FFFFFF equals to Colors.Transparent
                 if (arr[0] + arr[1] + arr[2] < 750)
                 {
                     // If new color is not in the used color list
@@ -317,19 +335,18 @@ namespace BeyonSense.ViewModels
                     // Color, NumPoints Clear
                     Colour = Color.FromArgb(0, 255, 255, 255);
                     NumPoints = "";
-                    csvFilePaths.Clear();
+                    CsvFilePaths.Clear();
 
                     // Plus Button Reset
                     PlusBool = false;
                     #endregion
 
-                    // Button Rest
+                    // Button Reset
                     SaveBool = false;
                     TrainBool = false;
                     OKBool = false;
 
-
-                    // Calculate inside pixels and update table elements
+                    // Calculate numPoints and update table elements
                     PointCalculator(rootPath);
                 }
             }
@@ -344,14 +361,7 @@ namespace BeyonSense.ViewModels
         /// </summary>
         public MainViewModel()
         {
-            
-            BitmapImage src = new BitmapImage();
-            src.BeginInit();
-            src.UriSource = new Uri("pack://application:,,,/Pictures/no_image.png");
-            src.CacheOption = BitmapCacheOption.OnLoad;
-            src.EndInit();
-
-            MainBmpImage = src;
+            MainBmpImage = DefaultImageSource();
         }
 
         #endregion
@@ -383,7 +393,7 @@ namespace BeyonSense.ViewModels
         /// Show directory tree from the selected directory
         /// </summary>
         /// <param name="path">Selected path from folder explorer</param>
-        public void StartDirectoryTree(string path)
+        private void StartDirectoryTree(string path)
         {
             #region Directory TreeView
             // Get the selected directory path
@@ -418,7 +428,7 @@ namespace BeyonSense.ViewModels
                 return;
 
             else
-            //MessageBox.Show("Its a file");
+            // MessageBox.Show("Its a file");
 
             #endregion
 
@@ -460,10 +470,10 @@ namespace BeyonSense.ViewModels
             if (folder.Exists)
             {
 
-                //loop for files in the folder
+                // Loop for files in the folder
                 foreach (FileInfo fileInfo in folder.GetFiles())
                 {
-                    //each file path
+                    // Each file path
                     string filePath = dirPath + '\\' + fileInfo.Name;
 
                     // Check exetension of each file or folder: using GetExtension(string str)
@@ -492,7 +502,7 @@ namespace BeyonSense.ViewModels
 
                 }
 
-                //Error message to choose correct directory again: six bitmap images, an optional csv file
+                // Error message to choose correct directory again: six bitmap images, an optional csv file
                 if (num_bmp != 6 || num_csv > 1)
                 {
                     MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
@@ -501,8 +511,6 @@ namespace BeyonSense.ViewModels
 
                 else
                 {
-                    //MessageBox.Show(csvPath);
-
                     // Enable clickable thumbnails when bitmap images are successfully loaded.
                     ClickableImage = true;
 
@@ -522,7 +530,6 @@ namespace BeyonSense.ViewModels
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
                     DrawLabel();
-                    //MessageBox.Show("bmp: " + num_bmp.ToString() + "\ncsv: " +  num_csv.ToString() + "\nTotal: "+ num_Files.ToString());
                 }
             }
             #endregion
@@ -538,28 +545,24 @@ namespace BeyonSense.ViewModels
         /// <param name="path"></param>
         public void PopupMainImage(string path)
         {
-            //MessageBox.Show(path);
-            //MainBmpImage = path;
 
-            System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
-            BitmapImage src = new BitmapImage();
-            src.BeginInit();
-            src.UriSource = new Uri(fi.FullName, UriKind.Absolute);
-            src.CacheOption = BitmapCacheOption.OnLoad;
-            src.EndInit();
+            // Binding clicked image
+            MainBmpImage = StringToBmpSource(path);
 
-            MainBmpImage = src;
-
+            // Draw lines over image
             DrawLabel();
 
+            // Disable to click main image
             ImageBool = false;
-
 
         }
         #endregion
 
         #region Open Button Click Handler: Parameter Dictionary File Explorer
 
+        /// <summary>
+        ///  Open file explorer
+        /// </summary>
         public void FileOpen()
         {
 
@@ -613,6 +616,9 @@ namespace BeyonSense.ViewModels
 
         #region Selected Row
 
+        /// <summary>
+        /// A selected row in the table on the MainView
+        /// </summary>
         private ClassPixels selectedRow;
 
         public ClassPixels SelectedRow
@@ -625,14 +631,17 @@ namespace BeyonSense.ViewModels
 
                 if (selectedRow != null)
                 {
+                    // Binding selected color and numPoints
                     Colour = selectedRow.ClassColor;
                     NumPoints = selectedRow.NumPoints.ToString();
                 }
                 else
                 {
+                    // Reset color and numPoints
                     Colour = Color.FromArgb(0, 255, 255, 255);
                     NumPoints = "";
                 }
+
                 NotifyOfPropertyChange(() => SelectedRow);
 
             }
@@ -699,15 +708,7 @@ namespace BeyonSense.ViewModels
 
         #region All Csv File Paths
         // Every csv file path under the selected folder
-        private List<string> _csvFilePaths = new List<string>();
-        public List<string> csvFilePaths
-        {
-            get { return _csvFilePaths; }
-            set
-            {
-                _csvFilePaths = value;
-            }
-        }
+        private List<string> CsvFilePaths { get; set; } = new List<string>();
         #endregion
 
         #region Walking Directory
@@ -717,10 +718,10 @@ namespace BeyonSense.ViewModels
         /// <param name="sDir">string _rootDir</param>
 
         // Warning variables preventing to open deep directory tree
-        public int recursiveCount = 0;
-        public bool recursiveAlert = false;
+        private int recursiveCount = 0;
+        private bool recursiveAlert = false;
 
-        public void DirSearch(string sDir)
+        private void DirSearch(string sDir)
         {
             if (recursiveCount > 3) {
                 if (!recursiveAlert)
@@ -743,21 +744,19 @@ namespace BeyonSense.ViewModels
                 {
                     foreach (string f in Directory.GetFiles(d))
                     {
-                        //Console.WriteLine(f);
-
                         // Check it file exetension is csv or not
                         if (System.IO.Path.GetExtension(f) == ".csv")
                         {
                             // Add csv file path in the list
-                            csvFilePaths.Add(f);
-
-                            //Console.WriteLine(f);
+                            CsvFilePaths.Add(f);
                         }
                     }
                     DirSearch(d);
                     recursiveCount++;
                 }
             }
+
+            // In case of stack overflow
             catch (System.Exception excpt)
             {
                 Console.WriteLine("DirSearch Exception: " + excpt);
@@ -767,13 +766,13 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region String -> Int Converter
+        #region Convert String into Integer
         /// <summary>
         /// Converter: String to Integer
         /// </summary>
         /// <param name="str">string num</param>
         /// <returns>int num</returns>
-        public int StrToInt(string str)
+        private int StrToInt(string str)
         {
             int i = 0;
             if (!Int32.TryParse(str, out i))
@@ -792,22 +791,23 @@ namespace BeyonSense.ViewModels
         /// <param name="_cornerPoint">Corner Point Collection</param>
         /// <returns>int the number of pixel</returns>
         
-       public int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
+       private int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
         {
             int num_pixel = 0;
             int num_point = _cornerPoint.Count;
             int[,] points = new int[num_point, 2];
 
-            //list를 array로 변화
+            // Change array into list
             for (int i = 0; i < num_point; i++)
             {
                 points[i, 0] = _cornerPoint[i][1];
                 points[i, 1] = _cornerPoint[i][0];
             }
 
-            //y축 범위 구하기
-            int min = points[0,0];//임의의 값
+            // Calculate range of y value
+            int min = points[0,0];
             int max = 0;
+
             for (int i = 0; i < num_point; i++)
             {
                 if (points[i, 0] < min)
@@ -821,37 +821,55 @@ namespace BeyonSense.ViewModels
                 }
             }
 
-            //각 y축에 따른 list 초기화
+            // Initialize list for each y values along y axis
             List<List<int>> boundary = new List<List<int>>();
             for (int i = 0; i < max - min + 1; i++)
             {
                 boundary.Add(new List<int>());
             }
 
-            //첨점은 boundary에서 제외시키기
+            // Exclude sharp point from boudary
             if ((points[num_point - 1, 0] - points[0, 0]) * (points[1, 0] - points[0, 0]) <= 0)
+            {
                 boundary[points[0, 0] - min].Add(points[0, 1]);
+            }
+
             else
+            {
                 num_pixel += 1;
+            }
+
             for (int i = 1; i < num_point - 1; i++)
             {
                 if ((points[i - 1, 0] - points[i, 0]) * (points[i + 1, 0] - points[i, 0]) <= 0)
+                {
                     boundary[points[i, 0] - min].Add(points[i, 1]);
-                else
-                    num_pixel += 1;
-            }
-            if ((points[0, 0] - points[num_point - 1, 0]) * (points[num_point - 2, 0] - points[num_point - 1, 0]) <= 0)
-                boundary[points[num_point - 1, 0] - min].Add(points[num_point - 1, 1]);
-            else
-                num_pixel += 1;
+                }
 
-            //boundary 다 구하기
+                else
+                {
+                    num_pixel += 1;
+                }
+            }
+
+            if ((points[0, 0] - points[num_point - 1, 0]) * (points[num_point - 2, 0] - points[num_point - 1, 0]) <= 0)
+            {
+                boundary[points[num_point - 1, 0] - min].Add(points[num_point - 1, 1]);
+            }
+
+            else
+            {
+                num_pixel += 1;
+            }
+
+            // Calcuate boudary positions
             for (int i = 0; i < num_point - 1; i++)
             {
                 if (points[i + 1, 0] == points[i, 0])
                 {
                     num_pixel += 0;
                 }
+
                 else if (points[i + 1, 0] - points[i, 0] > 0)
                 {
                     for (int j = 1; j < points[i + 1, 0] - points[i, 0]; j++)
@@ -859,6 +877,7 @@ namespace BeyonSense.ViewModels
                         boundary[points[i, 0] - min + j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i + 1, 0] - points[i, 0]));
                     }
                 }
+
                 else //points[i+1,0] - points[i,0] < 0
                 {
                     for (int j = 1; j < points[i, 0] - points[i + 1, 0]; j++)
@@ -867,11 +886,14 @@ namespace BeyonSense.ViewModels
                     }
                 }
             }
-            //list 마지막 성분과 첫 성분 비교
+
+
+            // Compare the first element to the last one
             if (points[num_point - 1, 0] == points[0, 0])
             {
                 num_pixel += 0;
             }
+
             else if (points[0, 0] - points[num_point - 1, 0] > 0)
             {
                 for (int j = 1; j < points[0, 0] - points[num_point - 1, 0]; j++)
@@ -879,6 +901,7 @@ namespace BeyonSense.ViewModels
                     boundary[points[num_point - 1, 0] - min + j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[0, 0] - points[num_point - 1, 0]));
                 }
             }
+
             else //points[i+1,0] - points[i,0] < 0
             {
                 for (int j = 1; j < points[num_point - 1, 0] - points[0, 0]; j++)
@@ -887,8 +910,7 @@ namespace BeyonSense.ViewModels
                 }
             }
 
-
-            // pixel 갯수 구하기
+            // Calculate the number of pixels
             for (int i = 0; i < max - min + 1; i++)
             {
                 if (boundary[i].Count == 0)
@@ -905,48 +927,33 @@ namespace BeyonSense.ViewModels
                 }
 
             }
+
             return num_pixel;
         }
         #endregion
-        
+
         #region Point Calculator
         /// <summary>
         /// Make ClassPoints Collection and Corner Points Dictionary
         /// </summary>
         /// <param name="_rootPath">A selected path by folder explorer</param>
-        /// 
-        public void PointCalculator(string _rootPath)
-        {
-            // [This method is called when a folder is selected by folder explorer]
-
+        /// [This method is called when a folder is selected by folder explorer]
+        private void PointCalculator(string _rootPath)
+        { 
             // Traverse all the directory and find all existing csv file paths
             DirSearch(_rootPath);
-
-
-            if (recursiveAlert)
-            {            
-                // Set this value to 0
-                recursiveCount = 0;
-                recursiveAlert = false;
-
-                return;
-            }
-
-            // Set this value to 0
-            recursiveCount = 0;
-            recursiveAlert = false;
 
             // Read csv file only if Dirsearch is successfully completed
             if (!recursiveAlert)
             {
-
                 // For each csv file
-                foreach (string _path in csvFilePaths)
+                foreach (string _path in CsvFilePaths)
                 {
                     // Read class name and corner points
                     ObservableCollection<ClassCornerPoints> _classCorners = new ObservableCollection<ClassCornerPoints>();
 
-
+                    #region Read Csv Format
+                    // Read csv file
                     using (var reader = new StreamReader(_path))
                     {
                         int _numLine = 0;
@@ -996,18 +1003,17 @@ namespace BeyonSense.ViewModels
                             _numLine++;                            
                         }
                     }
+                    #endregion
 
-
-                    // Allocate new dictionary { Class name: Corner point Collection<T> } <-- We'd start from here if user add new boundary
-                    // Each csv file
+                    #region Add data to Dictionary
+                    // Allocate new element into the dictionary for each csv file
                     CornerPoint.Add(_path, _classCorners);
+                    #endregion
 
-
-                    // TODO: Calculate the number of inside points and Add ClassPoints 
-
+                    #region Add data to Item Source
+                    // Calculate the number of inside points and Add ClassPoints 
                     for (int i = 0; i < _classCorners.Count; i++)
                     {
-
                         // Check if ClassPoints has same class name as _classCorners[i].ClassName
                         int ack = 0;
 
@@ -1018,7 +1024,6 @@ namespace BeyonSense.ViewModels
                                 // If there is same class name, add the value
                                 ack = 1;
                                 ClassPoints[j].NumPoints += PixelCalculator(_classCorners[i].Points);
-
                             }
                         }
 
@@ -1032,8 +1037,8 @@ namespace BeyonSense.ViewModels
                                 NumPoints = PixelCalculator(_classCorners[i].Points)
                             });
                         }
-
-                    }                                                         
+                    }
+                    #endregion
                 }
 
                 #region Initialize Class Color
@@ -1051,28 +1056,33 @@ namespace BeyonSense.ViewModels
 
                 // Enable Buttons
                 TrainBool = true;
-
-                
             }
 
-
-
+            // Set this value to 0
+            recursiveCount = 0;
+            recursiveAlert = false;
         }
 
         #endregion
 
-
+        #region Search Color by ClassName
+        /// <summary>
+        /// Search used color by class name
+        /// </summary>
+        /// <param name="className">class name</param>
+        /// <returns>the class's color</returns>
+        
         private Color SearchColor(string className)
         {
             foreach(ClassPixels classPixels in ClassPoints)
             {
-                if (className == classPixels.ClassName) return classPixels.ClassColor;
+                if (className == classPixels.ClassName) 
+                    return classPixels.ClassColor;
             }
-
             return Colors.Transparent;
-            
         }
 
+        #endregion
 
         #region Plus Button Enable Bool
 
@@ -1094,7 +1104,6 @@ namespace BeyonSense.ViewModels
 
         public void PlusClick()
         {
-            Console.WriteLine("Plus");
             PopupView popupView = new PopupView();
 
             string _name = "";
@@ -1125,7 +1134,6 @@ namespace BeyonSense.ViewModels
             else
             {
                 Console.WriteLine("Popup window is closed by Cancel button or ESC key");
-
             }
         }
         #endregion
@@ -1144,8 +1152,9 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Read Only Properties
 
-        #region ActualHeight, ActualWidth properties
+        #region ActualHeight
         private double myheight;
         public double MyHeight
         {
@@ -1158,6 +1167,10 @@ namespace BeyonSense.ViewModels
 
             }
         }
+
+        #endregion
+
+        #region ActualWidth
         private double mywidth;
         public double MyWidth
         {
@@ -1169,47 +1182,49 @@ namespace BeyonSense.ViewModels
                 //Console.WriteLine("MyWidth: " + mywidth.ToString());
             }
         }
+        #endregion
 
         #endregion
 
+        #region New Class Name, Clicked Position and its Color
+
+        private string newLabelName;
 
         private ObservableCollection<double[]> ClickedPosition = new ObservableCollection<double[]>();
 
         private Color newLabelColor = Colors.Transparent;
 
-        #region TODO: Click points on image
+        #endregion
+
+        #region Click points on image
         /// <summary>
         /// Event handler when user draw dots on main image
         /// </summary>
-        /// <param name="newLabelName">new label name from Popup window</param>
+        
         public void ClickPoint(MouseEventArgs e, IInputElement elem)
         {
-            Console.WriteLine("Actual Width: " + MyWidth.ToString());
-            Console.WriteLine("Actual Height: " + MyHeight.ToString());
-
+            #region Get clicked pixel positions
             var Clicked_X = e.GetPosition(elem).X * BmpWidth / MyWidth;
             var Clicked_Y = e.GetPosition(elem).Y * BmpHeight / MyHeight;
 
             Console.WriteLine("x: " + Clicked_X.ToString());
             Console.WriteLine("y: " + Clicked_Y.ToString());
+            #endregion
 
-
-            
-
-            if(newLabelColor == Colors.Transparent)
+            #region Allocate color for new class
+            if (newLabelColor == Colors.Transparent)
             {
                 // 1. searchcolor 
                 if (Colors.Transparent == (newLabelColor = SearchColor(newLabelName)))
                 {
-                    // 2. 없으면 색 새로 만들기
+                    // 2. Make new color if the new class has no color
                     newLabelColor = AddColors(1)[0];
                 }
-                
             }
+            #endregion
 
+            #region Draw Dot and line
             SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
-            
-
 
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
@@ -1219,14 +1234,13 @@ namespace BeyonSense.ViewModels
 
                 if (ClickedPosition.Count > 0)
                 {
-                    // ClickedPosition의 마지막 원소 좌표와 현재 클릭된 좌표를 잇는 선 그리기
+                    // Draw a line between the last element of clickedPosition list and new clicked position
                     Pen pen = new Pen(newlabelBrush, 5);
                     
                     double _x = ClickedPosition.Last()[0];
                     double _y = ClickedPosition.Last()[1];
 
                     dc.DrawLine(pen, new Point(_x, _y), new Point(Clicked_X, Clicked_Y));
-                    
                 }
             }
 
@@ -1235,20 +1249,25 @@ namespace BeyonSense.ViewModels
 
             MainBmpImage = rtb;
 
+            #endregion
+
+            #region Add clicked pixel position to the list
+
             ClickedPosition.Add(new double[2] { Clicked_X, Clicked_Y });
-            // [PlusClick 함수에서 이름을 받자마자 바로 ClickPoint 함수 실행]
 
-            // 점 세 개 이상 일 때.
-            SaveBool = true;
+            #endregion
 
-
-
+            #region Basic requirement for being clolsed shape
+            if (ClickedPosition.Count > 3)
+            {
+                SaveBool = true;
+            }
+            #endregion
 
         }
         #endregion
 
-        private string newLabelName;
-
+        #region Covert double collection into integer collection
         private ObservableCollection<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
         {
             ObservableCollection<int[]> pos = new ObservableCollection<int[]>();
@@ -1262,11 +1281,16 @@ namespace BeyonSense.ViewModels
 
             return pos;
         }
+        #endregion
 
-
+        #region Get Parent Directory Path
+        /// <summary>
+        /// Read loaded bitmap path and get the parent directory path
+        /// </summary>
+        /// <returns>string path</returns>
+        /// 
         private string GetParentDirPath()
         {
-            #region Get parent directory path
             // Get current directory path
             string _path = BmpPath1;
 
@@ -1288,37 +1312,25 @@ namespace BeyonSense.ViewModels
 
             //  Remove file name from the file path so we can get a parent directory path
             return normalizedPath.Substring(0, lastIndex);
-
-            #endregion
         }
+        #endregion
 
-        #region TODO: Ok Button Handler
+        #region Ok Button Handler
         /// <summary>
         /// Add button click event handler
         /// </summary>
-        /// <param name="newLabelName">new label name from Popup window</param>
-        /// <param name="newCornerPoints">new corner points from ClickPoint</param>
+
         public void AddNewLabel()
         {
             Console.WriteLine("Ok button is clicked.");
 
-            // 1. Main image에서 포인트 클릭할 수 있게 해야 함.
-            // 1-1. ESC key -> exit
-
-            // 2. Add 버튼이 눌리면 끝나야 함
-
-            // 최소 세 개 이상 점을 찍었을 때 
-
-            // AddNewLabel 함수 호출
-
-            // 도형이 만들어지지 못하면 exit
-            // SaveBool = false; OKBool = False;
-
             // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
 
+            // Reset boolean variables
             OKBool = false;
             ImageBool = false;
 
+            #region Draw the last line
             SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
 
             DrawingVisual dv = new DrawingVisual();
@@ -1343,32 +1355,22 @@ namespace BeyonSense.ViewModels
 
             MainBmpImage = rtb;
 
-
-
-            ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
-
-
-            // 자료구조에 반영하는 부분
-
-
-            // 인자는 ClickPoint에서 넘어오는 것을 간주함.
+            #endregion
 
             #region Update table item source
+
+            ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
 
             // Check if new label name exist or not
             int ack = 0;
             for (int i = 0; i < ClassPoints.Count; i++)
             {
-
                 if(ClassPoints[i].ClassName == newLabelName)
                 {
                     // If new class name exiset in ClassPoint (table item source)
                     ack = 1;
                     ClassPoints[i].NumPoints += PixelCalculator(newCornerPoints);
-
-
                     break;
-
                 }
             }
 
@@ -1405,67 +1407,60 @@ namespace BeyonSense.ViewModels
 
             #endregion
 
-
-            // 생성: new ClassCornerPoints() { ClassName = newLabelName, Points = newCornerPoints })
+            #region Update Dictionary
             ClassCornerPoints newLabelPoints = new ClassCornerPoints() { ClassName = newLabelName, Points = newCornerPoints };
 
-            // dictionary에 csv path 가 있는 경우
-            
+            // If there is alreaey csv path in the dictionary
             if (CornerPoint.ContainsKey(dirPath + '\\' + "metadata.csv"))
             {
-                // csv path가 있으면,
-                // path key 로 value 찾고 
-                // value.Add( 생성했던 ClassCornerPoints)
                 CornerPoint[dirPath + '\\' + "metadata.csv"].Add(newLabelPoints);
-                
             }
 
-            // dictionary에 csv path가 없는 경우: new csv file 생성해야 함. 
-            
-            // 여기 아직 확인 안 함!
+            // If there isn't, we gotta make new csv file
             else
             {
-                // dictionary.Add(csv 새로운 path, new ObservableCollection<ClassCornerPoints>{생성한 ClassCornerPoints})
                 CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
             }
+
+            #endregion
+
+            #region Reset Temporary Variables
 
             ClickedPosition.Clear();
             newLabelColor = Colors.Transparent;
 
-
-
+            #endregion
         }
+
         #endregion
 
-
-        public void DrawLabel()
+        #region Draw Labels
+        private void DrawLabel()
         {
-            // 1. 현재 csv file path 가져옴
-
-            // 2. dictionary IsContain 해보기
-
-            // 3. 없으면 끝, 있으면 다음
-
-            // 4. ObserableCollection 반복하면서 그림 그리기
+            # region Get csv file path
+             
             if (String.IsNullOrEmpty(CsvPath))
             {
+                //If there is no csv file, set a csv file path
                 CsvPath = GetParentDirPath() + '\\' + "metadata.csv";
             }
+            #endregion
 
+            #region Traversal dictionary and draw
             if (CornerPoint.ContainsKey(CsvPath))
             {
                 foreach (ClassCornerPoints classCornerPoints in CornerPoint[CsvPath])
                 {
+                    #region Draw each shape
                     DrawingVisual dv = new DrawingVisual();
                     using (DrawingContext dc = dv.RenderOpen())
                     {
+                        // Make Brush using class color
                         SolidColorBrush classBrush = new SolidColorBrush(SearchColor(classCornerPoints.ClassName));
-                        // TODO: ClassPoints 에서 classname 검색해서 해당 색깔 가져오기
 
                         dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
-                        // 점, 선 반복 그리기
-
+                        // Draw dot and line repeatedly
 
                         Pen pen = new Pen(classBrush, 5);
 
@@ -1483,7 +1478,7 @@ namespace BeyonSense.ViewModels
 
                         }
 
-                        // 마지막 점 이랑 선
+                        // Draw line between the first dot and the last one
                         var x_last = classCornerPoints.Points[i][0];
                         var y_last = classCornerPoints.Points[i][1];
                         var x_first = classCornerPoints.Points[0][0];
@@ -1497,10 +1492,13 @@ namespace BeyonSense.ViewModels
                     rtb.Render(dv);
 
                     MainBmpImage = rtb;
+
+                    #endregion
                 }
             }
-            
+            #endregion
         }
+        #endregion
 
         #region Save Button Enable Bool
 
@@ -1571,17 +1569,12 @@ namespace BeyonSense.ViewModels
                         w.WriteLine(header);
                         w.Flush();
 
-                        // value.count loop
                         for (int i = 0; i < collection.Value.Count; i++)
                         {
-                            //value[i].ClassName
                             string line = collection.Value[i].ClassName;
 
-                            //value[i].Points loop
                             for (int j = 0; j < collection.Value[i].Points.Count; j++)
                             {
-                                //value[i].Points[j][,]
-
                                 //x position
                                 line += ",";
                                 line += collection.Value[i].Points[j][0].ToString();
@@ -1589,9 +1582,7 @@ namespace BeyonSense.ViewModels
                                 // y position
                                 line += ",";
                                 line += collection.Value[i].Points[j][1].ToString();
-
                             }
-
                             w.WriteLine(line);
                             w.Flush();
                         }
@@ -1612,6 +1603,7 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region String Path to Bitmap Source
         private BitmapSource StringToBmpSource(string path)
         {
             System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
@@ -1632,6 +1624,7 @@ namespace BeyonSense.ViewModels
 
             return rtb;
         }
+        #endregion
 
     }
 }
