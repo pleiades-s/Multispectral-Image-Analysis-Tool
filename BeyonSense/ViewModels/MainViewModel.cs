@@ -50,9 +50,15 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region Default Image
+
+        const string DefaultImagePath = "/Pictures/no_image.png";
+
+        #endregion
+
         #region Bitmap path 1
 
-        private string bmpPath1 = "/Pictures/no_image.png";
+        private string bmpPath1 = DefaultImagePath;
         public string BmpPath1
         {
             get { return bmpPath1; }
@@ -66,7 +72,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Bitmap path 2
-        private string bmpPath2 = "/Pictures/no_image.png";
+        private string bmpPath2 = DefaultImagePath;
         public string BmpPath2
         {
             get { return bmpPath2; }
@@ -79,7 +85,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Bitmap path 3
-        private string bmpPath3 = "/Pictures/no_image.png";
+        private string bmpPath3 = DefaultImagePath;
         public string BmpPath3
         {
             get { return bmpPath3; }
@@ -92,7 +98,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Bitmap path 4
-        private string bmpPath4 = "/Pictures/no_image.png";
+        private string bmpPath4 = DefaultImagePath;
         public string BmpPath4
         {
             get { return bmpPath4; }
@@ -105,7 +111,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Bitmap path 5
-        private string bmpPath5 = "/Pictures/no_image.png";
+        private string bmpPath5 = DefaultImagePath;
         public string BmpPath5
         {
             get { return bmpPath5; }
@@ -118,7 +124,7 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Bitmap path 6
-        private string bmpPath6 = "/Pictures/no_image.png";
+        private string bmpPath6 = DefaultImagePath;
         public string BmpPath6
         {
             get { return bmpPath6; }
@@ -139,6 +145,7 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+
         #region Main Bitmap image source
 
 
@@ -151,7 +158,7 @@ namespace BeyonSense.ViewModels
         {
             BitmapImage src = new BitmapImage();
             src.BeginInit();
-            src.UriSource = new Uri("pack://application:,,,/Pictures/no_image.png");
+            src.UriSource = new Uri("pack://application:,,," + DefaultImagePath);
             src.CacheOption = BitmapCacheOption.OnLoad;
             src.EndInit();
 
@@ -505,7 +512,10 @@ namespace BeyonSense.ViewModels
                 // Error message to choose correct directory again: six bitmap images, an optional csv file
                 if (num_bmp != 6 || num_csv > 1)
                 {
+                    ResetImages();
                     MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
+
+
                     return;
                 }
 
@@ -711,6 +721,26 @@ namespace BeyonSense.ViewModels
         private List<string> CsvFilePaths { get; set; } = new List<string>();
         #endregion
 
+        #region Reset All images
+
+        private void ResetImages()
+        {
+            #region Reset all the images
+            BmpPath1 = DefaultImagePath;
+            BmpPath2 = DefaultImagePath;
+            BmpPath3 = DefaultImagePath;
+            BmpPath4 = DefaultImagePath;
+            BmpPath5 = DefaultImagePath;
+            BmpPath6 = DefaultImagePath;
+
+            MainBmpImage = DefaultImageSource();
+            #endregion
+
+        }
+        #endregion
+
+
+
         #region Walking Directory
         /// <summary>
         /// Get every csv file paths and add into csvFilePaths variable
@@ -727,7 +757,9 @@ namespace BeyonSense.ViewModels
                 if (!recursiveAlert)
                 {
                     Items.Clear();
+                    ResetImages();
                     MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
+
                     recursiveAlert = true;
                     
                     return;
