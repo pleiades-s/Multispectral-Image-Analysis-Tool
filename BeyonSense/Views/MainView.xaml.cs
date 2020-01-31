@@ -16,5 +16,6 @@ namespace BeyonSense.Views
             InitializeComponent();
             this.DataContext = new MainViewModel();
         }
+
     }
 }

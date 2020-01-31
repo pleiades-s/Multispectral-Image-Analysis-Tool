@@ -8,6 +8,9 @@ using System.Windows.Media;
 
 namespace BeyonSense.Models
 {
+    /// <summary>
+    /// ClassName and Corner points to draw over image
+    /// </summary>
     public class ClassCornerPoints
     {
         public string ClassName { get; set; }

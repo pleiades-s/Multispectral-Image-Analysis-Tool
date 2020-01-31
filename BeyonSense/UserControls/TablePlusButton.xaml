@@ -38,7 +38,7 @@
             </Ellipse>
             <TextBlock HorizontalAlignment="Center" Text="+" TextAlignment="Center" 
                        VerticalAlignment="Center" Margin="6,0,6,3.2" 
-                       Style="{StaticResource Cross}"/>
+                       Style="{StaticResource Cross}" MouseLeftButtonDown="Plus_MouseLeftButtonDown"/>
         </Grid>
     </Viewbox>
 
