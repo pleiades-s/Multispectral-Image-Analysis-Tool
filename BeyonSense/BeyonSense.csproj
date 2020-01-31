@@ -102,7 +102,7 @@
     <Compile Include="Models\ClassPixels.cs" />
     <Compile Include="Models\DirectoryItem.cs" />
     <Compile Include="Models\DirectoryItemType.cs" />
-    <Compile Include="DirectoryStructure.cs" />
+    <Compile Include="Helpers\DirectoryStructure.cs" />
     <Compile Include="PushBinding\FreezableBinding.cs" />
     <Compile Include="PushBinding\PushBinding.cs" />
     <Compile Include="PushBinding\PushBindingCollection.cs" />
@@ -219,7 +219,9 @@
   <ItemGroup>
     <Resource Include="Themes\Metro\HowToApplyTheme.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="PushBinding\README.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.2.5.0\build\Fody.targets" Condition="Exists('..\packages\Fody.2.5.0\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

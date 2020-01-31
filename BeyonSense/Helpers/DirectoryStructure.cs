@@ -9,15 +9,6 @@ namespace BeyonSense
     /// </summary>
     public static class DirectoryStructure
     {
-        /// <summary>
-        /// Gets all logical drives on the computer
-        /// </summary>
-        /// <returns></returns>
-        //public static List<DirectoryItem> GetLogicalDrives()
-        //{
-        //    // Get every logical drive on the machine
-        //    return Directory.GetLogicalDrives().Select(drive => new DirectoryItem { FullPath = drive, Type = DirectoryItemType.Drive }).ToList();
-        //}
 
         public static List<DirectoryItem> GetRootFolder(string path)
         {

@@ -8,6 +8,9 @@ using System.Windows.Media;
 
 namespace BeyonSense.Models
 {
+    /// <summary>
+    /// Each item for the table on MainView
+    /// </summary>
     public class ClassPixels : Screen
     {
         public string ClassName { get; set; }
@@ -27,8 +30,17 @@ namespace BeyonSense.Models
         
         }
 
-        
 
-        public Color ClassColor { get; set; }
+        private Color classColor = Colors.Transparent;
+
+        public Color ClassColor
+        {
+            get { return classColor; }
+            set
+            {
+                classColor = value;
+            }
+        }
+
     }
 }

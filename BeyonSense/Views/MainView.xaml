@@ -16,10 +16,9 @@
 
     <Border Padding="10">
         <!-- TODO: Grid background 추가: UI beautifying-->
-        <!-- TODO: Resize 할 때, element 위치관계 확인하기 -->
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="100"/>
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
 
@@ -89,19 +88,22 @@
             <!-- Row 1-->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="200"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Column 0: Image set -->
-                <StackPanel Grid.Column="0" Orientation="Vertical">
-                    <TextBlock Text="Image Set"/>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Image Set" FontWeight="Bold" 
+                               FontSize="15" Margin="5, 0, 0, 5"/>
 
-                    <!-- TODO: ScrollViewer 크기를 꽉 차게 못 하나?-->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Height="440">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
 
                         <!-- Treeview -->
                         <TreeView x:Name="DirectoryTree" ItemsSource="{Binding Items}"
@@ -140,7 +142,12 @@
 
                         </TreeView>
                     </ScrollViewer>
-                </StackPanel>
+                </Grid>
+
+
+
+
+
 
                 <!-- Column 1: Thumbnails-->
                 <Grid Grid.Column="1">
@@ -326,20 +333,20 @@
                         </Button.Template>
                     </Button>
                 </Grid>
-                
-                
-                
-                
-                
-                
-                
-                
+
+
+
+
 
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="145*"/>
+                        <RowDefinition Height="306*"/>
+                    </Grid.RowDefinitions>
                     <!-- Image source binding-->
-                    <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5"
-                           IsEnabled="{Binding ImageBool}">
+                    <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5,5,5.333,4.667"
+                           IsEnabled="{Binding ImageBool}" Grid.RowSpan="2">
 
                         <Image.Style>
                             <Style TargetType="Image">
@@ -366,17 +373,17 @@
                     </Image>
                 </Grid>
 
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+
+
+
+
+
+
+
+
+
+
+
                 <!-- Column 3: Table and Buttons-->
                 <StackPanel Grid.Column ="3" Orientation="Vertical">
 
@@ -465,7 +472,7 @@
                         <TextBlock Grid.Column="1" Text="{Binding NumPoints}" HorizontalAlignment="Center"/>
                     </Grid>
 
-                    <!-- TODO: Save and Train Buttons-->
+                    <!-- Save and Train Buttons-->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -482,7 +489,7 @@
                             </i:Interaction.Triggers>
                         </Button>
 
-                        <!-- Train Button-->
+                        <!-- TODO: Train Button-->
                         <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
                                 Width="50" Height="30" IsEnabled="{Binding TrainBool}"/>
                     </Grid>
