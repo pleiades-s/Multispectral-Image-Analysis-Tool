@@ -1,9 +1,9 @@
-﻿using Assisticant.Fields;
-using BeyonSense.Models;
+﻿using BeyonSense.Models;
 using BeyonSense.Views;
 using Caliburn.Micro;
 using Microsoft.Win32;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -71,10 +71,12 @@ namespace BeyonSense.ViewModels
                 newLabelName = "";
                 ClickedPosition.Clear();
                 newLabelColor = Colors.Transparent;
+                DrawLayer.Clear();
 
                 // Reset boolean variables
                 OKBool = false;
                 ImageBool = false;
+                CanBeReverted = false;
 
                 DrawLabel();
             }
@@ -573,17 +575,18 @@ namespace BeyonSense.ViewModels
 
             // Disable to click main image
             ImageBool = false;
+            
 
             // Initialize new class data for data integrity
             newLabelName = "";
             ClickedPosition.Clear();
             newLabelColor = Colors.Transparent;
+            DrawLayer.Clear();
 
             // Reset boolean variables
             OKBool = false;
             ImageBool = false;
-
-
+            CanBeReverted = false;
 
         }
         #endregion
@@ -1177,6 +1180,9 @@ namespace BeyonSense.ViewModels
 
                     // Main image is enable to be clicked
                     ImageBool = true;
+
+                    // Push the first image 
+                    DrawLayer.Push(MainBmpImage);
                 }
             }
 
@@ -1301,6 +1307,19 @@ namespace BeyonSense.ViewModels
 
             #endregion
 
+            #region Push into stack
+
+            // Enable revert button
+            if (DrawLayer.Count == 1)
+            {
+                CanBeReverted = true;
+            }
+
+            // Push rendered bitmap image
+            DrawLayer.Push(rtb);
+
+            #endregion
+
             #region Add clicked pixel position to the list
 
             ClickedPosition.Add(new double[2] { Clicked_X, Clicked_Y });
@@ -1379,6 +1398,7 @@ namespace BeyonSense.ViewModels
             // Reset boolean variables
             OKBool = false;
             ImageBool = false;
+            CanBeReverted = false;
 
             #region Draw the last line
             SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
@@ -1478,6 +1498,7 @@ namespace BeyonSense.ViewModels
 
             ClickedPosition.Clear();
             newLabelColor = Colors.Transparent;
+            DrawLayer.Clear();
 
             #endregion
         }
@@ -1674,6 +1695,58 @@ namespace BeyonSense.ViewModels
 
             return rtb;
         }
+        #endregion
+
+        #region Bitmap Rewind Stack
+
+        private Stack DrawLayer = new Stack();
+
+        #endregion
+
+        #region Revert Boolean Variable
+
+        private bool canBeReverted = false;
+
+        public bool CanBeReverted
+        {
+            get { return canBeReverted; }
+            set
+            {
+                canBeReverted = value;
+                NotifyOfPropertyChange(() => canBeReverted);
+            }
+        }
+
+        #endregion
+
+        #region Revert Button Handler
+
+        public void Revert()
+        {
+            // Nothing to be poped
+            if (DrawLayer.Count < 2) return;
+
+            // Revert main image
+            DrawLayer.Pop();
+            MainBmpImage = (BitmapSource)DrawLayer.Peek();
+
+            // The last element
+            if (DrawLayer.Count < 2)
+            {
+                CanBeReverted = false;
+            }
+
+            // Remove the last element of ClickedPosition
+            int count = ClickedPosition.Count;
+
+            if (count > 0)
+                ClickedPosition.RemoveAt(ClickedPosition.Count - 1);
+
+            else
+                return;
+
+        }
+
         #endregion
 
     }

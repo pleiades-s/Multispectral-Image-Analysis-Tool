@@ -412,9 +412,10 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- ? -->
+                        <!-- Plus Button -->
                         <local:TablePlusButton Grid.Column="0" x:Name="PlusButton" Height="20" Width="25"
                                                IsEnabled="{Binding PlusBool}">
                             <i:Interaction.Triggers>
@@ -424,8 +425,17 @@
                             </i:Interaction.Triggers>
                         </local:TablePlusButton>
 
-                        <!-- ? -->
-                        <Button Grid.Column ="1" Content="OK" Height="10"
+                        <local:RevertButton Grid.Column="1" Width="20"
+                                            IsEnabled="{Binding CanBeReverted}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
+                                    <cal:ActionMessage MethodName="Revert" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </local:RevertButton>
+
+                        <!-- Ok button -->
+                        <Button Grid.Column ="2" Content="OK" Height="10"
                                 FontSize ="10" HorizontalAlignment="Center"
                                 IsEnabled="{Binding OKBool}">
                             <i:Interaction.Triggers>

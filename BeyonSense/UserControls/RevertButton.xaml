@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="BeyonSense.RevertButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BeyonSense"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="50">
+
+    <UserControl.Resources>
+        <Style x:Key="RevertImage" TargetType="Image">
+            <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/revert_enable.png"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/revert_disable.png"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <Viewbox>
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="RevertIcon" Style="{StaticResource RevertImage}"/>
+        </Grid>
+    </Viewbox>
+    
+</UserControl>
