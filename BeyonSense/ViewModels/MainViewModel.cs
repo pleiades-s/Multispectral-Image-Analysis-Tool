@@ -393,11 +393,13 @@ namespace BeyonSense.ViewModels
         public void Open()
         {
             // Folder dialog
-            WinForms.FolderBrowserDialog folderDialog = new WinForms.FolderBrowserDialog();
-            folderDialog.ShowNewFolderButton = false;
+            WinForms.FolderBrowserDialog folderDialog = new WinForms.FolderBrowserDialog
+            {
+                ShowNewFolderButton = false,
 
-            // Selected Path
-            folderDialog.SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory;
+                // Selected Path
+                SelectedPath = System.AppDomain.CurrentDomain.BaseDirectory
+            };
             WinForms.DialogResult result = folderDialog.ShowDialog();
             if (result == System.Windows.Forms.DialogResult.OK)
             {
@@ -601,10 +603,11 @@ namespace BeyonSense.ViewModels
         public void FileOpen()
         {
 
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-
-            // Search file filter by exetension
-            openFileDialog.Filter = "State Dict.(*.pth)|*.pth|All files (*.*)|*.*";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                // Search file filter by exetension
+                Filter = "State Dict.(*.pth)|*.pth|All files (*.*)|*.*"
+            };
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -829,8 +832,8 @@ namespace BeyonSense.ViewModels
         /// <returns>int num</returns>
         private int StrToInt(string str)
         {
-            int i = 0;
-            if (!Int32.TryParse(str, out i))
+
+            if (!Int32.TryParse(str, out int i))
             {
                 i = -1;
             }
@@ -1190,8 +1193,6 @@ namespace BeyonSense.ViewModels
         {
             PopupView popupView = new PopupView();
 
-            string _name = "";
-
             // Popup window is opened and closed by OK button
             if (popupView.ShowDialog() == true)
             {
@@ -1199,7 +1200,7 @@ namespace BeyonSense.ViewModels
                 Console.WriteLine(popupView.Answer);
 
                 // New label name
-                _name = popupView.Answer;
+                string _name = popupView.Answer;
 
                 // _name is not null, empty or blank
                 if (!String.IsNullOrWhiteSpace(_name))
