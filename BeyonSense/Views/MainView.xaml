@@ -16,7 +16,6 @@
 
     <Border Padding="10">
         <!-- TODO: Grid background 추가: UI beautifying-->
-        <!-- TODO: Resize 할 때, element 위치관계 확인하기 -->
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="100"/>
@@ -473,7 +472,7 @@
                         <TextBlock Grid.Column="1" Text="{Binding NumPoints}" HorizontalAlignment="Center"/>
                     </Grid>
 
-                    <!-- TODO: Save and Train Buttons-->
+                    <!-- Save and Train Buttons-->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -490,7 +489,7 @@
                             </i:Interaction.Triggers>
                         </Button>
 
-                        <!-- Train Button-->
+                        <!-- TODO: Train Button-->
                         <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
                                 Width="50" Height="30" IsEnabled="{Binding TrainBool}"/>
                     </Grid>
