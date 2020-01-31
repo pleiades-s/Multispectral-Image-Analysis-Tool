@@ -96,12 +96,15 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Column 0: Image set -->
-                <StackPanel Grid.Column="0" Orientation="Vertical">
-                    <TextBlock Text="Image Set"/>
+                <Grid Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Image Set" FontWeight="Bold" 
+                               FontSize="15" Margin="5, 0, 0, 5"/>
 
-                    <!-- TODO: ScrollViewer 크기를 꽉 차게 못 하나?-->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      Height="440">
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
 
                         <!-- Treeview -->
                         <TreeView x:Name="DirectoryTree" ItemsSource="{Binding Items}"
@@ -140,7 +143,7 @@
 
                         </TreeView>
                     </ScrollViewer>
-                </StackPanel>
+                </Grid>
 
                 <!-- Column 1: Thumbnails-->
                 <Grid Grid.Column="1">
