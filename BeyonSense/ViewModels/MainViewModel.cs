@@ -975,7 +975,6 @@ namespace BeyonSense.ViewModels
             Image<Gray, Byte> img6 = new Image<Gray, Byte>(bmpPath6);
             #endregion
 
-
             // Calculate the number of pixels
             for (int i = 0; i < max - min + 1; i++)
             {
@@ -992,8 +991,8 @@ namespace BeyonSense.ViewModels
 
                         for (int k = boundary[i][2 * j]; k < boundary[i][2 * j + 1] + 1; k++)
                         {
-                            Console.WriteLine("{0},{1}:{2},{3},{4},{5},{6},{7}", k, min + i, img1.Data[k, min + i, 0], img2.Data[k, min + i, 0]
-                                , img3.Data[k, min + i, 0], img4.Data[k, min + i, 0], img5.Data[k, min + i, 0], img6.Data[k, min + i, 0]);
+                            Console.WriteLine("{0},{1}:{2},{3},{4},{5},{6},{7}", k, min + i, img1.Data[min + i, k, 0], img2.Data[min + i, k, 0]
+                                  , img3.Data[min + i, k, 0], img4.Data[min + i, k, 0], img5.Data[min + i, k, 0], img6.Data[min + i, k, 0]);
                         }
 
                     }
