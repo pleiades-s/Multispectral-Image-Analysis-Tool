@@ -6,15 +6,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WinForms = System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
@@ -968,6 +965,17 @@ namespace BeyonSense.ViewModels
                 }
             }
 
+
+            #region Image variable
+            Image<Gray, Byte> img1 = new Image<Gray, Byte>(bmpPath1);
+            Image<Gray, Byte> img2 = new Image<Gray, Byte>(bmpPath2);
+            Image<Gray, Byte> img3 = new Image<Gray, Byte>(bmpPath3);
+            Image<Gray, Byte> img4 = new Image<Gray, Byte>(bmpPath4);
+            Image<Gray, Byte> img5 = new Image<Gray, Byte>(bmpPath5);
+            Image<Gray, Byte> img6 = new Image<Gray, Byte>(bmpPath6);
+            #endregion
+
+
             // Calculate the number of pixels
             for (int i = 0; i < max - min + 1; i++)
             {
@@ -981,39 +989,17 @@ namespace BeyonSense.ViewModels
                     for (int j = 0; j < boundary[i].Count / 2; j++)
                     {
                         num_pixel += boundary[i][2 * j + 1] - boundary[i][2 * j] + 1;
-                    }
-                }
 
-            }
-
-            /////pixel 위치 및 픽셀값 console에 출력
-            Image<Gray, Byte> img1 = new Image<Gray, Byte>(bmpPath1);
-            Image<Gray, Byte> img2 = new Image<Gray, Byte>(bmpPath2);
-            Image<Gray, Byte> img3 = new Image<Gray, Byte>(bmpPath3);
-            Image<Gray, Byte> img4= new Image<Gray, Byte>(bmpPath4);
-            Image<Gray, Byte> img5= new Image<Gray, Byte>(bmpPath5);
-            Image<Gray, Byte> img6= new Image<Gray, Byte>(bmpPath6);
-            for (int i = 0; i < max - min + 1; i++)
-            {
-                if (boundary[i].Count == 0)
-                {
-                    num_pixel += 0;// 아무 동작도 안하기 위함
-                }
-                else
-                {
-                    boundary[i].Sort();
-                    for (int j = 0; j < boundary[i].Count / 2; j++)
-                    {
                         for (int k = boundary[i][2 * j]; k < boundary[i][2 * j + 1] + 1; k++)
                         {
                             Console.WriteLine("{0},{1}:{2},{3},{4},{5},{6},{7}", k, min + i, img1.Data[k, min + i, 0], img2.Data[k, min + i, 0]
                                 , img3.Data[k, min + i, 0], img4.Data[k, min + i, 0], img5.Data[k, min + i, 0], img6.Data[k, min + i, 0]);
                         }
+
                     }
                 }
-            }
-            //////
 
+            }
 
             return num_pixel;
         }
@@ -1212,6 +1198,8 @@ namespace BeyonSense.ViewModels
 
                     // Main image is enable to be clicked
                     ImageBool = true;
+
+                    PlusBool = false;
 
                     // Push the first image 
                     DrawLayer.Push(MainBmpImage);
@@ -1431,6 +1419,8 @@ namespace BeyonSense.ViewModels
             OKBool = false;
             ImageBool = false;
             CanBeReverted = false;
+
+            PlusBool = true;
 
             #region Draw the last line
             SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
