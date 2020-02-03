@@ -335,7 +335,7 @@ namespace BeyonSense.ViewModels
             set
             {
                 rootPath = value;
-
+                Console.WriteLine(rootPath);
                 // rootPath is not null or empty
                 if (!String.IsNullOrEmpty(rootPath))
                 {
@@ -975,7 +975,11 @@ namespace BeyonSense.ViewModels
             Image<Gray, Byte> img6 = new Image<Gray, Byte>(bmpPath6);
             #endregion
 
-            // Calculate the number of pixels
+            //make binary file for writing
+            FileStream fs = File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Create);
+            BinaryWriter wr = new BinaryWriter(fs);
+
+            // Calculate the number of pixels and write the pixel value to binary file
             for (int i = 0; i < max - min + 1; i++)
             {
                 if (boundary[i].Count == 0)
@@ -985,14 +989,23 @@ namespace BeyonSense.ViewModels
                 else
                 {
                     boundary[i].Sort();
-                    for (int j = 0; j < boundary[i].Count / 2; j++)
+                    bool inner = false;
+                    for(int j = boundary[i].Min(); j < boundary[i].Max()+1; j++)
                     {
-                        num_pixel += boundary[i][2 * j + 1] - boundary[i][2 * j] + 1;
-
-                        for (int k = boundary[i][2 * j]; k < boundary[i][2 * j + 1] + 1; k++)
+                        if(boundary[i].Contains(j))
                         {
-                            Console.WriteLine("{0},{1}:{2},{3},{4},{5},{6},{7}", k, min + i, img1.Data[min + i, k, 0], img2.Data[min + i, k, 0]
-                                  , img3.Data[min + i, k, 0], img4.Data[min + i, k, 0], img5.Data[min + i, k, 0], img6.Data[min + i, k, 0]);
+                            inner = !inner;
+                        }
+                        if(inner)
+                        {
+                            num_pixel += 1;
+                            wr.Write((int)img1.Data[min + i, j, 0]);
+                            Console.WriteLine(img1.Data[min + i, j, 0]);
+                            wr.Write((int)img2.Data[min + i, j, 0]);
+                            wr.Write((int)img3.Data[min + i, j, 0]);
+                            wr.Write((int)img4.Data[min + i, j, 0]);
+                            wr.Write((int)img5.Data[min + i, j, 0]);
+                            wr.Write((int)img6.Data[min + i, j, 0]);
                         }
 
                     }
@@ -1772,3 +1785,26 @@ namespace BeyonSense.ViewModels
 
     }
 }
+
+
+//reading binary file
+/*
+         private void BinaryFileIO()
+        {
+            using (BinaryReader rdr = new BinaryReader(File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Open)))
+            {
+                while(true)
+                {
+                    try
+                    {
+                        Console.WriteLine(rdr.ReadInt32());
+                    }
+                    catch (EndOfStreamException e)
+                    {
+                        Console.WriteLine(e.Message);
+                        break;
+                    }
+                }
+            }
+        }
+ */
