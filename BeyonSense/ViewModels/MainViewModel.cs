@@ -965,20 +965,6 @@ namespace BeyonSense.ViewModels
                 }
             }
 
-
-            #region Image variable
-            Image<Gray, Byte> img1 = new Image<Gray, Byte>(bmpPath1);
-            Image<Gray, Byte> img2 = new Image<Gray, Byte>(bmpPath2);
-            Image<Gray, Byte> img3 = new Image<Gray, Byte>(bmpPath3);
-            Image<Gray, Byte> img4 = new Image<Gray, Byte>(bmpPath4);
-            Image<Gray, Byte> img5 = new Image<Gray, Byte>(bmpPath5);
-            Image<Gray, Byte> img6 = new Image<Gray, Byte>(bmpPath6);
-            #endregion
-
-            //make binary file for writing
-            FileStream fs = File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Create);
-            BinaryWriter wr = new BinaryWriter(fs);
-
             // Calculate the number of pixels and write the pixel value to binary file
             for (int i = 0; i < max - min + 1; i++)
             {
@@ -999,13 +985,6 @@ namespace BeyonSense.ViewModels
                         if(inner)
                         {
                             num_pixel += 1;
-                            wr.Write((int)img1.Data[min + i, j, 0]);
-                            Console.WriteLine(img1.Data[min + i, j, 0]);
-                            wr.Write((int)img2.Data[min + i, j, 0]);
-                            wr.Write((int)img3.Data[min + i, j, 0]);
-                            wr.Write((int)img4.Data[min + i, j, 0]);
-                            wr.Write((int)img5.Data[min + i, j, 0]);
-                            wr.Write((int)img6.Data[min + i, j, 0]);
                         }
 
                     }
