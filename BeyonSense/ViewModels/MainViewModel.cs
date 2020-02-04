@@ -526,7 +526,7 @@ namespace BeyonSense.ViewModels
                 {
                     ResetImages();
                     MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
-
+                    Items.Clear();
 
                     return;
                 }
@@ -588,6 +588,7 @@ namespace BeyonSense.ViewModels
             OKBool = false;
             ImageBool = false;
             CanBeReverted = false;
+            PlusBool = true;
 
         }
         #endregion
@@ -773,6 +774,7 @@ namespace BeyonSense.ViewModels
         // Warning variables preventing to open deep directory tree
         private int recursiveCount = 0;
         private bool recursiveAlert = false;
+        private int bmpcount = 0;
 
         private void DirSearch(string sDir)
         {
@@ -781,7 +783,7 @@ namespace BeyonSense.ViewModels
                 {
                     Items.Clear();
                     ResetImages();
-                    MessageBox.Show("Csv files are not successfully loaded.\n Please make sure that you select a correct project folder.");
+                    MessageBox.Show("Please make sure that you select a correct project folder.");
 
                     recursiveAlert = true;
                     
@@ -797,6 +799,7 @@ namespace BeyonSense.ViewModels
             {
                 foreach (string d in Directory.GetDirectories(sDir))
                 {
+                    
                     foreach (string f in Directory.GetFiles(d))
                     {
                         // Check it file exetension is csv or not
@@ -804,6 +807,11 @@ namespace BeyonSense.ViewModels
                         {
                             // Add csv file path in the list
                             CsvFilePaths.Add(f);
+                        }
+
+                        if (System.IO.Path.GetExtension(f) == ".bmp")
+                        {
+                            bmpcount++;
                         }
                     }
                     DirSearch(d);
@@ -846,8 +854,10 @@ namespace BeyonSense.ViewModels
         /// <param name="_cornerPoint">Corner Point Collection</param>
         /// <returns>int the number of pixel</returns>
         
-       private int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
+       private int PixelCalculator(List<int[]> _cornerPoint)
         {
+            #region Calculation
+
             int num_pixel = 0;
             int num_point = _cornerPoint.Count;
             int[,] points = new int[num_point, 2];
@@ -965,7 +975,6 @@ namespace BeyonSense.ViewModels
                 }
             }
 
-            // Calculate the number of pixels and write the pixel value to binary file
             for (int i = 0; i < max - min + 1; i++)
             {
                 if (boundary[i].Count == 0)
@@ -975,16 +984,11 @@ namespace BeyonSense.ViewModels
                 else
                 {
                     boundary[i].Sort();
-                    bool inner = false;
-                    for(int j = boundary[i].Min(); j < boundary[i].Max()+1; j++)
-                    {
-                        if(boundary[i].Contains(j))
-                        {
-                            inner = !inner;
-                        }
-                        if(inner)
+                    }
+                        if (inner)
                         {
                             num_pixel += 1;
+
                         }
 
                     }
@@ -1003,126 +1007,139 @@ namespace BeyonSense.ViewModels
         /// <param name="_rootPath">A selected path by folder explorer</param>
         /// [This method is called when a folder is selected by folder explorer]
         private void PointCalculator(string _rootPath)
-        { 
+        {
             // Traverse all the directory and find all existing csv file paths
             DirSearch(_rootPath);
 
-            // Read csv file only if Dirsearch is successfully completed
-            if (!recursiveAlert)
+            // The folder has to have at least six Bmp files
+            if (bmpcount / 6 > 0 && bmpcount % 6 == 0)
             {
-                // For each csv file
-                foreach (string _path in CsvFilePaths)
+                // Read csv file only if Dirsearch is successfully completed
+                if (!recursiveAlert)
                 {
-                    // Read class name and corner points
-                    ObservableCollection<ClassCornerPoints> _classCorners = new ObservableCollection<ClassCornerPoints>();
-
-                    #region Read Csv Format
-                    // Read csv file
-                    using (var reader = new StreamReader(_path))
+                    // For each csv file
+                    foreach (string _path in CsvFilePaths)
                     {
-                        int _numLine = 0;
-                        while (!reader.EndOfStream)
+                        // Read class name and corner points
+                        ObservableCollection<ClassCornerPoints> _classCorners = new ObservableCollection<ClassCornerPoints>();
+
+                        #region Read Csv Format
+                        // Read csv file
+                        using (var reader = new StreamReader(_path))
                         {
-                            var line = reader.ReadLine();
-
-                            if (_numLine != 0)
+                            int _numLine = 0;
+                            while (!reader.EndOfStream)
                             {
-                                string _className = "";
-                                ObservableCollection<int[]> _cornerPoints = new ObservableCollection<int[]>();
+                                var line = reader.ReadLine();
 
-                                var values = line.Split(',');
-
-                                _className = values[0];
-                                //Console.WriteLine(values[0]);
-
-                                for (int i = 1; i < values.Length; i += 2)
+                                if (_numLine != 0)
                                 {
+                                    string _className = "";
+                                    List<int[]> _cornerPoints = new List<int[]>();
 
-                                    int[] _position = new int[2];
-                                    // x position
-                                    _position[0] = StrToInt(values[i]);
+                                    var values = line.Split(',');
 
-                                    // y position
-                                    try
+                                    _className = values[0];
+                                    //Console.WriteLine(values[0]);
+
+                                    for (int i = 1; i < values.Length; i += 2)
                                     {
-                                        _position[1] = StrToInt(values[i + 1]);
+
+                                        int[] _position = new int[2];
+                                        // x position
+                                        _position[0] = StrToInt(values[i]);
+
+                                        // y position
+                                        try
+                                        {
+                                            _position[1] = StrToInt(values[i + 1]);
+                                        }
+
+                                        // Exception handler: Wrong csv format
+                                        catch (IndexOutOfRangeException e)
+                                        {
+                                            MessageBox.Show("Your csv files might have wrong format.\n");
+                                            ClassPoints.Clear();
+                                            Console.WriteLine("CSV Fromat Error: " + e);
+                                            return;
+                                        }
+
+                                        //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
+                                        _cornerPoints.Add(_position);
                                     }
 
-                                    // Exception handler: Wrong csv format
-                                    catch (IndexOutOfRangeException e)
-                                    {
-                                        MessageBox.Show("Your csv files might have wrong format.\n");
-                                        ClassPoints.Clear();
-                                        Console.WriteLine("CSV Fromat Error: " + e);
-                                        return;
-                                    }
-
-                                    //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
-                                    _cornerPoints.Add(_position);
+                                    // Each line = each class
+                                    _classCorners.Add(new ClassCornerPoints() { ClassName = _className, Points = _cornerPoints });
                                 }
-
-                                // Each line = each class
-                                _classCorners.Add(new ClassCornerPoints() { ClassName = _className, Points = _cornerPoints });
+                                _numLine++;
                             }
-                            _numLine++;                            
                         }
+                        #endregion
+
+                        #region Add data to Dictionary
+                        // Allocate new element into the dictionary for each csv file
+                        CornerPoint.Add(_path, _classCorners);
+                        #endregion
+
+                        #region Add data to Item Source
+                        // Calculate the number of inside points and Add ClassPoints 
+                        for (int i = 0; i < _classCorners.Count; i++)
+                        {
+                            // Check if ClassPoints has same class name as _classCorners[i].ClassName
+                            int ack = 0;
+
+                            for (int j = 0; j < ClassPoints.Count; j++)
+                            {
+                                if (_classCorners[i].ClassName == ClassPoints[j].ClassName)
+                                {
+                                    // If there is same class name, add the value
+                                    ack = 1;
+                                    ClassPoints[j].NumPoints += PixelCalculator(_classCorners[i].Points);
+                                }
+                            }
+
+                            // New class
+                            // If not, make new class and allocate the value
+                            if (ack == 0)
+                            {
+                                ClassPoints.Add(new ClassPixels()
+                                {
+                                    ClassName = _classCorners[i].ClassName,
+                                    NumPoints = PixelCalculator(_classCorners[i].Points)
+                                });
+                            }
+                        }
+                        #endregion
                     }
-                    #endregion
 
-                    #region Add data to Dictionary
-                    // Allocate new element into the dictionary for each csv file
-                    CornerPoint.Add(_path, _classCorners);
-                    #endregion
+                    #region Initialize Class Color
+                    //Allocate colors as many as the number of ClassPoints.Count
+                    int k = ClassPoints.Count;
 
-                    #region Add data to Item Source
-                    // Calculate the number of inside points and Add ClassPoints 
-                    for (int i = 0; i < _classCorners.Count; i++)
+                    // Generate colors 
+                    List<Color> _color = AddColors(k);
+                    for (int i = 0; i < k; i++)
                     {
-                        // Check if ClassPoints has same class name as _classCorners[i].ClassName
-                        int ack = 0;
-
-                        for (int j = 0; j < ClassPoints.Count; j++)
-                        {
-                            if (_classCorners[i].ClassName == ClassPoints[j].ClassName)
-                            {
-                                // If there is same class name, add the value
-                                ack = 1;
-                                ClassPoints[j].NumPoints += PixelCalculator(_classCorners[i].Points);
-                            }
-                        }
-
-                        // New class
-                        // If not, make new class and allocate the value
-                        if (ack == 0)
-                        {
-                            ClassPoints.Add(new ClassPixels()
-                            {
-                                ClassName = _classCorners[i].ClassName,
-                                NumPoints = PixelCalculator(_classCorners[i].Points)
-                            });
-                        }
+                        ClassPoints[i].ClassColor = _color[i];
                     }
+
                     #endregion
+
+                    // Enable Buttons
+                    TrainBool = true;
                 }
 
-                #region Initialize Class Color
-                //Allocate colors as many as the number of ClassPoints.Count
-                int k = ClassPoints.Count;
+            }
 
-                // Generate colors 
-                List<Color> _color = AddColors(k);
-                for (int i = 0; i < k; i++)
-                {
-                    ClassPoints[i].ClassColor = _color[i];
-                }
-                
-                #endregion
-
-                // Enable Buttons
-                TrainBool = true;
+            else
+            {
+                Items.Clear();
+                if(!recursiveAlert)
+                    MessageBox.Show("Please choose a correct project folder");
             }
 
             // Set this value to 0
+            bmpcount = 0;
             recursiveCount = 0;
             recursiveAlert = false;
         }
@@ -1348,9 +1365,9 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Covert double collection into integer collection
-        private ObservableCollection<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
+        private List<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
         {
-            ObservableCollection<int[]> pos = new ObservableCollection<int[]>();
+            List<int[]> pos = new List<int[]>();
 
             foreach ( double[] arr in corners)
             {
@@ -1369,6 +1386,31 @@ namespace BeyonSense.ViewModels
         /// </summary>
         /// <returns>string path</returns>
         /// 
+        private string GetParentParentDirPath()
+        {
+            // Get current directory path
+            string _path = BmpPath1;
+
+            // If the paht is a file path, get parent directory path
+
+            // Exception: If we have no path, return empty
+            if (string.IsNullOrEmpty(_path))
+                return "";
+
+            // Make all slashes back slashes
+            var normalizedPath = _path.Replace('/', '\\');
+
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('\\');
+
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return "";
+
+            //  Remove file name from the file path so we can get a parent directory path
+            return normalizedPath.Substring(0, lastIndex - 1);
+        }
+
         private string GetParentDirPath()
         {
             // Get current directory path
@@ -1404,8 +1446,6 @@ namespace BeyonSense.ViewModels
         {
             Console.WriteLine("Ok button is clicked.");
 
-            // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
-
             // Reset boolean variables
             OKBool = false;
             ImageBool = false;
@@ -1413,100 +1453,119 @@ namespace BeyonSense.ViewModels
 
             PlusBool = true;
 
-            #region Draw the last line
-            SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
 
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
+            // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
+            if (ClickedPosition.Count < 3)
             {
-                dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                MessageBox.Show("Wrong shape");
 
-                Pen pen = new Pen(newlabelBrush, 5);
-
-                double x1 = ClickedPosition.ElementAt(0)[0];
-                double y1 = ClickedPosition.ElementAt(0)[1];
-
-                double x2 = ClickedPosition.ElementAt(ClickedPosition.Count - 1)[0];
-                double y2 = ClickedPosition.ElementAt(ClickedPosition.Count - 1)[1];
-
-                dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
-
-            }
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
-            rtb.Render(dv);
-
-            MainBmpImage = rtb;
-
-            #endregion
-
-            #region Update table item source
-
-            ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
-
-            // Check if new label name exist or not
-            int ack = 0;
-            for (int i = 0; i < ClassPoints.Count; i++)
-            {
-                if(ClassPoints[i].ClassName == newLabelName)
+                for (int i = 0; i < ClickedPosition.Count; i++)
                 {
-                    // If new class name exiset in ClassPoint (table item source)
-                    ack = 1;
-                    ClassPoints[i].NumPoints += PixelCalculator(newCornerPoints);
-                    break;
+                    DrawLayer.Pop();
                 }
+
+                MainBmpImage = (BitmapSource)DrawLayer.Peek();
+
             }
 
-            // New class name doesn't exist in ClassPoint (table item source)
-            if(ack == 0)
-            {
-                ClassPoints.Add(new ClassPixels() { ClassName = newLabelName, NumPoints = PixelCalculator(newCornerPoints), ClassColor = newLabelColor });
-            }
-
-            #endregion
-
-            #region Get parent directory path
-            // Get current directory path
-            string _path = BmpPath1;
-
-            // If the paht is a file path, get parent directory path
-
-            // Exception: If we have no path, return empty
-            if (string.IsNullOrEmpty(_path))
-                return;
-
-            // Make all slashes back slashes
-            var normalizedPath = _path.Replace('/', '\\');
-
-            // Find the last backslash in the path
-            var lastIndex = normalizedPath.LastIndexOf('\\');
-
-            // If we don't find a backslash, return the path itself
-            if (lastIndex <= 0)
-                return;
-
-            //  Remove file name from the file path so we can get a parent directory path
-            var dirPath = normalizedPath.Substring(0, lastIndex);
-
-            #endregion
-
-            #region Update Dictionary
-            ClassCornerPoints newLabelPoints = new ClassCornerPoints() { ClassName = newLabelName, Points = newCornerPoints };
-
-            // If there is alreaey csv path in the dictionary
-            if (CornerPoint.ContainsKey(dirPath + '\\' + "metadata.csv"))
-            {
-                CornerPoint[dirPath + '\\' + "metadata.csv"].Add(newLabelPoints);
-            }
-
-            // If there isn't, we gotta make new csv file
+            
             else
             {
-                CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
+
+                #region Draw the last line
+                SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
+
+                DrawingVisual dv = new DrawingVisual();
+                using (DrawingContext dc = dv.RenderOpen())
+                {
+                    dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+
+                    Pen pen = new Pen(newlabelBrush, 5);
+
+                    double x1 = ClickedPosition.ElementAt(0)[0];
+                    double y1 = ClickedPosition.ElementAt(0)[1];
+
+                    double x2 = ClickedPosition.ElementAt(ClickedPosition.Count - 1)[0];
+                    double y2 = ClickedPosition.ElementAt(ClickedPosition.Count - 1)[1];
+
+                    dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
+
+                }
+
+                RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+                rtb.Render(dv);
+
+                MainBmpImage = rtb;
+
+                #endregion
+
+                #region Update table item source
+
+                List<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
+
+                // Check if new label name exist or not
+                int ack = 0;
+                for (int i = 0; i < ClassPoints.Count; i++)
+                {
+                    if (ClassPoints[i].ClassName == newLabelName)
+                    {
+                        // If new class name exiset in ClassPoint (table item source)
+                        ack = 1;
+                        ClassPoints[i].NumPoints += PixelCalculator(newCornerPoints);
+                        break;
+                    }
+                }
+
+                // New class name doesn't exist in ClassPoint (table item source)
+                if (ack == 0)
+                {
+                    ClassPoints.Add(new ClassPixels() { ClassName = newLabelName, NumPoints = PixelCalculator(newCornerPoints), ClassColor = newLabelColor });
+                }
+
+                #endregion
+
+                #region Get parent directory path
+                // Get current directory path
+                string _path = BmpPath1;
+
+                // If the paht is a file path, get parent directory path
+
+                // Exception: If we have no path, return empty
+                if (string.IsNullOrEmpty(_path))
+                    return;
+
+                // Make all slashes back slashes
+                var normalizedPath = _path.Replace('/', '\\');
+
+                // Find the last backslash in the path
+                var lastIndex = normalizedPath.LastIndexOf('\\');
+
+                // If we don't find a backslash, return the path itself
+                if (lastIndex <= 0)
+                    return;
+
+                //  Remove file name from the file path so we can get a parent directory path
+                var dirPath = normalizedPath.Substring(0, lastIndex);
+
+                #endregion
+
+                #region Update Dictionary
+                ClassCornerPoints newLabelPoints = new ClassCornerPoints() { ClassName = newLabelName, Points = newCornerPoints };
+
+                // If there is alreaey csv path in the dictionary
+                if (CornerPoint.ContainsKey(dirPath + '\\' + "metadata.csv"))
+                {
+                    CornerPoint[dirPath + '\\' + "metadata.csv"].Add(newLabelPoints);
+                }
+
+                // If there isn't, we gotta make new csv file
+                else
+                {
+                    CornerPoint.Add(dirPath + '\\' + "metadata.csv", new ObservableCollection<ClassCornerPoints> { newLabelPoints });
+                }
+
+                #endregion
             }
-
-            #endregion
-
             #region Reset Temporary Variables
 
             ClickedPosition.Clear();
@@ -1640,8 +1699,9 @@ namespace BeyonSense.ViewModels
         {
             Console.WriteLine("Save button");
 
+            #region Save corner points in csv format
             // Dictionary loop
-            foreach(KeyValuePair<string, ObservableCollection<ClassCornerPoints>> collection in CornerPoint)
+            foreach (KeyValuePair<string, ObservableCollection<ClassCornerPoints>> collection in CornerPoint)
             {
                 try
                 {
@@ -1683,7 +1743,212 @@ namespace BeyonSense.ViewModels
                     Console.WriteLine("Write Csv Error" + e);
                 }
             }
+            #endregion
 
+            #region Save pixel vector to binary files for each class
+
+            #region Image variable
+            Image<Gray, Byte> img1 = new Image<Gray, Byte>(bmpPath1);
+            Image<Gray, Byte> img2 = new Image<Gray, Byte>(bmpPath2);
+            Image<Gray, Byte> img3 = new Image<Gray, Byte>(bmpPath3);
+            Image<Gray, Byte> img4 = new Image<Gray, Byte>(bmpPath4);
+            Image<Gray, Byte> img5 = new Image<Gray, Byte>(bmpPath5);
+            Image<Gray, Byte> img6 = new Image<Gray, Byte>(bmpPath6);
+            #endregion
+
+
+            // loop: class name
+            foreach (ClassPixels classPixels in ClassPoints)
+            {
+                // Temporary variables for each class's shapes
+                List<List<int[]>> shapes = new List<List<int[]>>();
+
+                // Get all shapes which have same class name with classPixels.ClassName
+                foreach (KeyValuePair<string, ObservableCollection<ClassCornerPoints>> keyValue in CornerPoint)
+                {
+                    foreach (ClassCornerPoints classCornerPoints in keyValue.Value)
+                    {
+                        if (classCornerPoints.ClassName == classPixels.ClassName)
+                        {
+                            shapes.Add(classCornerPoints.Points);
+                        }
+                    }
+                }
+
+                // TODO: Configure save path
+
+                FileStream fs = File.Open(GetParentParentDirPath() + '\\' + classPixels.ClassName + ".bin", FileMode.Create);
+                BinaryWriter wr = new BinaryWriter(fs);
+
+                foreach (List<int[]> shape in shapes)
+                {
+
+                    #region pixel vector
+
+                    #region Calculate boundary
+                    int num_pixel = 0;
+                    int num_point = shape.Count;
+                    int[,] points = new int[num_point, 2];
+
+                    // Change array into list
+                    for (int i = 0; i < num_point; i++)
+                    {
+                        points[i, 0] = shape[i][1];
+                        points[i, 1] = shape[i][0];
+                    }
+
+                    // Calculate range of y value
+                    int min = points[0, 0];
+                    int max = 0;
+
+                    for (int i = 0; i < num_point; i++)
+                    {
+                        if (points[i, 0] < min)
+                        {
+                            min = points[i, 0];
+                        }
+
+                        if (points[i, 0] > max)
+                        {
+                            max = points[i, 0];
+                        }
+                    }
+
+                    // Initialize list for each y values along y axis
+                    List<List<int>> boundary = new List<List<int>>();
+                    for (int i = 0; i < max - min + 1; i++)
+                    {
+                        boundary.Add(new List<int>());
+                    }
+
+                    // Exclude sharp point from boudary
+                    if ((points[num_point - 1, 0] - points[0, 0]) * (points[1, 0] - points[0, 0]) <= 0)
+                    {
+                        boundary[points[0, 0] - min].Add(points[0, 1]);
+                    }
+
+                    else
+                    {
+                        num_pixel += 1;
+                    }
+
+                    for (int i = 1; i < num_point - 1; i++)
+                    {
+                        if ((points[i - 1, 0] - points[i, 0]) * (points[i + 1, 0] - points[i, 0]) <= 0)
+                        {
+                            boundary[points[i, 0] - min].Add(points[i, 1]);
+                        }
+
+                        else
+                        {
+                            num_pixel += 1;
+                        }
+                    }
+
+                    if ((points[0, 0] - points[num_point - 1, 0]) * (points[num_point - 2, 0] - points[num_point - 1, 0]) <= 0)
+                    {
+                        boundary[points[num_point - 1, 0] - min].Add(points[num_point - 1, 1]);
+                    }
+
+                    else
+                    {
+                        num_pixel += 1;
+                    }
+
+                    // Calcuate boudary positions
+                    for (int i = 0; i < num_point - 1; i++)
+                    {
+                        if (points[i + 1, 0] == points[i, 0])
+                        {
+                            num_pixel += 0;
+                        }
+
+                        else if (points[i + 1, 0] - points[i, 0] > 0)
+                        {
+                            for (int j = 1; j < points[i + 1, 0] - points[i, 0]; j++)
+                            {
+                                boundary[points[i, 0] - min + j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i + 1, 0] - points[i, 0]));
+                            }
+                        }
+
+                        else //points[i+1,0] - points[i,0] < 0
+                        {
+                            for (int j = 1; j < points[i, 0] - points[i + 1, 0]; j++)
+                            {
+                                boundary[points[i, 0] - min - j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i, 0] - points[i + 1, 0]));
+                            }
+                        }
+                    }
+
+
+                    // Compare the first element to the last one
+                    if (points[num_point - 1, 0] == points[0, 0])
+                    {
+                        num_pixel += 0;
+                    }
+
+                    else if (points[0, 0] - points[num_point - 1, 0] > 0)
+                    {
+                        for (int j = 1; j < points[0, 0] - points[num_point - 1, 0]; j++)
+                        {
+                            boundary[points[num_point - 1, 0] - min + j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[0, 0] - points[num_point - 1, 0]));
+                        }
+                    }
+
+                    else //points[i+1,0] - points[i,0] < 0
+                    {
+                        for (int j = 1; j < points[num_point - 1, 0] - points[0, 0]; j++)
+                        {
+                            boundary[points[num_point - 1, 0] - min - j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[num_point - 1, 0] - points[0, 0]));
+                        }
+                    }
+
+                    #endregion
+
+                    #region Write pixel vector to binary file 
+                    // Write the pixel value to binary file
+                    for (int i = 0; i < max - min + 1; i++)
+                    {
+                        if (boundary[i].Count == 0)
+                        {
+                            num_pixel += 0;
+                        }
+                        else
+                        {
+                            boundary[i].Sort();
+                            bool inner = false;
+                            for (int j = boundary[i].Min(); j < boundary[i].Max() + 1; j++)
+                            {
+                                if (boundary[i].Contains(j))
+                                {
+                                    inner = !inner;
+                                }
+                                if (inner)
+                                {
+                                    wr.Write((int)img1.Data[min + i, j, 0]);
+                                    wr.Write((int)img2.Data[min + i, j, 0]);
+                                    wr.Write((int)img3.Data[min + i, j, 0]);
+                                    wr.Write((int)img4.Data[min + i, j, 0]);
+                                    wr.Write((int)img5.Data[min + i, j, 0]);
+                                    wr.Write((int)img6.Data[min + i, j, 0]);
+
+                                }
+
+                            }
+                        }
+
+                    }
+                    #endregion
+
+                    #endregion
+                }
+
+                wr.Close();
+                fs.Close();
+
+            }
+
+            #endregion
         }
         #endregion
 
@@ -1762,28 +2027,5 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-    }
+   }
 }
-
-
-//reading binary file
-/*
-         private void BinaryFileIO()
-        {
-            using (BinaryReader rdr = new BinaryReader(File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Open)))
-            {
-                while(true)
-                {
-                    try
-                    {
-                        Console.WriteLine(rdr.ReadInt32());
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        break;
-                    }
-                }
-            }
-        }
- */
