@@ -15,7 +15,7 @@ namespace BeyonSense.Models
     {
         public string ClassName { get; set; }
 
-        public ObservableCollection<int[]> Points { get; set; }
+        public List<int[]> Points { get; set; }
 
     }
 }

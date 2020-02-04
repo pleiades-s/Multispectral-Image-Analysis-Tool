@@ -854,7 +854,7 @@ namespace BeyonSense.ViewModels
         /// <param name="_cornerPoint">Corner Point Collection</param>
         /// <returns>int the number of pixel</returns>
         
-       private int PixelCalculator(ObservableCollection<int[]> _cornerPoint)
+       private int PixelCalculator(List<int[]> _cornerPoint)
         {
             #region Calculation
 
@@ -1022,6 +1022,7 @@ namespace BeyonSense.ViewModels
             // Traverse all the directory and find all existing csv file paths
             DirSearch(_rootPath);
 
+            // The folder has to have at least six Bmp files
             if (bmpcount / 6 > 0 && bmpcount % 6 == 0)
             {
                 // Read csv file only if Dirsearch is successfully completed
@@ -1045,7 +1046,7 @@ namespace BeyonSense.ViewModels
                                 if (_numLine != 0)
                                 {
                                     string _className = "";
-                                    ObservableCollection<int[]> _cornerPoints = new ObservableCollection<int[]>();
+                                    List<int[]> _cornerPoints = new List<int[]>();
 
                                     var values = line.Split(',');
 
@@ -1143,13 +1144,13 @@ namespace BeyonSense.ViewModels
 
             else
             {
-                bmpcount = 0;
                 Items.Clear();
                 if(!recursiveAlert)
                     MessageBox.Show("Please choose a correct project folder");
             }
 
             // Set this value to 0
+            bmpcount = 0;
             recursiveCount = 0;
             recursiveAlert = false;
         }
@@ -1375,9 +1376,9 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Covert double collection into integer collection
-        private ObservableCollection<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
+        private List<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
         {
-            ObservableCollection<int[]> pos = new ObservableCollection<int[]>();
+            List<int[]> pos = new List<int[]>();
 
             foreach ( double[] arr in corners)
             {
@@ -1396,6 +1397,31 @@ namespace BeyonSense.ViewModels
         /// </summary>
         /// <returns>string path</returns>
         /// 
+        private string GetParentParentDirPath()
+        {
+            // Get current directory path
+            string _path = BmpPath1;
+
+            // If the paht is a file path, get parent directory path
+
+            // Exception: If we have no path, return empty
+            if (string.IsNullOrEmpty(_path))
+                return "";
+
+            // Make all slashes back slashes
+            var normalizedPath = _path.Replace('/', '\\');
+
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('\\');
+
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return "";
+
+            //  Remove file name from the file path so we can get a parent directory path
+            return normalizedPath.Substring(0, lastIndex - 1);
+        }
+
         private string GetParentDirPath()
         {
             // Get current directory path
@@ -1486,7 +1512,7 @@ namespace BeyonSense.ViewModels
 
                 #region Update table item source
 
-                ObservableCollection<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
+                List<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
 
                 // Check if new label name exist or not
                 int ack = 0;
@@ -1684,7 +1710,7 @@ namespace BeyonSense.ViewModels
         {
             Console.WriteLine("Save button");
 
-            #region Save corner points
+            #region Save corner points in csv format
             // Dictionary loop
             foreach (KeyValuePair<string, ObservableCollection<ClassCornerPoints>> collection in CornerPoint)
             {
@@ -1730,9 +1756,210 @@ namespace BeyonSense.ViewModels
             }
             #endregion
 
+            #region Save pixel vector to binary files for each class
+
+            #region Image variable
+            Image<Gray, Byte> img1 = new Image<Gray, Byte>(bmpPath1);
+            Image<Gray, Byte> img2 = new Image<Gray, Byte>(bmpPath2);
+            Image<Gray, Byte> img3 = new Image<Gray, Byte>(bmpPath3);
+            Image<Gray, Byte> img4 = new Image<Gray, Byte>(bmpPath4);
+            Image<Gray, Byte> img5 = new Image<Gray, Byte>(bmpPath5);
+            Image<Gray, Byte> img6 = new Image<Gray, Byte>(bmpPath6);
+            #endregion
 
 
+            // loop: class name
+            foreach (ClassPixels classPixels in ClassPoints)
+            {
+                // Temporary variables for each class's shapes
+                List<List<int[]>> shapes = new List<List<int[]>>();
 
+                // Get all shapes which have same class name with classPixels.ClassName
+                foreach (KeyValuePair<string, ObservableCollection<ClassCornerPoints>> keyValue in CornerPoint)
+                {
+                    foreach (ClassCornerPoints classCornerPoints in keyValue.Value)
+                    {
+                        if (classCornerPoints.ClassName == classPixels.ClassName)
+                        {
+                            shapes.Add(classCornerPoints.Points);
+                        }
+                    }
+                }
+
+                // TODO: Configure save path
+
+                FileStream fs = File.Open(GetParentParentDirPath() + '\\' + classPixels.ClassName + ".bin", FileMode.Create);
+                BinaryWriter wr = new BinaryWriter(fs);
+
+                foreach (List<int[]> shape in shapes)
+                {
+
+                    #region pixel vector
+
+                    #region Calculate boundary
+                    int num_pixel = 0;
+                    int num_point = shape.Count;
+                    int[,] points = new int[num_point, 2];
+
+                    // Change array into list
+                    for (int i = 0; i < num_point; i++)
+                    {
+                        points[i, 0] = shape[i][1];
+                        points[i, 1] = shape[i][0];
+                    }
+
+                    // Calculate range of y value
+                    int min = points[0, 0];
+                    int max = 0;
+
+                    for (int i = 0; i < num_point; i++)
+                    {
+                        if (points[i, 0] < min)
+                        {
+                            min = points[i, 0];
+                        }
+
+                        if (points[i, 0] > max)
+                        {
+                            max = points[i, 0];
+                        }
+                    }
+
+                    // Initialize list for each y values along y axis
+                    List<List<int>> boundary = new List<List<int>>();
+                    for (int i = 0; i < max - min + 1; i++)
+                    {
+                        boundary.Add(new List<int>());
+                    }
+
+                    // Exclude sharp point from boudary
+                    if ((points[num_point - 1, 0] - points[0, 0]) * (points[1, 0] - points[0, 0]) <= 0)
+                    {
+                        boundary[points[0, 0] - min].Add(points[0, 1]);
+                    }
+
+                    else
+                    {
+                        num_pixel += 1;
+                    }
+
+                    for (int i = 1; i < num_point - 1; i++)
+                    {
+                        if ((points[i - 1, 0] - points[i, 0]) * (points[i + 1, 0] - points[i, 0]) <= 0)
+                        {
+                            boundary[points[i, 0] - min].Add(points[i, 1]);
+                        }
+
+                        else
+                        {
+                            num_pixel += 1;
+                        }
+                    }
+
+                    if ((points[0, 0] - points[num_point - 1, 0]) * (points[num_point - 2, 0] - points[num_point - 1, 0]) <= 0)
+                    {
+                        boundary[points[num_point - 1, 0] - min].Add(points[num_point - 1, 1]);
+                    }
+
+                    else
+                    {
+                        num_pixel += 1;
+                    }
+
+                    // Calcuate boudary positions
+                    for (int i = 0; i < num_point - 1; i++)
+                    {
+                        if (points[i + 1, 0] == points[i, 0])
+                        {
+                            num_pixel += 0;
+                        }
+
+                        else if (points[i + 1, 0] - points[i, 0] > 0)
+                        {
+                            for (int j = 1; j < points[i + 1, 0] - points[i, 0]; j++)
+                            {
+                                boundary[points[i, 0] - min + j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i + 1, 0] - points[i, 0]));
+                            }
+                        }
+
+                        else //points[i+1,0] - points[i,0] < 0
+                        {
+                            for (int j = 1; j < points[i, 0] - points[i + 1, 0]; j++)
+                            {
+                                boundary[points[i, 0] - min - j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i, 0] - points[i + 1, 0]));
+                            }
+                        }
+                    }
+
+
+                    // Compare the first element to the last one
+                    if (points[num_point - 1, 0] == points[0, 0])
+                    {
+                        num_pixel += 0;
+                    }
+
+                    else if (points[0, 0] - points[num_point - 1, 0] > 0)
+                    {
+                        for (int j = 1; j < points[0, 0] - points[num_point - 1, 0]; j++)
+                        {
+                            boundary[points[num_point - 1, 0] - min + j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[0, 0] - points[num_point - 1, 0]));
+                        }
+                    }
+
+                    else //points[i+1,0] - points[i,0] < 0
+                    {
+                        for (int j = 1; j < points[num_point - 1, 0] - points[0, 0]; j++)
+                        {
+                            boundary[points[num_point - 1, 0] - min - j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[num_point - 1, 0] - points[0, 0]));
+                        }
+                    }
+
+                    #endregion
+
+                    #region Write pixel vector to binary file 
+                    // Write the pixel value to binary file
+                    for (int i = 0; i < max - min + 1; i++)
+                    {
+                        if (boundary[i].Count == 0)
+                        {
+                            num_pixel += 0;
+                        }
+                        else
+                        {
+                            boundary[i].Sort();
+                            bool inner = false;
+                            for (int j = boundary[i].Min(); j < boundary[i].Max() + 1; j++)
+                            {
+                                if (boundary[i].Contains(j))
+                                {
+                                    inner = !inner;
+                                }
+                                if (inner)
+                                {
+                                    wr.Write((int)img1.Data[min + i, j, 0]);
+                                    wr.Write((int)img2.Data[min + i, j, 0]);
+                                    wr.Write((int)img3.Data[min + i, j, 0]);
+                                    wr.Write((int)img4.Data[min + i, j, 0]);
+                                    wr.Write((int)img5.Data[min + i, j, 0]);
+                                    wr.Write((int)img6.Data[min + i, j, 0]);
+
+                                }
+
+                            }
+                        }
+
+                    }
+                    #endregion
+
+                    #endregion
+                }
+
+                wr.Close();
+                fs.Close();
+
+            }
+
+            #endregion
         }
         #endregion
 
@@ -1814,8 +2041,7 @@ namespace BeyonSense.ViewModels
 
         /*
             //make binary file for writing
-            FileStream fs = File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Create);
-            BinaryWriter wr = new BinaryWriter(fs);
+
             wr.Write((int)img1.Data[min + i, j, 0]);
             Console.WriteLine(img1.Data[min + i, j, 0]);
             wr.Write((int)img2.Data[min + i, j, 0]);
