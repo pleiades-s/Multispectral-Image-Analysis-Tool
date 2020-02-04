@@ -975,6 +975,10 @@ namespace BeyonSense.ViewModels
                 }
             }
 
+
+            #endregion
+
+            // Calculate the number of pixels and write the pixel value to binary file
             for (int i = 0; i < max - min + 1; i++)
             {
                 if (boundary[i].Count == 0)
@@ -984,7 +988,13 @@ namespace BeyonSense.ViewModels
                 else
                 {
                     boundary[i].Sort();
-                    }
+                    bool inner = false;
+                    for (int j = boundary[i].Min(); j < boundary[i].Max() + 1; j++)
+                    {
+                        if (boundary[i].Contains(j))
+                        {
+                            inner = !inner;
+                        }
                         if (inner)
                         {
                             num_pixel += 1;
@@ -993,7 +1003,6 @@ namespace BeyonSense.ViewModels
 
                     }
                 }
-
             }
 
             return num_pixel;
@@ -2027,5 +2036,5 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-   }
+    }
 }
