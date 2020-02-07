@@ -15,7 +15,9 @@ using System.Windows.Media.Imaging;
 using WinForms = System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
-
+using BeyonSense.Converters;
+using Emgu.CV.ML;
+using System.Diagnostics;
 
 namespace BeyonSense.ViewModels
 {
@@ -77,7 +79,6 @@ namespace BeyonSense.ViewModels
                 ImageBool = false;
                 CanBeReverted = false;
 
-                DrawLabel();
             }
         }
         #endregion
@@ -149,10 +150,10 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Bitmap image format: 600 x 800
+        #region Bitmap image format: 608x 800
 
-        private readonly int BmpHeight = 600;
-        private readonly int BmpWidth = 800;
+        private static readonly int BmpHeight = 608;
+        private static readonly int BmpWidth = 800;
 
         #endregion
 
@@ -188,19 +189,33 @@ namespace BeyonSense.ViewModels
             }
         }
 
+        private BitmapSource overlayImage = BitmapSourceConvert.ToBitmapSource(
+            new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+        public BitmapSource OverlayImage
+        {
+            get { return overlayImage; }
+            set
+            {
+                overlayImage = value;
+                NotifyOfPropertyChange(() => OverlayImage);
+            }
+        }
+
         #endregion
 
         #region Selected File Path by File Explorer
 
-        private string pthPath;
+        private string modelPath;
 
-        public string PthPath
+        public string ModelPath
         {
-            get { return pthPath; }
+            get { return modelPath; }
             set
             {
-                pthPath = value;
-                NotifyOfPropertyChange(() => PthPath);
+                modelPath = value;
+                NotifyOfPropertyChange(() => ModelPath);
+                ColorFilters.Clear();
             }
         }
         #endregion
@@ -216,6 +231,17 @@ namespace BeyonSense.ViewModels
             {
                 toggleBool = value;
                 NotifyOfPropertyChange(() => ToggleBool);
+            }
+        }
+
+        private bool toggleIsEnable = false;
+        public bool ToggleIsEnable
+        {
+            get { return toggleIsEnable; }
+            set
+            {
+                toggleIsEnable = value;
+                NotifyOfPropertyChange(() => ToggleIsEnable);
             }
         }
         #endregion
@@ -362,6 +388,9 @@ namespace BeyonSense.ViewModels
                     SaveBool = false;
                     TrainBool = false;
                     OKBool = false;
+
+                    // Initialize color filters
+                    ColorFilters.Clear();
 
                     // Calculate numPoints and update table elements
                     PointCalculator(rootPath);
@@ -512,6 +541,10 @@ namespace BeyonSense.ViewModels
                             num_csv++;
                             break;
 
+                        case ".bin":
+                            // raw ata 
+                            return;
+
                         default:
                             break;
 
@@ -525,8 +558,11 @@ namespace BeyonSense.ViewModels
                 if (num_bmp != 6 || num_csv > 1)
                 {
                     ResetImages();
-                    MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
                     Items.Clear();
+                    // Disable to load a model
+                    FileExplorerBool = false;
+
+                    MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
 
                     return;
                 }
@@ -549,9 +585,24 @@ namespace BeyonSense.ViewModels
                     MainBmpImage = StringToBmpSource(BmpList[0]);
                     PlusBool = true;
 
+                    FileExplorerBool = true;
+
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
-                    DrawLabel();
+
+
+                    // Not inference mode
+                    if (!ToggleBool)
+                    {
+                        DrawLabel();
+                    }
+
+                    // Inference mode; overlay color filter
+                    else
+                    {
+                        OverlayImage = ColorFilters[GetParentDirPath()];
+                    }
+
                 }
             }
             #endregion
@@ -571,8 +622,19 @@ namespace BeyonSense.ViewModels
             // Binding clicked image
             MainBmpImage = StringToBmpSource(path);
 
-            // Draw lines over image
-            DrawLabel();
+            // Not inference mode
+            if (!ToggleBool)
+            {
+                // Draw lines over image
+                DrawLabel();
+            }
+
+            // Inference mode; overlay color filter
+            else 
+            {
+                OverlayImage = ColorFilters[GetParentDirPath()];
+            }
+
 
             // Disable to click main image
             ImageBool = false;
@@ -604,13 +666,26 @@ namespace BeyonSense.ViewModels
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 // Search file filter by exetension
-                Filter = "State Dict.(*.pth)|*.pth|All files (*.*)|*.*"
+                Filter = "Model (*.txt)|*.txt|All files (*.*)|*.*"
             };
 
             if (openFileDialog.ShowDialog() == true)
             {
                 // Get full path of the selected file
-                PthPath = openFileDialog.FileName;
+                ModelPath = openFileDialog.FileName;
+
+                // Path is not null or empty
+                if (!String.IsNullOrEmpty(ModelPath))
+                {
+                    // Load a model
+                    ColorFilterGenerator();
+                    // ToggleIsEnable = true;
+                }
+
+                else
+                {
+                    //ToggleIsEnable = false;
+                }
             }
         }
         #endregion
@@ -619,16 +694,32 @@ namespace BeyonSense.ViewModels
 
         public void ToggleClick()
         {
+            // Inference mode
             if (!ToggleBool)
             {
                 ToggleBool = true;
+                // Reset OverlayImage
+                OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+                // Show color filter
+                OverlayImage = ColorFilters[GetParentDirPath()];
+
+                // Disable to draw new label
+                PlusBool = false;
+
             }
+
+            // Not inference mode
             else
             {
                 ToggleBool = false;
 
-                // Clear file path
-                PthPath = "";
+                // Reset OverlayImage
+                OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+                DrawLabel();
+
+                // Enable to draw new label
+                PlusBool = true;
             }
         }
 
@@ -759,7 +850,13 @@ namespace BeyonSense.ViewModels
             BmpPath5 = DefaultImagePath;
             BmpPath6 = DefaultImagePath;
 
+            
             MainBmpImage = DefaultImageSource();
+
+            // Reset Overlay Image
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+
             #endregion
 
         }
@@ -783,6 +880,7 @@ namespace BeyonSense.ViewModels
                 {
                     Items.Clear();
                     ResetImages();
+                    FileExplorerBool = false;
                     MessageBox.Show("Please make sure that you select a correct project folder.");
 
                     recursiveAlert = true;
@@ -1219,9 +1317,10 @@ namespace BeyonSense.ViewModels
                     ImageBool = true;
 
                     PlusBool = false;
+                    ToggleIsEnable = false;
 
                     // Push the first image 
-                    DrawLayer.Push(MainBmpImage);
+                    DrawLayer.Push(OverlayImage);
                 }
             }
 
@@ -1233,7 +1332,7 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region MainImage Bool
+        #region OverlayImage Bool
         private bool imageBool = false;
         public bool ImageBool
         {
@@ -1324,7 +1423,7 @@ namespace BeyonSense.ViewModels
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
-                dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
                 dc.DrawEllipse(newlabelBrush, null, new Point(Clicked_X, Clicked_Y), 5, 5);
 
                 if (ClickedPosition.Count > 0)
@@ -1342,7 +1441,7 @@ namespace BeyonSense.ViewModels
             RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
             rtb.Render(dv);
 
-            MainBmpImage = rtb;
+            OverlayImage = rtb;
 
             #endregion
 
@@ -1463,6 +1562,7 @@ namespace BeyonSense.ViewModels
             CanBeReverted = false;
 
             PlusBool = true;
+            ToggleIsEnable = true;
 
 
             // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
@@ -1475,7 +1575,7 @@ namespace BeyonSense.ViewModels
                     DrawLayer.Pop();
                 }
 
-                MainBmpImage = (BitmapSource)DrawLayer.Peek();
+                OverlayImage = (BitmapSource)DrawLayer.Peek();
 
             }
 
@@ -1489,7 +1589,7 @@ namespace BeyonSense.ViewModels
                 DrawingVisual dv = new DrawingVisual();
                 using (DrawingContext dc = dv.RenderOpen())
                 {
-                    dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                    dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
                     Pen pen = new Pen(newlabelBrush, 5);
 
@@ -1506,7 +1606,7 @@ namespace BeyonSense.ViewModels
                 RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
                 rtb.Render(dv);
 
-                MainBmpImage = rtb;
+                OverlayImage = rtb;
 
                 #endregion
 
@@ -1600,6 +1700,9 @@ namespace BeyonSense.ViewModels
             }
             #endregion
 
+            // Reset OverlayImage
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
             #region Traversal dictionary and draw
             if (CornerPoint.ContainsKey(CsvPath))
             {
@@ -1612,7 +1715,7 @@ namespace BeyonSense.ViewModels
                         // Make Brush using class color
                         SolidColorBrush classBrush = new SolidColorBrush(SearchColor(classCornerPoints.ClassName));
 
-                        dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                        dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
                         // Draw dot and line repeatedly
 
@@ -1645,7 +1748,7 @@ namespace BeyonSense.ViewModels
                     RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
                     rtb.Render(dv);
 
-                    MainBmpImage = rtb;
+                    OverlayImage = rtb;
 
                     #endregion
                 }
@@ -1653,6 +1756,157 @@ namespace BeyonSense.ViewModels
             #endregion
         }
         #endregion
+
+        #region Color Filter Dictionary
+        private Dictionary<string, BitmapSource> ColorFilters = new Dictionary<string, BitmapSource>();
+
+        #endregion
+
+        #region Generate Color filter by inference
+
+        private void ColorFilterGenerator()
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine("Timer is started");
+
+            #region Get paths
+            // Get project folder, model path
+            string modelPath = ModelPath;
+            string projectPath = GetParentParentDirPath();
+
+            List<string> picturePaths = new List<string>();
+
+            foreach (string dir in Directory.GetDirectories(projectPath))
+            {
+                picturePaths.Add(dir);
+            }
+
+            #endregion
+
+            #region Label Data
+            // TODO: 일단 ClassPoints에 나열된 순서대로 배치해보자
+
+            //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
+
+            Dictionary<int, Color> colorDict = new Dictionary<int, Color>{ { 0, Colors.Black} };
+            
+            // Add classes color
+            for (int i = 0; i < ClassPoints.Count; i++)
+            {
+                colorDict.Add(i + 1, ClassPoints[i].ClassColor);
+            }
+
+            #endregion
+
+            #region Load a model
+            SVM svm = new SVM();
+            try
+            {
+                FileStorage file = new FileStorage(modelPath, FileStorage.Mode.Read);
+                svm.Read(file.GetNode("opencv_ml_svm"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Loading a model: " + e.Message);
+                ToggleIsEnable = false;
+                MessageBox.Show("This model cannot predict current dataset");
+                return;
+            }
+            #endregion
+
+            // Get color filter dictionary
+            #region Access every pixel
+
+            // 사진 마다 for loop
+            foreach (string path in picturePaths) {
+                
+                try 
+                { 
+                #region Image variable
+                Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "660.bmp");
+                Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
+                Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
+                Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
+                Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
+                Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
+                    #endregion
+                
+
+                Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
+
+                var a = BitConverter.GetBytes(100)[0];
+
+                for (int i = 0; i < BmpWidth; i++)
+                {
+                    for (int j = 0; j < BmpHeight; j++)
+                    {
+                        // Get a pixel vector of each pixel
+                        float[,] vector = new float[1, 6];
+
+                        vector[0, 0] = (float)img1.Data[j, i, 0];
+                        vector[0, 1] = (float)img2.Data[j, i, 0];
+                        vector[0, 2] = (float)img3.Data[j, i, 0];
+                        vector[0, 3] = (float)img4.Data[j, i, 0];
+                        vector[0, 4] = (float)img5.Data[j, i, 0];
+                        vector[0, 5] = (float)img6.Data[j, i, 0];
+
+                        // matrix를 만든다.
+                        Matrix<float> matrix = new Matrix<float>(vector);
+
+                        // svm.predict 에 넣는다.
+                        int prediction = (int)svm.Predict(matrix);
+
+                        // prediction에 따라 색깔을 넣는다.
+                        if (prediction > 0)
+                        {
+                            colorfilter.Data[j, i, 0] = colorDict[prediction].B;
+                            colorfilter.Data[j, i, 1] = colorDict[prediction].G;
+                            colorfilter.Data[j, i, 2] = colorDict[prediction].R;
+                            colorfilter.Data[j, i, 3] = a;
+                        }
+
+
+                    }
+                }
+
+                ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
+                    #endregion
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Inference error: " + e.Message);
+                    ToggleIsEnable = false;
+                    MessageBox.Show("This model cannot predict current dataset");
+                    return;
+
+                }
+            }
+
+            // 여기서 모델 inference가 잘 되면 ToggleIsEnable true이고 아니면 false
+            ToggleIsEnable = true;
+
+            stopwatch.Stop();
+            Console.WriteLine("Elapsed time: " + (stopwatch.ElapsedMilliseconds / 1000).ToString() + "seconds");
+
+        }
+
+        #endregion
+
+
+        #region File explorer bool
+        private bool fileExplorerBool = false;
+        public bool FileExplorerBool
+        {
+            get { return fileExplorerBool; }
+            set
+            {
+                fileExplorerBool = value;
+                NotifyOfPropertyChange(() => FileExplorerBool);
+            }
+        }
+        #endregion
+
 
         #region Save Button Enable Bool
 
@@ -1786,7 +2040,7 @@ namespace BeyonSense.ViewModels
                     }
                 }
 
-                // TODO: Configure save path
+                // Configure save path
 
                 FileStream fs = File.Open(GetParentParentDirPath() + '\\' + classPixels.ClassName + ".bin", FileMode.Create);
                 BinaryWriter wr = new BinaryWriter(fs);
@@ -1936,12 +2190,12 @@ namespace BeyonSense.ViewModels
                                 }
                                 if (inner)
                                 {
-                                    wr.Write((int)img1.Data[min + i, j, 0]);
-                                    wr.Write((int)img2.Data[min + i, j, 0]);
-                                    wr.Write((int)img3.Data[min + i, j, 0]);
-                                    wr.Write((int)img4.Data[min + i, j, 0]);
-                                    wr.Write((int)img5.Data[min + i, j, 0]);
-                                    wr.Write((int)img6.Data[min + i, j, 0]);
+                                    wr.Write((float)img1.Data[min + i, j, 0]);
+                                    wr.Write((float)img2.Data[min + i, j, 0]);
+                                    wr.Write((float)img3.Data[min + i, j, 0]);
+                                    wr.Write((float)img4.Data[min + i, j, 0]);
+                                    wr.Write((float)img5.Data[min + i, j, 0]);
+                                    wr.Write((float)img6.Data[min + i, j, 0]);
 
                                 }
 
@@ -1958,6 +2212,9 @@ namespace BeyonSense.ViewModels
                 fs.Close();
 
             }
+
+            Console.WriteLine("Binary files are successfully saved to your project directory.");
+            MessageBox.Show("Binary files are successfully saved to your project directory.");
 
             #endregion
         }
@@ -2017,7 +2274,7 @@ namespace BeyonSense.ViewModels
 
             // Revert main image
             DrawLayer.Pop();
-            MainBmpImage = (BitmapSource)DrawLayer.Peek();
+            OverlayImage = (BitmapSource)DrawLayer.Peek();
 
             // The last element
             if (DrawLayer.Count < 2)
@@ -2038,37 +2295,6 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-
-        /*
-            //make binary file for writing
-
-            wr.Write((int)img1.Data[min + i, j, 0]);
-            Console.WriteLine(img1.Data[min + i, j, 0]);
-            wr.Write((int)img2.Data[min + i, j, 0]);
-            wr.Write((int)img3.Data[min + i, j, 0]);
-            wr.Write((int)img4.Data[min + i, j, 0]);
-            wr.Write((int)img5.Data[min + i, j, 0]);
-            wr.Write((int)img6.Data[min + i, j, 0]);
-
-         private void BinaryFileIO()
-        {
-            using (BinaryReader rdr = new BinaryReader(File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Open)))
-            {
-                while(true)
-                {
-                    try
-                    {
-                        Console.WriteLine(rdr.ReadInt32());
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        break;
-                    }
-                }
-            }
-        }
-         */
 
     }
 }
