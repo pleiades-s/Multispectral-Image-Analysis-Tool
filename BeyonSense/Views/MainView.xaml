@@ -95,7 +95,8 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
-                                <TextBlock Grid.Column="1" Text="{Binding ModelPath}" Margin="0,14,0,0" FontSize="10"/>
+                                <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding ModelPath}" 
+                                           FontSize="10" TextWrapping="Wrap"/>
                             </Grid>
 
                         </Grid>
