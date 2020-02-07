@@ -56,9 +56,24 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Orientation="Horizontal">
-                                <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,3,0,0"/>
+                                <TextBlock Text="Testing ML Model" HorizontalAlignment="Stretch" Margin="10,3,0,0"
+                                           IsEnabled="{Binding ToggleIsEnable}">
+
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="Black"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Foreground" Value= "LightGray"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                    
+                                </TextBlock>
                                 <!-- Toggle Button -->
-                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40">
+                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40"
+                                                    IsEnabled="{Binding ToggleIsEnable}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="MouseLeftButtonDown">
                                             <cal:ActionMessage MethodName="ToggleClick" />
@@ -67,16 +82,21 @@
                                 </local:ToggleSwitch>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                                <Button Content="Open" Margin="10,5" Width="Auto" IsEnabled="{Binding ToggleBool}">
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Button Grid.Column="0" Content="Open" Margin="10,5" Width="Auto" IsEnabled="{Binding FileExplorerBool}">
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
                                             <cal:ActionMessage MethodName="FileOpen" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
-                                <TextBlock Text="{Binding PthPath}" Margin="10,12,0,0"/>
-                            </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding ModelPath}" Margin="0,12,0,0" FontSize="10"/>
+                            </Grid>
 
                         </Grid>
 
@@ -343,7 +363,7 @@
                 <Grid Grid.Column ="2">
 
                     <!-- Original Image -->
-                    <Image x:Name="MainImage"  Source="{Binding MainBmpImage}" />
+                    <Image x:Name="MainImage"  Source="{Binding MainBmpImage}"/>
 
                     <!-- Image source binding-->
                     <Image x:Name="OverlayImage" Source="{Binding OverlayImage}" IsEnabled="{Binding ImageBool}">

@@ -16,6 +16,8 @@ using WinForms = System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
 using BeyonSense.Converters;
+using Emgu.CV.ML;
+using System.Diagnostics;
 
 namespace BeyonSense.ViewModels
 {
@@ -77,7 +79,6 @@ namespace BeyonSense.ViewModels
                 ImageBool = false;
                 CanBeReverted = false;
 
-                //DrawLabel();
             }
         }
         #endregion
@@ -205,15 +206,15 @@ namespace BeyonSense.ViewModels
 
         #region Selected File Path by File Explorer
 
-        private string pthPath;
+        private string modelPath;
 
-        public string PthPath
+        public string ModelPath
         {
-            get { return pthPath; }
+            get { return modelPath; }
             set
             {
-                pthPath = value;
-                NotifyOfPropertyChange(() => PthPath);
+                modelPath = value;
+                NotifyOfPropertyChange(() => ModelPath);
             }
         }
         #endregion
@@ -229,6 +230,17 @@ namespace BeyonSense.ViewModels
             {
                 toggleBool = value;
                 NotifyOfPropertyChange(() => ToggleBool);
+            }
+        }
+
+        private bool toggleIsEnable = false;
+        public bool ToggleIsEnable
+        {
+            get { return toggleIsEnable; }
+            set
+            {
+                toggleIsEnable = value;
+                NotifyOfPropertyChange(() => ToggleIsEnable);
             }
         }
         #endregion
@@ -542,8 +554,11 @@ namespace BeyonSense.ViewModels
                 if (num_bmp != 6 || num_csv > 1)
                 {
                     ResetImages();
-                    MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
                     Items.Clear();
+                    // Disable to load a model
+                    FileExplorerBool = false;
+
+                    MessageBox.Show("Wrong Directory\nPleae make sure the folder has six bitmap images and an optional csv file.");
 
                     return;
                 }
@@ -566,6 +581,8 @@ namespace BeyonSense.ViewModels
                     MainBmpImage = StringToBmpSource(BmpList[0]);
                     PlusBool = true;
 
+                    FileExplorerBool = true;
+
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
 
@@ -576,10 +593,10 @@ namespace BeyonSense.ViewModels
                         DrawLabel();
                     }
 
-                    // TODO: Inference mode; overlay color fliter
+                    // TODO: Inference mode; overlay color filter
                     else
                     {
-
+                        OverlayImage = ColorFilters[GetParentDirPath()];
                     }
 
                 }
@@ -609,7 +626,10 @@ namespace BeyonSense.ViewModels
             }
 
             // TODO: Inference mode; overlay color filter
-            else { }
+            else 
+            {
+                OverlayImage = ColorFilters[GetParentDirPath()];
+            }
 
 
             // Disable to click main image
@@ -648,7 +668,20 @@ namespace BeyonSense.ViewModels
             if (openFileDialog.ShowDialog() == true)
             {
                 // Get full path of the selected file
-                PthPath = openFileDialog.FileName;
+                ModelPath = openFileDialog.FileName;
+
+                // Path is not null or empty
+                if (!String.IsNullOrEmpty(ModelPath))
+                {
+                    // Load a model
+                    ColorFilterGenerator();
+                    // ToggleIsEnable = true;
+                }
+
+                else
+                {
+                    //ToggleIsEnable = false;
+                }
             }
         }
         #endregion
@@ -657,16 +690,28 @@ namespace BeyonSense.ViewModels
 
         public void ToggleClick()
         {
+            // Inference mode
             if (!ToggleBool)
             {
                 ToggleBool = true;
+                // Reset OverlayImage
+                OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+                // TODO: Show color filter
+                
+                OverlayImage = ColorFilters[GetParentDirPath()];
+
             }
+
+            // Not inference mode
             else
             {
                 ToggleBool = false;
 
-                // Clear file path
-                PthPath = "";
+                // Reset OverlayImage
+                OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+                DrawLabel();
+
             }
         }
 
@@ -827,6 +872,7 @@ namespace BeyonSense.ViewModels
                 {
                     Items.Clear();
                     ResetImages();
+                    FileExplorerBool = false;
                     MessageBox.Show("Please make sure that you select a correct project folder.");
 
                     recursiveAlert = true;
@@ -1701,16 +1747,141 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
+        #region Color Filter Dictionary
+        private Dictionary<string, BitmapSource> ColorFilters = new Dictionary<string, BitmapSource>();
+
+        #endregion
+
         #region Generate Color filter by inference
 
         private void ColorFilterGenerator()
         {
             // Reset OverlayImage
-            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+            //OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine("Timer is started");
+
+            // TODO: 모델이 잘못된 형태거나 읽지 못하면 -> ToggleIsEnable = false;
+
+            #region Get paths
+            // Get project folder, model path
+            string modelPath = ModelPath;
+            string projectPath = GetParentParentDirPath();
+
+            List<string> picturePaths = new List<string>();
+
+            foreach (string dir in Directory.GetDirectories(projectPath))
+            {
+                picturePaths.Add(dir);
+            }
+
+
+            #endregion
+
+            #region Label Data
+            // TODO: 일단 ClassPoints에 나열된 순서대로 배치해보자
+
+            //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
+
+            Dictionary<int, Color> colorDict = new Dictionary<int, Color>{ { 0, Colors.Black} };
+            
+            // Add classes color
+            for (int i = 0; i < ClassPoints.Count; i++)
+            {
+                colorDict.Add(i + 1, ClassPoints[i].ClassColor);
+            }
+
+            #endregion
+
+            #region Load a model
+            SVM svm = new SVM();
+            FileStorage file = new FileStorage(modelPath, FileStorage.Mode.Read);
+            svm.Read(file.GetNode("opencv_ml_svm"));
+            #endregion
+
+            // Get color filter dictionary
+            #region Access every pixel
+
+            foreach (string path in picturePaths) {
+                // 사진 마다 for loop
+                #region Image variable
+                Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "660.bmp");
+                Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
+                Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
+                Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
+                Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
+                Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
+                #endregion
+
+                Image<Bgra, byte> colorfliter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
+
+                var a = BitConverter.GetBytes(100)[0];
+
+                for (int i = 0; i < BmpWidth; i++)
+                {
+                    for (int j = 0; j < BmpHeight; j++)
+                    {
+                        // Get a pixel vector of each pixel
+                        float[,] vector = new float[1, 6];
+
+                        vector[0, 0] = (float)img1.Data[j, i, 0];
+                        vector[0, 1] = (float)img2.Data[j, i, 0];
+                        vector[0, 2] = (float)img3.Data[j, i, 0];
+                        vector[0, 3] = (float)img4.Data[j, i, 0];
+                        vector[0, 4] = (float)img5.Data[j, i, 0];
+                        vector[0, 5] = (float)img6.Data[j, i, 0];
+
+                        // matrix를 만든다.
+                        Matrix<float> matrix = new Matrix<float>(vector);
+
+                        // svm.predict 에 넣는다.
+                        int prediction = (int)svm.Predict(matrix);
+
+                        // prediction에 따라 색깔을 넣는다.
+                        if (prediction > 0)
+                        {
+                            colorfliter.Data[j, i, 0] = colorDict[prediction].B;
+                            colorfliter.Data[j, i, 1] = colorDict[prediction].G;
+                            colorfliter.Data[j, i, 2] = colorDict[prediction].R;
+                            colorfliter.Data[j, i, 3] = a;
+                        }
+
+
+                    }
+                }
+
+                ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfliter));
+                #endregion
+            }
+
+
+
+            // 여기서 모델 inference가 잘 되면 ToggleIsEnable true이고 아니면 false
+            ToggleIsEnable = true;
+
+            stopwatch.Stop();
+            Console.WriteLine("Elapsed time: " + (stopwatch.ElapsedMilliseconds / 1000).ToString() + "seconds");
+
 
 
         }
 
+        #endregion
+
+
+        #region File explorer bool
+        private bool fileExplorerBool = false;
+        public bool FileExplorerBool
+        {
+            get { return fileExplorerBool; }
+            set
+            {
+                fileExplorerBool = value;
+                NotifyOfPropertyChange(() => FileExplorerBool);
+            }
+        }
         #endregion
 
 
