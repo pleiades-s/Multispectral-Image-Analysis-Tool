@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using WinForms = System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.Structure;
-
+using BeyonSense.Converters;
 
 namespace BeyonSense.ViewModels
 {
@@ -77,7 +77,7 @@ namespace BeyonSense.ViewModels
                 ImageBool = false;
                 CanBeReverted = false;
 
-                DrawLabel();
+                //DrawLabel();
             }
         }
         #endregion
@@ -149,10 +149,10 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Bitmap image format: 600 x 800
+        #region Bitmap image format: 608x 800
 
-        private readonly int BmpHeight = 600;
-        private readonly int BmpWidth = 800;
+        private static readonly int BmpHeight = 608;
+        private static readonly int BmpWidth = 800;
 
         #endregion
 
@@ -185,6 +185,19 @@ namespace BeyonSense.ViewModels
             {
                 mainBmpImage = value;
                 NotifyOfPropertyChange(() => MainBmpImage);
+            }
+        }
+
+        private BitmapSource overlayImage = BitmapSourceConvert.ToBitmapSource(
+            new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+        public BitmapSource OverlayImage
+        {
+            get { return overlayImage; }
+            set
+            {
+                overlayImage = value;
+                NotifyOfPropertyChange(() => OverlayImage);
             }
         }
 
@@ -512,6 +525,10 @@ namespace BeyonSense.ViewModels
                             num_csv++;
                             break;
 
+                        case ".bin":
+                            // raw ata 
+                            return;
+
                         default:
                             break;
 
@@ -551,7 +568,20 @@ namespace BeyonSense.ViewModels
 
                     // Set public variable CsvPath as the csv file path
                     CsvPath = _csvPath;
-                    DrawLabel();
+
+
+                    // Not inference mode
+                    if (!ToggleBool)
+                    {
+                        DrawLabel();
+                    }
+
+                    // TODO: Inference mode; overlay color fliter
+                    else
+                    {
+
+                    }
+
                 }
             }
             #endregion
@@ -571,8 +601,16 @@ namespace BeyonSense.ViewModels
             // Binding clicked image
             MainBmpImage = StringToBmpSource(path);
 
-            // Draw lines over image
-            DrawLabel();
+            // Not inference mode
+            if (!ToggleBool)
+            {
+                // Draw lines over image
+                DrawLabel();
+            }
+
+            // TODO: Inference mode; overlay color filter
+            else { }
+
 
             // Disable to click main image
             ImageBool = false;
@@ -604,7 +642,7 @@ namespace BeyonSense.ViewModels
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 // Search file filter by exetension
-                Filter = "State Dict.(*.pth)|*.pth|All files (*.*)|*.*"
+                Filter = "Model (*.txt)|*.txt|All files (*.*)|*.*"
             };
 
             if (openFileDialog.ShowDialog() == true)
@@ -759,7 +797,13 @@ namespace BeyonSense.ViewModels
             BmpPath5 = DefaultImagePath;
             BmpPath6 = DefaultImagePath;
 
+            
             MainBmpImage = DefaultImageSource();
+
+            // Reset Overlay Image
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+
             #endregion
 
         }
@@ -1221,7 +1265,7 @@ namespace BeyonSense.ViewModels
                     PlusBool = false;
 
                     // Push the first image 
-                    DrawLayer.Push(MainBmpImage);
+                    DrawLayer.Push(OverlayImage);
                 }
             }
 
@@ -1233,7 +1277,7 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region MainImage Bool
+        #region OverlayImage Bool
         private bool imageBool = false;
         public bool ImageBool
         {
@@ -1324,7 +1368,7 @@ namespace BeyonSense.ViewModels
             DrawingVisual dv = new DrawingVisual();
             using (DrawingContext dc = dv.RenderOpen())
             {
-                dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
                 dc.DrawEllipse(newlabelBrush, null, new Point(Clicked_X, Clicked_Y), 5, 5);
 
                 if (ClickedPosition.Count > 0)
@@ -1342,7 +1386,7 @@ namespace BeyonSense.ViewModels
             RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
             rtb.Render(dv);
 
-            MainBmpImage = rtb;
+            OverlayImage = rtb;
 
             #endregion
 
@@ -1475,7 +1519,7 @@ namespace BeyonSense.ViewModels
                     DrawLayer.Pop();
                 }
 
-                MainBmpImage = (BitmapSource)DrawLayer.Peek();
+                OverlayImage = (BitmapSource)DrawLayer.Peek();
 
             }
 
@@ -1489,7 +1533,7 @@ namespace BeyonSense.ViewModels
                 DrawingVisual dv = new DrawingVisual();
                 using (DrawingContext dc = dv.RenderOpen())
                 {
-                    dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                    dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
                     Pen pen = new Pen(newlabelBrush, 5);
 
@@ -1506,7 +1550,7 @@ namespace BeyonSense.ViewModels
                 RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
                 rtb.Render(dv);
 
-                MainBmpImage = rtb;
+                OverlayImage = rtb;
 
                 #endregion
 
@@ -1600,6 +1644,9 @@ namespace BeyonSense.ViewModels
             }
             #endregion
 
+            // Reset OverlayImage
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
             #region Traversal dictionary and draw
             if (CornerPoint.ContainsKey(CsvPath))
             {
@@ -1612,7 +1659,7 @@ namespace BeyonSense.ViewModels
                         // Make Brush using class color
                         SolidColorBrush classBrush = new SolidColorBrush(SearchColor(classCornerPoints.ClassName));
 
-                        dc.DrawImage(MainBmpImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                        dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
 
                         // Draw dot and line repeatedly
 
@@ -1645,7 +1692,7 @@ namespace BeyonSense.ViewModels
                     RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
                     rtb.Render(dv);
 
-                    MainBmpImage = rtb;
+                    OverlayImage = rtb;
 
                     #endregion
                 }
@@ -1653,6 +1700,19 @@ namespace BeyonSense.ViewModels
             #endregion
         }
         #endregion
+
+        #region Generate Color filter by inference
+
+        private void ColorFilterGenerator()
+        {
+            // Reset OverlayImage
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+
+        }
+
+        #endregion
+
 
         #region Save Button Enable Bool
 
@@ -1786,7 +1846,7 @@ namespace BeyonSense.ViewModels
                     }
                 }
 
-                // TODO: Configure save path
+                // Configure save path
 
                 FileStream fs = File.Open(GetParentParentDirPath() + '\\' + classPixels.ClassName + ".bin", FileMode.Create);
                 BinaryWriter wr = new BinaryWriter(fs);
@@ -1936,12 +1996,12 @@ namespace BeyonSense.ViewModels
                                 }
                                 if (inner)
                                 {
-                                    wr.Write((int)img1.Data[min + i, j, 0]);
-                                    wr.Write((int)img2.Data[min + i, j, 0]);
-                                    wr.Write((int)img3.Data[min + i, j, 0]);
-                                    wr.Write((int)img4.Data[min + i, j, 0]);
-                                    wr.Write((int)img5.Data[min + i, j, 0]);
-                                    wr.Write((int)img6.Data[min + i, j, 0]);
+                                    wr.Write((float)img1.Data[min + i, j, 0]);
+                                    wr.Write((float)img2.Data[min + i, j, 0]);
+                                    wr.Write((float)img3.Data[min + i, j, 0]);
+                                    wr.Write((float)img4.Data[min + i, j, 0]);
+                                    wr.Write((float)img5.Data[min + i, j, 0]);
+                                    wr.Write((float)img6.Data[min + i, j, 0]);
 
                                 }
 
@@ -1958,6 +2018,9 @@ namespace BeyonSense.ViewModels
                 fs.Close();
 
             }
+
+            Console.WriteLine("Binary files are successfully saved to your project directory.");
+            MessageBox.Show("Binary files are successfully saved to your project directory.");
 
             #endregion
         }
@@ -2017,7 +2080,7 @@ namespace BeyonSense.ViewModels
 
             // Revert main image
             DrawLayer.Pop();
-            MainBmpImage = (BitmapSource)DrawLayer.Peek();
+            OverlayImage = (BitmapSource)DrawLayer.Peek();
 
             // The last element
             if (DrawLayer.Count < 2)
@@ -2038,37 +2101,6 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-
-        /*
-            //make binary file for writing
-
-            wr.Write((int)img1.Data[min + i, j, 0]);
-            Console.WriteLine(img1.Data[min + i, j, 0]);
-            wr.Write((int)img2.Data[min + i, j, 0]);
-            wr.Write((int)img3.Data[min + i, j, 0]);
-            wr.Write((int)img4.Data[min + i, j, 0]);
-            wr.Write((int)img5.Data[min + i, j, 0]);
-            wr.Write((int)img6.Data[min + i, j, 0]);
-
-         private void BinaryFileIO()
-        {
-            using (BinaryReader rdr = new BinaryReader(File.Open(@"C:/Users/user/Desktop/test/ data1.bin", FileMode.Open)))
-            {
-                while(true)
-                {
-                    try
-                    {
-                        Console.WriteLine(rdr.ReadInt32());
-                    }
-                    catch (EndOfStreamException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        break;
-                    }
-                }
-            }
-        }
-         */
 
     }
 }

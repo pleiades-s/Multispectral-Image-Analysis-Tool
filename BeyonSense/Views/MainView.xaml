@@ -341,13 +341,12 @@
 
                 <!-- Column 2: Main Image-->
                 <Grid Grid.Column ="2">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="145*"/>
-                        <RowDefinition Height="306*"/>
-                    </Grid.RowDefinitions>
+
+                    <!-- Original Image -->
+                    <Image x:Name="MainImage"  Source="{Binding MainBmpImage}" />
+
                     <!-- Image source binding-->
-                    <Image x:Name="MainImage" Source="{Binding MainBmpImage}" Margin="5,5,5.333,4.667"
-                           IsEnabled="{Binding ImageBool}" Grid.RowSpan="2">
+                    <Image x:Name="OverlayImage" Source="{Binding OverlayImage}" IsEnabled="{Binding ImageBool}">
 
                         <Image.Style>
                             <Style TargetType="Image">

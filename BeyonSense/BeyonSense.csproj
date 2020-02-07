@@ -161,6 +161,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Converters\BitmapSourceConvert.cs" />
     <Compile Include="Models\ClassCornerPoints.cs" />
     <Compile Include="Models\ClassPixels.cs" />
     <Compile Include="Models\DirectoryItem.cs" />
