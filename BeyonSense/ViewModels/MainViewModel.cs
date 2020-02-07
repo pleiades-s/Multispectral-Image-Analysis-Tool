@@ -215,6 +215,7 @@ namespace BeyonSense.ViewModels
             {
                 modelPath = value;
                 NotifyOfPropertyChange(() => ModelPath);
+                ColorFilters.Clear();
             }
         }
         #endregion
@@ -387,6 +388,9 @@ namespace BeyonSense.ViewModels
                     SaveBool = false;
                     TrainBool = false;
                     OKBool = false;
+
+                    // Initialize color filters
+                    ColorFilters.Clear();
 
                     // Calculate numPoints and update table elements
                     PointCalculator(rootPath);
@@ -593,7 +597,7 @@ namespace BeyonSense.ViewModels
                         DrawLabel();
                     }
 
-                    // TODO: Inference mode; overlay color filter
+                    // Inference mode; overlay color filter
                     else
                     {
                         OverlayImage = ColorFilters[GetParentDirPath()];
@@ -625,7 +629,7 @@ namespace BeyonSense.ViewModels
                 DrawLabel();
             }
 
-            // TODO: Inference mode; overlay color filter
+            // Inference mode; overlay color filter
             else 
             {
                 OverlayImage = ColorFilters[GetParentDirPath()];
@@ -697,9 +701,11 @@ namespace BeyonSense.ViewModels
                 // Reset OverlayImage
                 OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
 
-                // TODO: Show color filter
-                
+                // Show color filter
                 OverlayImage = ColorFilters[GetParentDirPath()];
+
+                // Disable to draw new label
+                PlusBool = false;
 
             }
 
@@ -712,6 +718,8 @@ namespace BeyonSense.ViewModels
                 OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
                 DrawLabel();
 
+                // Enable to draw new label
+                PlusBool = true;
             }
         }
 
@@ -1309,6 +1317,7 @@ namespace BeyonSense.ViewModels
                     ImageBool = true;
 
                     PlusBool = false;
+                    ToggleIsEnable = false;
 
                     // Push the first image 
                     DrawLayer.Push(OverlayImage);
@@ -1553,6 +1562,7 @@ namespace BeyonSense.ViewModels
             CanBeReverted = false;
 
             PlusBool = true;
+            ToggleIsEnable = true;
 
 
             // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
@@ -1756,9 +1766,6 @@ namespace BeyonSense.ViewModels
 
         private void ColorFilterGenerator()
         {
-            // Reset OverlayImage
-            //OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
-
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Console.WriteLine("Timer is started");
@@ -1776,7 +1783,6 @@ namespace BeyonSense.ViewModels
             {
                 picturePaths.Add(dir);
             }
-
 
             #endregion
 
@@ -1797,15 +1803,25 @@ namespace BeyonSense.ViewModels
 
             #region Load a model
             SVM svm = new SVM();
-            FileStorage file = new FileStorage(modelPath, FileStorage.Mode.Read);
-            svm.Read(file.GetNode("opencv_ml_svm"));
+            try
+            {
+                FileStorage file = new FileStorage(modelPath, FileStorage.Mode.Read);
+                svm.Read(file.GetNode("opencv_ml_svm"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Loading a model: " + e.Message);
+            }
             #endregion
 
             // Get color filter dictionary
             #region Access every pixel
 
+            // 사진 마다 for loop
             foreach (string path in picturePaths) {
-                // 사진 마다 for loop
+                
+                try 
+                { 
                 #region Image variable
                 Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "660.bmp");
                 Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
@@ -1813,9 +1829,10 @@ namespace BeyonSense.ViewModels
                 Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
                 Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
                 Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
-                #endregion
+                    #endregion
+                
 
-                Image<Bgra, byte> colorfliter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
+                Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
 
                 var a = BitConverter.GetBytes(100)[0];
 
@@ -1842,29 +1859,30 @@ namespace BeyonSense.ViewModels
                         // prediction에 따라 색깔을 넣는다.
                         if (prediction > 0)
                         {
-                            colorfliter.Data[j, i, 0] = colorDict[prediction].B;
-                            colorfliter.Data[j, i, 1] = colorDict[prediction].G;
-                            colorfliter.Data[j, i, 2] = colorDict[prediction].R;
-                            colorfliter.Data[j, i, 3] = a;
+                            colorfilter.Data[j, i, 0] = colorDict[prediction].B;
+                            colorfilter.Data[j, i, 1] = colorDict[prediction].G;
+                            colorfilter.Data[j, i, 2] = colorDict[prediction].R;
+                            colorfilter.Data[j, i, 3] = a;
                         }
 
 
                     }
                 }
 
-                ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfliter));
-                #endregion
+                ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
+                    #endregion
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Inference error: " + e.Message);
+                }
             }
-
-
 
             // 여기서 모델 inference가 잘 되면 ToggleIsEnable true이고 아니면 false
             ToggleIsEnable = true;
 
             stopwatch.Stop();
             Console.WriteLine("Elapsed time: " + (stopwatch.ElapsedMilliseconds / 1000).ToString() + "seconds");
-
-
 
         }
 
