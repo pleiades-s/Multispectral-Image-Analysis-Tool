@@ -1770,8 +1770,6 @@ namespace BeyonSense.ViewModels
             stopwatch.Start();
             Console.WriteLine("Timer is started");
 
-            // TODO: 모델이 잘못된 형태거나 읽지 못하면 -> ToggleIsEnable = false;
-
             #region Get paths
             // Get project folder, model path
             string modelPath = ModelPath;
@@ -1811,6 +1809,9 @@ namespace BeyonSense.ViewModels
             catch (Exception e)
             {
                 Console.WriteLine("Loading a model: " + e.Message);
+                ToggleIsEnable = false;
+                MessageBox.Show("This model cannot predict current dataset");
+                return;
             }
             #endregion
 
@@ -1875,6 +1876,10 @@ namespace BeyonSense.ViewModels
                 catch (Exception e)
                 {
                     Console.WriteLine("Inference error: " + e.Message);
+                    ToggleIsEnable = false;
+                    MessageBox.Show("This model cannot predict current dataset");
+                    return;
+
                 }
             }
 
