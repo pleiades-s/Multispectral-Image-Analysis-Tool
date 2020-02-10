@@ -270,7 +270,7 @@ namespace BeyonSense.ViewModels
         /// <returns>New color list</returns>
         public List<Color> AddColors(int n)
         {
-            
+
 
             // The number of basic color
             const int numBasicColor = 6;
@@ -292,7 +292,7 @@ namespace BeyonSense.ViewModels
             // Allocate used color in the list
             for (int i = 0; i < ClassPoints.Count; i++)
             {
-                if(ClassPoints[i].ClassColor != Colors.Transparent)
+                if (ClassPoints[i].ClassColor != Colors.Transparent)
                 {
                     UsedColors.Add(ClassPoints[i].ClassColor);
                     count++;
@@ -301,14 +301,14 @@ namespace BeyonSense.ViewModels
 
 
             // If there is any not used basic colors, allocate them in new color list
-            for (int i = numBasicColor - count ; i > 0 ; i--)
+            for (int i = numBasicColor - count; i > 0; i--)
             {
                 if (NewColors.Count == n)
                 {
                     return NewColors;
                 }
 
-                int[] arr = new int[3] {BasicColor[numBasicColor - i, 0], 
+                int[] arr = new int[3] {BasicColor[numBasicColor - i, 0],
                                         BasicColor[numBasicColor - i, 1],
                                         BasicColor[numBasicColor - i, 2] };
 
@@ -630,7 +630,7 @@ namespace BeyonSense.ViewModels
             }
 
             // Inference mode; overlay color filter
-            else 
+            else
             {
                 OverlayImage = ColorFilters[GetParentDirPath()];
             }
@@ -638,7 +638,7 @@ namespace BeyonSense.ViewModels
 
             // Disable to click main image
             ImageBool = false;
-            
+
 
             // Initialize new class data for data integrity
             newLabelName = "";
@@ -850,7 +850,7 @@ namespace BeyonSense.ViewModels
             BmpPath5 = DefaultImagePath;
             BmpPath6 = DefaultImagePath;
 
-            
+
             MainBmpImage = DefaultImageSource();
 
             // Reset Overlay Image
@@ -875,7 +875,8 @@ namespace BeyonSense.ViewModels
 
         private void DirSearch(string sDir)
         {
-            if (recursiveCount > 3) {
+            if (recursiveCount > 3)
+            {
                 if (!recursiveAlert)
                 {
                     Items.Clear();
@@ -884,7 +885,7 @@ namespace BeyonSense.ViewModels
                     MessageBox.Show("Please make sure that you select a correct project folder.");
 
                     recursiveAlert = true;
-                    
+
                     return;
                 }
                 else
@@ -892,12 +893,12 @@ namespace BeyonSense.ViewModels
                     return;
                 }
             }
-            
+
             try
             {
                 foreach (string d in Directory.GetDirectories(sDir))
                 {
-                    
+
                     foreach (string f in Directory.GetFiles(d))
                     {
                         // Check it file exetension is csv or not
@@ -951,8 +952,8 @@ namespace BeyonSense.ViewModels
         /// </summary>
         /// <param name="_cornerPoint">Corner Point Collection</param>
         /// <returns>int the number of pixel</returns>
-        
-       private int PixelCalculator(List<int[]> _cornerPoint)
+
+        private int PixelCalculator(List<int[]> _cornerPoint)
         {
             #region Calculation
 
@@ -968,7 +969,7 @@ namespace BeyonSense.ViewModels
             }
 
             // Calculate range of y value
-            int min = points[0,0];
+            int min = points[0, 0];
             int max = 0;
 
             for (int i = 0; i < num_point; i++)
@@ -1243,7 +1244,7 @@ namespace BeyonSense.ViewModels
             else
             {
                 Items.Clear();
-                if(!recursiveAlert)
+                if (!recursiveAlert)
                     MessageBox.Show("Please choose a correct project folder");
             }
 
@@ -1261,12 +1262,12 @@ namespace BeyonSense.ViewModels
         /// </summary>
         /// <param name="className">class name</param>
         /// <returns>the class's color</returns>
-        
+
         private Color SearchColor(string className)
         {
-            foreach(ClassPixels classPixels in ClassPoints)
+            foreach (ClassPixels classPixels in ClassPoints)
             {
-                if (className == classPixels.ClassName) 
+                if (className == classPixels.ClassName)
                     return classPixels.ClassColor;
             }
             return Colors.Transparent;
@@ -1394,7 +1395,7 @@ namespace BeyonSense.ViewModels
         /// <summary>
         /// Event handler when user draw dots on main image
         /// </summary>
-        
+
         public void ClickPoint(MouseEventArgs e, IInputElement elem)
         {
             #region Get clicked pixel positions
@@ -1430,7 +1431,7 @@ namespace BeyonSense.ViewModels
                 {
                     // Draw a line between the last element of clickedPosition list and new clicked position
                     Pen pen = new Pen(newlabelBrush, 5);
-                    
+
                     double _x = ClickedPosition.Last()[0];
                     double _y = ClickedPosition.Last()[1];
 
@@ -1467,7 +1468,7 @@ namespace BeyonSense.ViewModels
             #region Basic requirement for being clolsed shape
             if (ClickedPosition.Count > 3)
             {
-                SaveBool = true;
+                OKBool = true;
             }
             #endregion
 
@@ -1479,7 +1480,7 @@ namespace BeyonSense.ViewModels
         {
             List<int[]> pos = new List<int[]>();
 
-            foreach ( double[] arr in corners)
+            foreach (double[] arr in corners)
             {
                 int[] _array = new int[2] { (int)arr[0], (int)arr[1] };
 
@@ -1563,6 +1564,7 @@ namespace BeyonSense.ViewModels
 
             PlusBool = true;
             ToggleIsEnable = true;
+            SaveBool = true;
 
 
             // [TODO] Exception: 도형을 이루지 못하는 점들의 위지 관계 e.g, 세 점이 한 직선에 나란히
@@ -1579,7 +1581,7 @@ namespace BeyonSense.ViewModels
 
             }
 
-            
+
             else
             {
 
@@ -1691,8 +1693,8 @@ namespace BeyonSense.ViewModels
         #region Draw Labels
         private void DrawLabel()
         {
-            # region Get csv file path
-             
+            #region Get csv file path
+
             if (String.IsNullOrEmpty(CsvPath))
             {
                 //If there is no csv file, set a csv file path
@@ -1789,8 +1791,8 @@ namespace BeyonSense.ViewModels
 
             //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
 
-            Dictionary<int, Color> colorDict = new Dictionary<int, Color>{ { 0, Colors.Black} };
-            
+            Dictionary<int, Color> colorDict = new Dictionary<int, Color> { { 0, Colors.Black } };
+
             // Add classes color
             for (int i = 0; i < ClassPoints.Count; i++)
             {
@@ -1819,58 +1821,59 @@ namespace BeyonSense.ViewModels
             #region Access every pixel
 
             // 사진 마다 for loop
-            foreach (string path in picturePaths) {
-                
-                try 
-                { 
-                #region Image variable
-                Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "660.bmp");
-                Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
-                Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
-                Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
-                Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
-                Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
-                    #endregion
-                
+            foreach (string path in picturePaths)
+            {
 
-                Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
-
-                var a = BitConverter.GetBytes(100)[0];
-
-                for (int i = 0; i < BmpWidth; i++)
+                try
                 {
-                    for (int j = 0; j < BmpHeight; j++)
+                    #region Image variable
+                    Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "660.bmp");
+                    Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
+                    Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
+                    Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
+                    Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
+                    Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
+                    #endregion
+
+
+                    Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
+
+                    var a = BitConverter.GetBytes(100)[0];
+
+                    for (int i = 0; i < BmpWidth; i++)
                     {
-                        // Get a pixel vector of each pixel
-                        float[,] vector = new float[1, 6];
-
-                        vector[0, 0] = (float)img1.Data[j, i, 0];
-                        vector[0, 1] = (float)img2.Data[j, i, 0];
-                        vector[0, 2] = (float)img3.Data[j, i, 0];
-                        vector[0, 3] = (float)img4.Data[j, i, 0];
-                        vector[0, 4] = (float)img5.Data[j, i, 0];
-                        vector[0, 5] = (float)img6.Data[j, i, 0];
-
-                        // matrix를 만든다.
-                        Matrix<float> matrix = new Matrix<float>(vector);
-
-                        // svm.predict 에 넣는다.
-                        int prediction = (int)svm.Predict(matrix);
-
-                        // prediction에 따라 색깔을 넣는다.
-                        if (prediction > 0)
+                        for (int j = 0; j < BmpHeight; j++)
                         {
-                            colorfilter.Data[j, i, 0] = colorDict[prediction].B;
-                            colorfilter.Data[j, i, 1] = colorDict[prediction].G;
-                            colorfilter.Data[j, i, 2] = colorDict[prediction].R;
-                            colorfilter.Data[j, i, 3] = a;
+                            // Get a pixel vector of each pixel
+                            float[,] vector = new float[1, 6];
+
+                            vector[0, 0] = (float)img1.Data[j, i, 0];
+                            vector[0, 1] = (float)img2.Data[j, i, 0];
+                            vector[0, 2] = (float)img3.Data[j, i, 0];
+                            vector[0, 3] = (float)img4.Data[j, i, 0];
+                            vector[0, 4] = (float)img5.Data[j, i, 0];
+                            vector[0, 5] = (float)img6.Data[j, i, 0];
+
+                            // matrix를 만든다.
+                            Matrix<float> matrix = new Matrix<float>(vector);
+
+                            // svm.predict 에 넣는다.
+                            int prediction = (int)svm.Predict(matrix);
+
+                            // prediction에 따라 색깔을 넣는다.
+                            if (prediction > 0)
+                            {
+                                colorfilter.Data[j, i, 0] = colorDict[prediction].B;
+                                colorfilter.Data[j, i, 1] = colorDict[prediction].G;
+                                colorfilter.Data[j, i, 2] = colorDict[prediction].R;
+                                colorfilter.Data[j, i, 3] = a;
+                            }
+
+
                         }
-
-
                     }
-                }
 
-                ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
+                    ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
                     #endregion
                 }
                 catch (Exception e)
@@ -1963,6 +1966,7 @@ namespace BeyonSense.ViewModels
         public void Save()
         {
             Console.WriteLine("Save button");
+            SaveBool = false;
 
             #region Save corner points in csv format
             // Dictionary loop
@@ -2210,6 +2214,7 @@ namespace BeyonSense.ViewModels
 
                 wr.Close();
                 fs.Close();
+
 
             }
 

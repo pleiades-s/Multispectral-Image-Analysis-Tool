@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="BeyonSense.OkButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BeyonSense"
+             mc:Ignorable="d" 
+             d:DesignHeight="50" d:DesignWidth="50">
+    <UserControl.Resources>
+        <Style x:Key="OkImage" TargetType="Image">
+            <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/Ok_enable.png"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/Ok_disable.png"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Viewbox>
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="OkIcon" Style="{StaticResource OkImage}"/>
+        </Grid>
+    </Viewbox>
+</UserControl>

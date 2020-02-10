@@ -7,7 +7,10 @@
         WindowStartupLocation="CenterScreen"
         mc:Ignorable="d"
         Icon="/Pictures/BeyonSense_Icon.png"
-        Title="BeyonSense" Height="170" Width="300">
+        Title="BeyonSense" Height="170" Width="300"
+        ResizeMode="NoResize"
+        Background="#2b2b2e">
+    
 
     <Grid Margin="15">
 
@@ -17,12 +20,14 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Label Name="lblQuestion" Grid.Row="0" FontWeight="Bold">TYPE CLASS NAME</Label>
-        <TextBox Name="txtAnswer" Grid.Row="1" MinWidth="180" FontWeight="ExtraLight">Class Name</TextBox>
+        <Label Name="lblQuestion" Grid.Row="0" FontWeight="Bold" Foreground="White">TYPE CLASS NAME</Label>
+        <TextBox Name="txtAnswer" Grid.Row="1" MinWidth="180" 
+                 FontWeight="ExtraLight" Foreground="White" Background="#3e3e3e">Class Name</TextBox>
 
         <WrapPanel Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="0,15,0,0">
-            <Button IsDefault="True" Name="btnDialogOk" Click="btnDialogOk_Click" MinWidth="60" Margin="0,0,10,0">OK</Button>
-            <Button IsCancel="True" MinWidth="60">Cancel</Button>
+            <Button IsDefault="True" Name="btnDialogOk" Click="btnDialogOk_Click" 
+                    MinWidth="60" Margin="0,0,10,0" Foreground="White">OK</Button>
+            <Button IsCancel="True" MinWidth="60" Foreground="White">Cancel</Button>
         </WrapPanel>
     </Grid>
 
