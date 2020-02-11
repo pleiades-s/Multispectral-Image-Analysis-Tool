@@ -43,7 +43,7 @@
   <!-- TextBox Brushes -->
   <SolidColorBrush x:Key="TextBoxBackgroundBrush" Color="{StaticResource Color_009}" />
   <SolidColorBrush x:Key="TextBoxBorderBrush" Color="{StaticResource Color_004}" />
-  <SolidColorBrush x:Key="TextBoxHoverBackgroundBrush" Color="{StaticResource Color_008}" />
+  <SolidColorBrush x:Key="TextBoxHoverBackgroundBrush" Color="{StaticResource MyColor}" />
   <SolidColorBrush x:Key="TextBoxHoverBorderBrush" Color="{StaticResource Color_003}" />
   <SolidColorBrush x:Key="TextBoxFocusedBrush" Color="{StaticResource Color_024}" />
   <SolidColorBrush x:Key="TextBoxReadOnlyBackgroundBrush" Color="{StaticResource Color_064}" />
@@ -51,7 +51,8 @@
   <SolidColorBrush x:Key="TextBoxSelectionForegroundBrush" Color="{StaticResource Color_035}" />
 
   <!-- Button Brushes -->
-  <SolidColorBrush x:Key="ButtonBackgroundBrush" Color="{StaticResource Color_008}" />
+    <SolidColorBrush x:Key="ButtonBackgroundBrush" Color= "#2b2b2e"/>
+    <!-- "{StaticResource Color_008}"-->
   <SolidColorBrush x:Key="ButtonBorderBrush" Color="{StaticResource Color_004}" />
   <SolidColorBrush x:Key="ButtonHoverBackgroundBrush" Color="{StaticResource Color_006}" />
   <SolidColorBrush x:Key="ButtonHoverBorderBrush" Color="{StaticResource Color_003}" />
@@ -688,7 +689,8 @@
               <ContentPresenter x:Name="contentPresenter" />
             </ContentControl>
             <Rectangle x:Name="FocusedVisualElement" Stroke="{StaticResource ButtonPressedBorderBrush}" Visibility="Collapsed" StrokeThickness="2" />
-            <Rectangle x:Name="DisabledVisualElement" Fill="{StaticResource DisabledVisualElement}" Visibility="Collapsed" />
+            <Rectangle x:Name="DisabledVisualElement" Fill="Transparent" Visibility="Hidden" />
+                        <!-- {StaticResource DisabledVisualElement} -->
           </Grid>
         </ControlTemplate>
       </Setter.Value>

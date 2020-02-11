@@ -11,12 +11,64 @@
         WindowStartupLocation="CenterScreen"
         Title="BeyonSense" Height="600" Width="800"
         MinHeight="600" MinWidth="800"
-        Icon="/Pictures/BeyonSense_Icon.png">
+        Icon="/Pictures/BeyonSense_Icon.png"
+        >
+    <!-- Resources -->
+    <Window.Resources>
+        <Style x:Key="OpenImage" TargetType="Image">
+            <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/OpenFolder.png"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/OpenFolder_disable.png"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="SaveImage" TargetType="Image">
+            <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/Save.png"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/Save_disable.png"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="TrainImage" TargetType="Image">
+            <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/Train.png"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/Train_disable.png"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ButtonText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="false">
+                    <Setter Property="Foreground" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+
+        </Style>
+
+        <Style x:Key="DatagridStyle" TargetType="DataGrid">
+            <Setter Property="ColumnHeaderStyle" Value="{DynamicResource link}">
+
+            </Setter>
+        </Style>
+        <Style x:Key="link" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="Black"></Setter>
+            <Setter Property="Foreground" Value="White"></Setter>
+        </Style>
+
+
+
+
+    </Window.Resources>
 
     <!-- Window 위의 control panel customize해서 이쁘게 하기 -->
 
-    <Border Padding="10">
-        <!-- TODO: Grid background 추가: UI beautifying-->
+    <Border Padding="10" Background="#2b2b2e">
+        <!-- Grid background 추가: UI beautifying-->
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="100"/>
@@ -31,9 +83,17 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button x:Name="Open" Content="Open"
+                    <Button x:Name="Open" ToolTip="Open project folder"
                              HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
-                             Grid.Row="0" Width="100" Margin="0,0,0,20">
+                             Grid.Row="0" Width="130" Margin="0,0,0,20">
+
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Pictures/OpenFolder.png" Height="25"/>
+                            <TextBlock Text="Open" VerticalAlignment="Center"
+                                   Margin="10" FontSize="17" Foreground="White"/>
+                        </StackPanel>
+
+
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Click">
                                 <cal:ActionMessage MethodName="Open" />
@@ -41,13 +101,21 @@
                         </i:Interaction.Triggers>
                     </Button>
 
-                    <Button x:Name="Capture" Content="Capture" 
+
+
+
+                    <Button x:Name="Capture"  ToolTip="Capture"
                              HorizontalAlignment="Left" VerticalAlignment="Center" Height="50"
-                             Grid.Row="0" Width="100" Margin="20,0,0,20"/>
+                             Grid.Row="0" Width="130" Margin="20,0,0,20">
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Pictures/capture.png" Height="34"/>
+                            <TextBlock Text="Capture" Foreground="White" Margin="10" FontSize="17" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Border BorderThickness="3" BorderBrush="Black" CornerRadius="5" Margin="0,0,0,20"
+                    <Border BorderThickness="1" BorderBrush="White" CornerRadius="5" Margin="0,0,0,20"
                             Width="350" Height="70">
                         <Grid>
                             <Grid.RowDefinitions>
@@ -61,15 +129,15 @@
 
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="Black"/>
+                                            <Setter Property="Foreground" Value="White"/>
                                             <Style.Triggers>
                                                 <Trigger Property="IsEnabled" Value="False">
-                                                    <Setter Property="Foreground" Value= "LightGray"/>
+                                                    <Setter Property="Foreground" Value= "Gray"/>
                                                 </Trigger>
                                             </Style.Triggers>
                                         </Style>
                                     </TextBlock.Style>
-                                    
+
                                 </TextBlock>
                                 <!-- Toggle Button -->
                                 <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40"
@@ -80,6 +148,12 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </local:ToggleSwitch>
+
+                                <!-- Progress bar 
+                                <ProgressBar x:Name="Progressbar" Height="15" Width="100" Maximum="100"
+                                             Visibility="Visible" Value="{Binding Percentage}"/>
+                                -->
+
                             </StackPanel>
 
                             <Grid Grid.Row="1">
@@ -87,16 +161,25 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                
-                                <Button Grid.Column="0" Content="Open" Margin="10,5" Width="Auto" IsEnabled="{Binding FileExplorerBool}">
+
+                                <Button Grid.Column="0" Margin="10,5" Width="Auto" ToolTip="Open ML model"
+                                        ToolTipService.ShowOnDisabled="True"
+                                        IsEnabled="{Binding FileExplorerBool}">
+
+                                    <StackPanel Orientation="Horizontal">
+                                        <Image Height="20" Style="{StaticResource OpenImage}"/>
+                                        <TextBlock Text="Open" Margin="5,0" Style="{StaticResource ButtonText}"/>
+                                    </StackPanel>
+
                                     <i:Interaction.Triggers>
                                         <i:EventTrigger EventName="Click">
                                             <cal:ActionMessage MethodName="FileOpen" />
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
+
                                 <TextBlock Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding ModelPath}" 
-                                           FontSize="10" TextWrapping="Wrap"/>
+                                           FontSize="10" TextWrapping="Wrap" Foreground="White"/>
                             </Grid>
 
                         </Grid>
@@ -122,8 +205,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Text="Image Set" FontWeight="Bold" 
-                               FontSize="15" Margin="5, 0, 0, 5"/>
+                    <TextBlock Grid.Row="0" Text="Image Set" 
+                               FontSize="15" Margin="5, 0, 0, 5" Foreground="White"/>
 
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
 
@@ -155,7 +238,7 @@
                                         <Image Width="20" Margin="3" 
                                         Source="{Binding ImageName,
                                             Converter={x:Static local:HeaderToImageConverter.Instance}}"/>
-                                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}" Foreground="White"/>
                                     </StackPanel>
 
 
@@ -394,37 +477,28 @@
                     </Image>
                 </Grid>
 
-
-
-
-
-
-
-
-
-
-
-
                 <!-- Column 3: Table and Buttons-->
                 <StackPanel Grid.Column ="3" Orientation="Vertical">
 
                     <!-- Table -->
                     <!-- Contents binding-->
-                    <DataGrid AutoGenerateColumns="False"
+                    <DataGrid AutoGenerateColumns="False" Background="#FF2B2B2C"
                         Height="200" ItemsSource="{Binding ClassPoints}"
                         HorizontalAlignment="Center" Margin="0,10"
                         SelectionMode="Extended" SelectionUnit="FullRow"
                         CanUserReorderColumns="False" CanUserResizeColumns="False" 
                         CanUserResizeRows="False" CanUserSortColumns="False"
                         IsReadOnly="True"
-                        SelectedItem="{Binding Path=SelectedRow, Mode=OneWayToSource}">
+                        SelectedItem="{Binding Path=SelectedRow, Mode=OneWayToSource}" 
+                        RowHeaderWidth="0" RowBackground="#2b2b2c"
+                        Style="{DynamicResource DatagridStyle}" BorderBrush="#FF3B3B3B">
 
                         <DataGrid.Columns>
-                            <DataGridTextColumn
-                                MinWidth="50" Header="Class" Binding="{Binding ClassName}"/>
-
-                            <DataGridTextColumn
-                                MinWidth="50" Header="Points" Binding="{Binding NumPoints}"/>
+                            <DataGridTextColumn Foreground="White"
+                                MinWidth="90" Header="Class" Binding="{Binding ClassName}"/>
+                            
+                            <DataGridTextColumn Foreground="White"
+                                MinWidth="70" Header="Points" Binding="{Binding NumPoints}"/>
                         </DataGrid.Columns>
                     </DataGrid>
 
@@ -456,15 +530,14 @@
                         </local:RevertButton>
 
                         <!-- Ok button -->
-                        <Button Grid.Column ="2" Content="OK" Height="10"
-                                FontSize ="10" HorizontalAlignment="Center"
-                                IsEnabled="{Binding OKBool}">
+                        <local:OkButton Grid.Column="2" Width="20"
+                                            IsEnabled="{Binding OKBool}">
                             <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
+                                <i:EventTrigger EventName="MouseLeftButtonDown">
                                     <cal:ActionMessage MethodName="AddNewLabel" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
-                        </Button>
+                        </local:OkButton>
 
                     </Grid>
 
@@ -477,7 +550,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- TextBox-->
-                        <TextBlock Grid.Column="0" Text="Color" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Color" Foreground="White" HorizontalAlignment="Center"/>
 
                         <!-- Rectangle -->
                         <Rectangle Grid.Column ="1" Margin="20,0">
@@ -496,11 +569,11 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- TextBox-->
-                        <TextBlock Grid.Column="0" Text="Num of Pixel" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="Num of Pixel" Foreground="White" HorizontalAlignment="Center"/>
 
                         <!-- TextBox-->
                         <!-- #Pixel binding-->
-                        <TextBlock Grid.Column="1" Text="{Binding NumPoints}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding NumPoints}" HorizontalAlignment="Center" Foreground="White"/>
                     </Grid>
 
                     <!-- Save and Train Buttons-->
@@ -511,8 +584,13 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Save Button-->
-                        <Button Grid.Column="0" Content="Save" HorizontalAlignment="Center" 
-                                Width="50" Height="30" IsEnabled="{Binding SaveBool}">
+                        <Button Grid.Column="0" HorizontalAlignment="Center" ToolTip="Save" ToolTipService.ShowOnDisabled="True"
+                                Width="80" Height="30" IsEnabled="{Binding SaveBool}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Height="20" Style="{StaticResource SaveImage}"/>
+                                <TextBlock Text="Save" Margin="5,0" Style="{StaticResource ButtonText}"/>
+                            </StackPanel>
+
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <cal:ActionMessage MethodName="Save" />
@@ -520,10 +598,20 @@
                             </i:Interaction.Triggers>
                         </Button>
 
+
+
                         <!-- TODO: Train Button-->
-                        <Button Grid.Column="1" Content="Train" HorizontalAlignment="Center"
-                                Width="50" Height="30" IsEnabled="{Binding TrainBool}"/>
+                        <Button Grid.Column="1" HorizontalAlignment="Center" ToolTip="Train" ToolTipService.ShowOnDisabled="True"
+                                Width="80" Height="30" IsEnabled="{Binding TrainBool}">
+                            <StackPanel Orientation="Horizontal">
+                                <Image Height="20" Style="{StaticResource TrainImage}"/>
+                                <TextBlock Text="Train" Margin="5,0" Style="{StaticResource ButtonText}"/>
+                            </StackPanel>
+                        </Button>
+
+
                     </Grid>
+
                 </StackPanel>
             </Grid>
         </Grid>
