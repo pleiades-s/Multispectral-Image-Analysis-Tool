@@ -1786,12 +1786,12 @@ namespace BeyonSense.ViewModels
 
             #endregion
 
-            #region Label Data
+            #region Label Data | Color dictionary
             // TODO: 일단 ClassPoints에 나열된 순서대로 배치해보자
 
             //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
 
-            Dictionary<int, Color> colorDict = new Dictionary<int, Color> { { 0, Colors.Black } };
+            Dictionary<int, Color> colorDict = new Dictionary<int, Color> ();
 
             // Add classes color
             for (int i = 0; i < ClassPoints.Count; i++)
@@ -1827,51 +1827,131 @@ namespace BeyonSense.ViewModels
                 try
                 {
                     #region Image variable
-                    Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "660.bmp");
+                    Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "600.bmp");
                     Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
                     Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
                     Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
                     Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
                     Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
+
+                    List<Mat> MatList = new List<Mat>
+                    {
+                        CvInvoke.Imread(path + '\\' + "600.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "725.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "825.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "875.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "930.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "985.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale)
+                    };
+
                     #endregion
 
+                    #region Threshold
+                    // Global threshold
+                    foreach (Mat mat in MatList)
+                    {
+                        CvInvoke.Threshold(mat, mat, 100, 255, Emgu.CV.CvEnum.ThresholdType.Binary | Emgu.CV.CvEnum.ThresholdType.Otsu);
+                    }
 
-                    Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0));
+                    #endregion
+
+                    #region morphologyEx
+
+                    // morphologyEx
+                    Mat kernel1 = CvInvoke.GetStructuringElement(Emgu.CV.CvEnum.ElementShape.Rectangle,
+                        new System.Drawing.Size(3, 3), new System.Drawing.Point(-1, -1));
+
+                    foreach (Mat mat in MatList)
+                    {
+                        CvInvoke.MorphologyEx(mat, mat, Emgu.CV.CvEnum.MorphOp.Open, kernel1,
+                        new System.Drawing.Point(-1, -1), 1, Emgu.CV.CvEnum.BorderType.Constant, new MCvScalar());
+                    }
+
+                    #endregion
+
+                    #region Adding layers
+
+                    int cnt = 2;
+                    int rows = MatList[0].Rows;
+                    int cols = MatList[0].Cols;
+
+                    Mat addedMat = Mat.Zeros(rows, cols, Emgu.CV.CvEnum.DepthType.Cv8U, 1);
+                    for (int i = 0; i < MatList.Count; i++)
+                    {
+                        Mat mat = MatList[i] / cnt;
+                        addedMat += mat;
+                    }
+
+                    CvInvoke.Threshold(addedMat, addedMat, 200, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
+
+                    Mat label = new Mat();
+                    Mat stats = new Mat();
+                    Mat centroids = new Mat();
+
+                    CvInvoke.ConnectedComponentsWithStats(addedMat, label, stats, centroids);
+
+                    int[] _stats = new int[stats.Rows * stats.Cols];
+                    stats.CopyTo(_stats);
+
+                    List<System.Drawing.Rectangle> RecList = new List<System.Drawing.Rectangle>();
+
+                    for (int i = 1; i < stats.Rows; i++)
+                    {
+                        if (_stats[i * stats.Cols + 4] > 10)
+                        {
+                            var x = _stats[i * stats.Cols + 0];
+                            var y = _stats[i * stats.Cols + 1];
+                            var width = _stats[i * stats.Cols + 2];
+                            var height = _stats[i * stats.Cols + 3];
+
+                            RecList.Add(new System.Drawing.Rectangle(x, y, width, height));
+                        }
+                    }
+
+                    Image<Gray, byte> addedImage = addedMat.ToImage<Gray, byte>();
+                    Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(cols, rows, new Bgra(255, 255, 255, 0));
 
                     var a = BitConverter.GetBytes(100)[0];
 
-                    for (int i = 0; i < BmpWidth; i++)
+                    foreach (System.Drawing.Rectangle rectangle in RecList)
                     {
-                        for (int j = 0; j < BmpHeight; j++)
+                        // rectangle 안에 있는 모든 좌표 접근
+
+                        // Column
+                        for (int i = rectangle.X; i < rectangle.X + rectangle.Width; i++)
                         {
-                            // Get a pixel vector of each pixel
-                            float[,] vector = new float[1, 6];
-
-                            vector[0, 0] = (float)img1.Data[j, i, 0];
-                            vector[0, 1] = (float)img2.Data[j, i, 0];
-                            vector[0, 2] = (float)img3.Data[j, i, 0];
-                            vector[0, 3] = (float)img4.Data[j, i, 0];
-                            vector[0, 4] = (float)img5.Data[j, i, 0];
-                            vector[0, 5] = (float)img6.Data[j, i, 0];
-
-                            // matrix를 만든다.
-                            Matrix<float> matrix = new Matrix<float>(vector);
-
-                            // svm.predict 에 넣는다.
-                            int prediction = (int)svm.Predict(matrix);
-
-                            // prediction에 따라 색깔을 넣는다.
-                            if (prediction > 0)
+                            // Row
+                            for (int j = rectangle.Y; j < rectangle.Y + rectangle.Height; j++)
                             {
-                                colorfilter.Data[j, i, 0] = colorDict[prediction].B;
-                                colorfilter.Data[j, i, 1] = colorDict[prediction].G;
-                                colorfilter.Data[j, i, 2] = colorDict[prediction].R;
-                                colorfilter.Data[j, i, 3] = a;
+                                if (addedImage.Data[j, i, 0] != 0)
+                                {
+                                    float[,] _vector = new float[1, 6];
+                                    // Data[col(i), row(j), 0]
+                                    _vector[0, 0] = (float)img1.Data[j, i, 0];
+                                    _vector[0, 1] = (float)img2.Data[j, i, 0];
+                                    _vector[0, 2] = (float)img3.Data[j, i, 0];
+                                    _vector[0, 3] = (float)img4.Data[j, i, 0];
+                                    _vector[0, 4] = (float)img5.Data[j, i, 0];
+                                    _vector[0, 5] = (float)img6.Data[j, i, 0];
+
+                                    // matrix를 만든다.
+                                    Matrix<float> matrix = new Matrix<float>(_vector);
+
+                                    // svm.predict 에 넣는다.
+                                    int prediction = (int)svm.Predict(matrix);
+
+                                    // prediction에 따라 해당 matrix에 255 할당
+                                    colorfilter.Data[j, i, 0] = colorDict[prediction].B;
+                                    colorfilter.Data[j, i, 1] = colorDict[prediction].G;
+                                    colorfilter.Data[j, i, 2] = colorDict[prediction].R;
+                                    colorfilter.Data[j, i, 3] = a;
+                                }
+
                             }
-
-
                         }
+
                     }
+                    #endregion
 
                     ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
                     #endregion
@@ -1999,6 +2079,7 @@ namespace BeyonSense.ViewModels
                             w.WriteLine(line);
                             w.Flush();
                         }
+
                     }
                 }
                 catch (IOException e)
