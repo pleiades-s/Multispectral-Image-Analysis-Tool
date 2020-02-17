@@ -1514,12 +1514,17 @@ namespace BeyonSense.ViewModels
             // Find the last backslash in the path
             var lastIndex = normalizedPath.LastIndexOf('\\');
 
+            normalizedPath = normalizedPath.Substring(0, lastIndex);
+            lastIndex = normalizedPath.LastIndexOf('\\');
+
             // If we don't find a backslash, return the path itself
             if (lastIndex <= 0)
                 return "";
 
+            var projectPath = normalizedPath.Substring(0, lastIndex);
+
             //  Remove file name from the file path so we can get a parent directory path
-            return normalizedPath.Substring(0, lastIndex - 1);
+            return projectPath;
         }
 
         private string GetParentDirPath()
