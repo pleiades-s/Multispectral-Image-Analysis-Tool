@@ -152,8 +152,8 @@ namespace BeyonSense.ViewModels
 
         #region Bitmap image format: 608x 800
 
-        private static readonly int BmpHeight = 608;
-        private static readonly int BmpWidth = 800;
+        private const int BmpHeight = 608;
+        private const int BmpWidth = 800;
 
         #endregion
 
@@ -875,7 +875,7 @@ namespace BeyonSense.ViewModels
 
         private void DirSearch(string sDir)
         {
-            if (recursiveCount > 3)
+            if (recursiveCount > 20)
             {
                 if (!recursiveAlert)
                 {

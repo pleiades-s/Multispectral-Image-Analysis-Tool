@@ -164,10 +164,10 @@
     <Compile Include="Models\DirectoryItemType.cs" />
     <Compile Include="Helpers\DirectoryStructure.cs" />
     <Compile Include="Models\ProgressReportModel.cs" />
-    <Compile Include="PushBinding\FreezableBinding.cs" />
-    <Compile Include="PushBinding\PushBinding.cs" />
-    <Compile Include="PushBinding\PushBindingCollection.cs" />
-    <Compile Include="PushBinding\PushBindingManager.cs" />
+    <Compile Include="Helpers\PushBinding\FreezableBinding.cs" />
+    <Compile Include="Helpers\PushBinding\PushBinding.cs" />
+    <Compile Include="Helpers\PushBinding\PushBindingCollection.cs" />
+    <Compile Include="Helpers\PushBinding\PushBindingManager.cs" />
     <Compile Include="UserControls\OkButton.xaml.cs">
       <DependentUpon>OkButton.xaml</DependentUpon>
     </Compile>
@@ -224,23 +224,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\Metro\Metro.MSControls.Core.Implicit.xaml">
+    <Page Include="Views\Themes\Metro\Metro.MSControls.Core.Implicit.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Metro\Metro.MSControls.Toolkit.Implicit.xaml">
+    <Page Include="Views\Themes\Metro\Metro.MSControls.Toolkit.Implicit.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Metro\Styles.Shared.xaml">
+    <Page Include="Views\Themes\Metro\Styles.Shared.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Metro\Styles.WPF.xaml">
+    <Page Include="Views\Themes\Metro\Styles.WPF.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Metro\Theme.Colors.xaml">
+    <Page Include="Views\Themes\Metro\Theme.Colors.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -296,10 +296,10 @@
     <Resource Include="Pictures\folder-open.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Themes\Metro\HowToApplyTheme.txt" />
+    <Resource Include="Views\Themes\Metro\HowToApplyTheme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="PushBinding\README.txt" />
+    <Resource Include="Helpers\PushBinding\README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Pictures\revert_disable.png" />
