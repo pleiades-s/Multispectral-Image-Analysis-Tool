@@ -86,4 +86,4 @@ Image set에 나타난 폴더 계층 구조에서 파일을 클릭하면 해당 
 ### Capture
 왼쪽 상단에 Capture 버튼이 있는데, 이는 BeyonSense 카메라를 연결하여 실시간 영상에서 캡쳐하여 직접 Image set을 가져올 수 있도록 남겨둔 기능입니다.
 
-** 혹시 질문이 있으시거나 이슈가 있으면, 언제든지 이메일 (<rudobco0825@gmail.com>) 혹은 Github issue 남겨주세요 :) **
+**혹시 질문이 있으시거나 이슈가 있으면, 언제든지 이메일 (<rudobco0825@gmail.com>) 혹은 Github issue 남겨주세요 :)**
