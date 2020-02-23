@@ -175,8 +175,8 @@
   <Style x:Key="ComboBoxToggleButtonStyle" TargetType="ToggleButton">
     <Setter Property="FontSize" Value="14.667" />
     <Setter Property="FontFamily" Value="Segoe UI" />
-    <Setter Property="Foreground" Value="{StaticResource ForegroundBrush}" />
-    <Setter Property="BorderBrush" Value="{StaticResource ComboBoxToggleButtonBorderBrush}" />
+    <Setter Property="Foreground" Value="Red" />
+    <Setter Property="BorderBrush" Value="Red" />
     <Setter Property="MinWidth" Value="30" />
     <Setter Property="MinHeight" Value="30" />
     <Setter Property="BorderThickness" Value="1" />

@@ -74,5 +74,6 @@ namespace BeyonSense
                 Toggle.Margin = LeftSide;
             }
         }
+
     }
 }

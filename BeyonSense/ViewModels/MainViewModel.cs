@@ -231,6 +231,31 @@ namespace BeyonSense.ViewModels
             {
                 toggleBool = value;
                 NotifyOfPropertyChange(() => ToggleBool);
+
+                // Inference mode
+                if (toggleBool)
+                {
+                    // Reset OverlayImage
+                    OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+                    // Show color filter
+                    OverlayImage = ColorFilters[GetParentDirPath()];
+
+                    // Disable to draw new label
+                    PlusBool = false;
+
+                }
+
+                // Not inference mode
+                else
+                {
+                    // Reset OverlayImage
+                    OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+                    DrawLabel();
+
+                    // Enable to draw new label
+                    PlusBool = true;
+                }
             }
         }
 
@@ -369,6 +394,9 @@ namespace BeyonSense.ViewModels
 
                     #region Initialize variables for each project
 
+                    // Image reset
+                    ResetImages();
+
                     // Dictionary Clear
                     CornerPoint.Clear();
 
@@ -388,6 +416,12 @@ namespace BeyonSense.ViewModels
                     SaveBool = false;
                     TrainBool = false;
                     OKBool = false;
+
+                    // ?????toggle button false 로 바꿔야 함!
+                    ToggleBool = false;
+
+                    ToggleIsEnable = false;
+                    ModelPath = "";
 
                     // Initialize color filters
                     ColorFilters.Clear();
@@ -656,7 +690,6 @@ namespace BeyonSense.ViewModels
         #endregion
 
         #region Open Button Click Handler: Parameter Dictionary File Explorer
-
         /// <summary>
         ///  Open file explorer
         /// </summary>
@@ -681,7 +714,6 @@ namespace BeyonSense.ViewModels
                     ColorFilterGenerator();
                     // ToggleIsEnable = true;
                 }
-
                 else
                 {
                     //ToggleIsEnable = false;
@@ -869,13 +901,13 @@ namespace BeyonSense.ViewModels
         /// <param name="sDir">string _rootDir</param>
 
         // Warning variables preventing to open deep directory tree
-        private int recursiveCount = 0;
+        //private int recursiveCount = 0;
         private bool recursiveAlert = false;
         private int bmpcount = 0;
 
-        private void DirSearch(string sDir)
+        private void DirSearch(string sDir, int cnt = 0)
         {
-            if (recursiveCount > 20)
+            if (cnt > 1)
             {
                 if (!recursiveAlert)
                 {
@@ -904,7 +936,7 @@ namespace BeyonSense.ViewModels
                         // Check it file exetension is csv or not
                         if (System.IO.Path.GetExtension(f) == ".csv")
                         {
-                            // Add csv file path in the list
+                            // Add csv file path in the l`ist
                             CsvFilePaths.Add(f);
                         }
 
@@ -913,8 +945,7 @@ namespace BeyonSense.ViewModels
                             bmpcount++;
                         }
                     }
-                    DirSearch(d);
-                    recursiveCount++;
+                    DirSearch(d, cnt + 1);
                 }
             }
 
@@ -1243,6 +1274,7 @@ namespace BeyonSense.ViewModels
 
             else
             {
+                ResetImages();
                 Items.Clear();
                 if (!recursiveAlert)
                     MessageBox.Show("Please choose a correct project folder");
@@ -1250,7 +1282,7 @@ namespace BeyonSense.ViewModels
 
             // Set this value to 0
             bmpcount = 0;
-            recursiveCount = 0;
+            //recursiveCount = 0;
             recursiveAlert = false;
         }
 

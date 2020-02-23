@@ -342,6 +342,8 @@
     <Content Include="opencv_videoio_ffmpeg420_64.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Pictures\ToggleOff.png" />
+    <Resource Include="Pictures\ToggleOn.png" />
     <Content Include="vcruntime140.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
