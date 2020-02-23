@@ -8,10 +8,12 @@
              d:DesignHeight="60" d:DesignWidth="100">
 
     <Viewbox>
+
         <Grid HorizontalAlignment="Center" VerticalAlignment="Center"
                 Height="60" Width="100">
             <Rectangle x:Name="Back" Fill="#FF14A0FF" HorizontalAlignment="Center" VerticalAlignment="Center"
-                        Height="56"  Width="96" RadiusY="29" RadiusX="29" MouseLeftButtonDown="Back_MouseLeftButtonDown"/>
+                        Height="56"  Width="96" RadiusY="29" RadiusX="29" MouseLeftButtonDown="Back_MouseLeftButtonDown"
+                       />
             <Ellipse x:Name="Toggle" Fill="#FFF" Height="50"  Width="50" VerticalAlignment="Center"
                         Stroke="#FFF" MouseLeftButtonDown="Toggle_MouseLeftButtonDown"/>
         </Grid>

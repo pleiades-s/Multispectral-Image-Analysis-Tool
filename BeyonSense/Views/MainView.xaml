@@ -60,7 +60,23 @@
             <Setter Property="Foreground" Value="White"></Setter>
         </Style>
 
-
+        <Style TargetType="{x:Type CheckBox}" x:Key="ToggleSwitchStyle">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <StackPanel Orientation="Horizontal">
+                            <Image x:Name="checkboxImage" Source="pack://application:,,,/BeyonSense;component//Pictures/ToggleOff.png" Width="32"/>
+                            <ContentPresenter/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="checkboxImage" Property="Source" Value="pack://application:,,,/BeyonSense;component//Pictures/ToggleOn.png"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
 
     </Window.Resources>
@@ -140,14 +156,8 @@
 
                                 </TextBlock>
                                 <!-- Toggle Button -->
-                                <local:ToggleSwitch x:Name="Button" HorizontalAlignment="Center" VerticalAlignment="Center" Height="15" Width="40"
-                                                    IsEnabled="{Binding ToggleIsEnable}">
-                                    <i:Interaction.Triggers>
-                                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                                            <cal:ActionMessage MethodName="ToggleClick" />
-                                        </i:EventTrigger>
-                                    </i:Interaction.Triggers>
-                                </local:ToggleSwitch>
+                                <CheckBox x:Name="ToggleSwitch" Style="{StaticResource ToggleSwitchStyle}" Margin="5,3"
+                                          IsEnabled="{Binding ToggleIsEnable}" IsChecked="{Binding ToggleBool}"/>
 
                                 <!-- Progress bar 
                                 <ProgressBar x:Name="Progressbar" Height="15" Width="100" Maximum="100"
