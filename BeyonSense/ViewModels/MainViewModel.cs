@@ -18,6 +18,7 @@ using Emgu.CV.Structure;
 using BeyonSense.Converters;
 using Emgu.CV.ML;
 using System.Diagnostics;
+using BeyonSense.Helpers;
 
 namespace BeyonSense.ViewModels
 {
@@ -296,6 +297,7 @@ namespace BeyonSense.ViewModels
 
                     ToggleIsEnable = false;
                     ModelPath = "";
+                    FileExplorerBool = false;
 
                     // Initialize color filters
                     ColorFilters.Clear();
@@ -581,6 +583,13 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Dictionary<csv path, Collection<ClassCornerPoints>> for LoadBoudary()
+        /// <summary>
+        /// Managing point position for each csv file
+        /// </summary>
+        private Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
+        #endregion
+
         #endregion
 
         #region Helpers
@@ -600,24 +609,6 @@ namespace BeyonSense.ViewModels
 
             return src;
         }
-        #endregion
-
-        #region Convert String into Integer
-        /// <summary>
-        /// Converter: String to Integer
-        /// </summary>
-        /// <param name="str">string num</param>
-        /// <returns>int num</returns>
-        private int StrToInt(string str)
-        {
-
-            if (!Int32.TryParse(str, out int i))
-            {
-                i = -1;
-            }
-            return i;
-        }
-
         #endregion
 
         #region Search Color by ClassName
@@ -662,30 +653,7 @@ namespace BeyonSense.ViewModels
 
         }
         #endregion
-
-        #region String Path to Bitmap Source
-        private BitmapSource StringToBmpSource(string path)
-        {
-            System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
-            BitmapImage src = new BitmapImage();
-            src.BeginInit();
-            src.UriSource = new Uri(fi.FullName, UriKind.Absolute);
-            src.CacheOption = BitmapCacheOption.OnLoad;
-            src.EndInit();
-
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
-            {
-                dc.DrawImage(src, new Rect(0, 0, BmpWidth, BmpHeight));
-            }
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
-            rtb.Render(dv);
-
-            return rtb;
-        }
-        #endregion
-
+        
         #region Color generator functions
 
         /// <summary>
@@ -850,22 +818,6 @@ namespace BeyonSense.ViewModels
 
             //  Remove file name from the file path so we can get a parent directory path
             return normalizedPath.Substring(0, lastIndex);
-        }
-        #endregion
-
-        #region Covert double collection into integer collection
-        private List<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
-        {
-            List<int[]> pos = new List<int[]>();
-
-            foreach (double[] arr in corners)
-            {
-                int[] _array = new int[2] { (int)arr[0], (int)arr[1] };
-
-                pos.Add(_array);
-            }
-
-            return pos;
         }
         #endregion
 
@@ -1036,7 +988,7 @@ namespace BeyonSense.ViewModels
                     BmpPath6 = BmpList[5];
 
                     // Automatically, show first bitmap image as a main image
-                    MainBmpImage = StringToBmpSource(BmpList[0]);
+                    MainBmpImage = TypeConverter.StringToBmpSource(BmpList[0]);
                     PlusBool = true;
 
                     FileExplorerBool = true;
@@ -1074,7 +1026,7 @@ namespace BeyonSense.ViewModels
         {
 
             // Binding clicked image
-            MainBmpImage = StringToBmpSource(path);
+            MainBmpImage = TypeConverter.StringToBmpSource(path);
 
             // Not inference mode
             if (!ToggleBool)
@@ -1285,7 +1237,7 @@ namespace BeyonSense.ViewModels
 
                 #region Update table item source
 
-                List<int[]> newCornerPoints = ConvertToIntPos(ClickedPosition);
+                List<int[]> newCornerPoints = TypeConverter.ConvertToIntPos(ClickedPosition);
 
                 // Check if new label name exist or not
                 int ack = 0;
@@ -2067,13 +2019,6 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region Dictionary<csv path, Collection<ClassCornerPoints>> for LoadBoudary()
-        /// <summary>
-        /// Managing point position for each csv file
-        /// </summary>
-        private Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
-        #endregion
-
         #region Walking Directory
         /// <summary>
         /// Get every csv file paths and add into csvFilePaths variable
@@ -2350,12 +2295,12 @@ namespace BeyonSense.ViewModels
 
                                         int[] _position = new int[2];
                                         // x position
-                                        _position[0] = StrToInt(values[i]);
+                                        _position[0] = TypeConverter.StrToInt(values[i]);
 
                                         // y position
                                         try
                                         {
-                                            _position[1] = StrToInt(values[i + 1]);
+                                            _position[1] = TypeConverter.StrToInt(values[i + 1]);
                                         }
 
                                         // Exception handler: Wrong csv format
