@@ -22,7 +22,7 @@ BeyonSense는 Stratio의 단파장 적외선 카메라로, 사람의 눈으로 �
 프로그램의 데모 영상은 [링크](https://drive.google.com/open?id=1-jhMmBKRA6Rk_bPgWwGc7_OFk4muC2jK)를 통해 확인하실 수 있습니다.
 
 ## Usage
-데모 프로그램을 사용하는 방법 및 유의할 점을 설명드리겠습니다.
+데모 프로그램을 사용하는 방법 및 유의할 점을 설명드리겠습니다. 아래 설명이 부담스러우신 분들은 위의 데모 동영상 링크를 통해 기능을 확인해주시면 됩니다.
 
 ### Open Project Folder
 가장 먼저 분석하고자 하는 Image set을 불러와야 합니다. Image set이 있는 프로젝트 폴더는 왼쪽 상단의 Open 버튼을 통해 여실 수 있습니다. 이때 선택한 폴더가 프로젝트 폴더가 아니라고 판단될 경우, Image set의 경로를 가져오는데 실패합니다. 예를 들어, EXAMPLEPATH/Data/Block/1/600.bmp 가 Image 경로라고 하면 프로젝트 폴더는 Block입니다. 만약 Data 폴더를 선택할 시, 폴더의 깊이가 깊기 때문에(깊이가 3이상) 해당 폴더를 가져오지 않습니다. 이외에도 Image set에 모든 파장대의 사진이 존재하지 않거나 metadata가 여러 개 존재할 때도 해당합니다.
