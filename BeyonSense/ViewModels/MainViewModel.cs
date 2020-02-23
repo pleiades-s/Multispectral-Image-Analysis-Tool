@@ -25,9 +25,9 @@ namespace BeyonSense.ViewModels
     /// The View Model for the Main View
     /// </summary>
 
-
     public class MainViewModel : Screen
     {
+        #region Properties
 
         #region A list of all directories
         // A list of all directories from a selected directory
@@ -150,33 +150,8 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Bitmap image format: 608x 800
-
-        private const int BmpHeight = 608;
-        private const int BmpWidth = 800;
-
-        #endregion
-
         #region Main Bitmap image source
-
-
-        #region Initialize default image
-        /// <summary>
-        /// Return bitmap source of default image
-        /// </summary>
-        /// <returns>Bitmap source of default image </returns>
-        private BitmapSource DefaultImageSource()
-        {
-            BitmapImage src = new BitmapImage();
-            src.BeginInit();
-            src.UriSource = new Uri("pack://application:,,," + DefaultImagePath);
-            src.CacheOption = BitmapCacheOption.OnLoad;
-            src.EndInit();
-
-            return src;
-        }
-        #endregion
-
+        
         private BitmapSource mainBmpImage;
 
         public BitmapSource MainBmpImage
@@ -188,10 +163,11 @@ namespace BeyonSense.ViewModels
                 NotifyOfPropertyChange(() => MainBmpImage);
             }
         }
+        #endregion
 
+        #region Transparent bitmapsource
         private BitmapSource overlayImage = BitmapSourceConvert.ToBitmapSource(
             new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
-
         public BitmapSource OverlayImage
         {
             get { return overlayImage; }
@@ -201,7 +177,6 @@ namespace BeyonSense.ViewModels
                 NotifyOfPropertyChange(() => OverlayImage);
             }
         }
-
         #endregion
 
         #region Selected File Path by File Explorer
@@ -222,6 +197,7 @@ namespace BeyonSense.ViewModels
 
         #region Toggle Boolean Variable
 
+        #region Toggle IsClicked
         private bool toggleBool = false;
 
         public bool ToggleBool
@@ -258,7 +234,9 @@ namespace BeyonSense.ViewModels
                 }
             }
         }
+        #endregion
 
+        #region Toggle IsEnable
         private bool toggleIsEnable = false;
         public bool ToggleIsEnable
         {
@@ -268,6 +246,443 @@ namespace BeyonSense.ViewModels
                 toggleIsEnable = value;
                 NotifyOfPropertyChange(() => ToggleIsEnable);
             }
+        }
+        #endregion
+        #endregion
+
+        #region Selected Root Path from Folder Explorer
+
+        private string rootPath;
+
+        public string RootPath
+        {
+            get { return rootPath; }
+            set
+            {
+                rootPath = value;
+
+                // rootPath is not null or empty
+                if (!String.IsNullOrEmpty(rootPath))
+                {
+                    StartDirectoryTree(rootPath);
+
+                    #region Initialize variables for each project
+
+                    // Image reset
+                    ResetImages();
+
+                    // Dictionary Clear
+                    CornerPoint.Clear();
+
+                    // ObservableCollection<ClassPoint> Clear
+                    ClassPoints.Clear();
+
+                    // Color, NumPoints Clear
+                    Colour = Color.FromArgb(0, 255, 255, 255);
+                    NumPoints = "";
+                    CsvFilePaths.Clear();
+
+                    // Plus Button Reset
+                    PlusBool = false;
+                    #endregion
+
+                    // Button Reset
+                    SaveBool = false;
+                    TrainBool = false;
+                    OKBool = false;
+
+                    // Toggle switch control
+                    ToggleBool = false;
+
+                    ToggleIsEnable = false;
+                    ModelPath = "";
+
+                    // Initialize color filters
+                    ColorFilters.Clear();
+
+                    // Calculate numPoints and update table elements
+                    PointCalculator(rootPath);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Read Only Properties
+
+        #region ActualHeight
+        private double myheight;
+        public double MyHeight
+        {
+            get { return myheight; }
+            set
+            {
+                myheight = value;
+                NotifyOfPropertyChange(() => MyHeight);
+                //Console.WriteLine("MyHeight: " + myheight.ToString());
+
+            }
+        }
+
+        #endregion
+
+        #region ActualWidth
+        private double mywidth;
+        public double MyWidth
+        {
+            get { return mywidth; }
+            set
+            {
+                mywidth = value;
+                NotifyOfPropertyChange(() => MyWidth);
+                //Console.WriteLine("MyWidth: " + mywidth.ToString());
+            }
+        }
+        #endregion
+
+        #endregion
+
+        #region Plus Button Enable Bool
+
+        private bool plusBool = false;
+
+        public bool PlusBool
+        {
+            get { return plusBool; }
+            set
+            {
+                plusBool = value;
+                NotifyOfPropertyChange(() => PlusBool);
+            }
+        }
+
+        #endregion
+
+        #region File explorer bool
+        private bool fileExplorerBool = false;
+        public bool FileExplorerBool
+        {
+            get { return fileExplorerBool; }
+            set
+            {
+                fileExplorerBool = value;
+                NotifyOfPropertyChange(() => FileExplorerBool);
+            }
+        }
+        #endregion
+
+        #region Save Button Enable Bool
+
+        private bool saveBool = false;
+
+        public bool SaveBool
+        {
+            get { return saveBool; }
+            set
+            {
+                saveBool = value;
+                NotifyOfPropertyChange(() => SaveBool);
+            }
+        }
+
+        #endregion
+
+        #region Train Button Enable Bool
+
+        private bool trainBool = false;
+
+        public bool TrainBool
+        {
+            get { return trainBool; }
+            set
+            {
+                trainBool = value;
+                NotifyOfPropertyChange(() => TrainBool);
+            }
+        }
+
+        #endregion
+
+        #region Save Button Enable Bool
+
+        private bool oKBool = false;
+
+        public bool OKBool
+        {
+            get { return oKBool; }
+            set
+            {
+                oKBool = value;
+                NotifyOfPropertyChange(() => OKBool);
+            }
+        }
+
+        #endregion
+
+        #region Revert Boolean Variable
+
+        private bool canBeReverted = false;
+
+        public bool CanBeReverted
+        {
+            get { return canBeReverted; }
+            set
+            {
+                canBeReverted = value;
+                NotifyOfPropertyChange(() => canBeReverted);
+            }
+        }
+
+        #endregion
+
+        #region OverlayImage Bool
+        private bool imageBool = false;
+        public bool ImageBool
+        {
+            get { return imageBool; }
+            set
+            {
+                imageBool = value;
+                NotifyOfPropertyChange(() => ImageBool);
+            }
+        }
+
+        #endregion
+
+        #region Csv path variable to make boundaray
+        /// <summary>
+        /// A selected csv file path
+        /// </summary>
+        private string csvPath;
+
+        public string CsvPath
+        {
+            get { return csvPath; }
+            set
+            {
+                csvPath = value;
+            }
+        }
+        #endregion
+
+        #region Selected Row
+
+        /// <summary>
+        /// A selected row in the table on the MainView
+        /// </summary>
+        private ClassPixels selectedRow;
+
+        public ClassPixels SelectedRow
+        {
+            get { return selectedRow; }
+
+            set
+            {
+                selectedRow = value;
+
+                if (selectedRow != null)
+                {
+                    // Binding selected color and numPoints
+                    Colour = selectedRow.ClassColor;
+                    NumPoints = selectedRow.NumPoints.ToString();
+                }
+                else
+                {
+                    // Reset color and numPoints
+                    Colour = Color.FromArgb(0, 255, 255, 255);
+                    NumPoints = "";
+                }
+
+                NotifyOfPropertyChange(() => SelectedRow);
+
+            }
+        }
+
+
+        #endregion
+
+        #region Color variable for Color Box
+
+        // Initial Value is Transparent
+        private Color color = Color.FromArgb(0, 255, 255, 255);
+
+        public Color Colour
+        {
+            get { return color; }
+            set { color = value; }
+        }
+
+        #endregion
+
+        #region Table Item Source
+
+        private ObservableCollection<ClassPixels> classPoints = new ObservableCollection<ClassPixels>();
+        public ObservableCollection<ClassPixels> ClassPoints
+        {
+            get { return classPoints; }
+            set
+            {
+                classPoints = value;
+                NotifyOfPropertyChange(() => ClassPoints);
+            }
+        }
+        #endregion
+
+        #region The number of points variable for TextBlock
+
+        private string numPoints;
+
+        public string NumPoints
+        {
+            get { return numPoints; }
+            set
+            {
+                numPoints = value;
+                NotifyOfPropertyChange(() => numPoints);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Private Fields
+
+        #region Bitmap image format: 608x 800
+
+        private const int BmpHeight = 608;
+        private const int BmpWidth = 800;
+
+        #endregion
+
+        #region Bitmap Rewind Stack
+
+        private Stack<BitmapSource> DrawLayer = new Stack<BitmapSource>();
+
+        #endregion
+
+        #region Color Filter Dictionary
+        private Dictionary<string, BitmapSource> ColorFilters = new Dictionary<string, BitmapSource>();
+
+        #endregion
+
+        #region All Csv File Paths
+        // Every csv file path under the selected folder
+        private List<string> CsvFilePaths { get; set; } = new List<string>();
+        #endregion
+
+        #region New Class Name, Clicked Position and its Color
+
+        private string newLabelName;
+
+        private ObservableCollection<double[]> ClickedPosition = new ObservableCollection<double[]>();
+
+        private Color newLabelColor = Colors.Transparent;
+
+        #endregion
+
+        #endregion
+
+        #region Helpers
+
+        #region Initialize default image
+        /// <summary>
+        /// Return bitmap source of default image
+        /// </summary>
+        /// <returns>Bitmap source of default image </returns>
+        private BitmapSource DefaultImageSource()
+        {
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri("pack://application:,,," + DefaultImagePath);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+
+            return src;
+        }
+        #endregion
+
+        #region Convert String into Integer
+        /// <summary>
+        /// Converter: String to Integer
+        /// </summary>
+        /// <param name="str">string num</param>
+        /// <returns>int num</returns>
+        private int StrToInt(string str)
+        {
+
+            if (!Int32.TryParse(str, out int i))
+            {
+                i = -1;
+            }
+            return i;
+        }
+
+        #endregion
+
+        #region Search Color by ClassName
+        /// <summary>
+        /// Search used color by class name
+        /// </summary>
+        /// <param name="className">class name</param>
+        /// <returns>the class's color</returns>
+
+        private Color SearchColor(string className)
+        {
+            foreach (ClassPixels classPixels in ClassPoints)
+            {
+                if (className == classPixels.ClassName)
+                    return classPixels.ClassColor;
+            }
+            return Colors.Transparent;
+        }
+
+        #endregion
+
+        #region Reset All images
+
+        private void ResetImages()
+        {
+            #region Reset all the images
+            BmpPath1 = DefaultImagePath;
+            BmpPath2 = DefaultImagePath;
+            BmpPath3 = DefaultImagePath;
+            BmpPath4 = DefaultImagePath;
+            BmpPath5 = DefaultImagePath;
+            BmpPath6 = DefaultImagePath;
+
+
+            MainBmpImage = DefaultImageSource();
+
+            // Reset Overlay Image
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+
+            #endregion
+
+        }
+        #endregion
+
+        #region String Path to Bitmap Source
+        private BitmapSource StringToBmpSource(string path)
+        {
+            System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
+            BitmapImage src = new BitmapImage();
+            src.BeginInit();
+            src.UriSource = new Uri(fi.FullName, UriKind.Absolute);
+            src.CacheOption = BitmapCacheOption.OnLoad;
+            src.EndInit();
+
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                dc.DrawImage(src, new Rect(0, 0, BmpWidth, BmpHeight));
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+
+            return rtb;
         }
         #endregion
 
@@ -376,61 +791,83 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Selected Root Path from Folder Explorer
-
-        private string rootPath;
-
-        public string RootPath
+        #region Get Parent Directory Path
+        /// <summary>
+        /// Read loaded bitmap path and get the parent directory path
+        /// </summary>
+        /// <returns>string path</returns>
+        /// 
+        private string GetParentParentDirPath()
         {
-            get { return rootPath; }
-            set
-            {
-                rootPath = value;
+            // Get current directory path
+            string _path = BmpPath1;
 
-                // rootPath is not null or empty
-                if (!String.IsNullOrEmpty(rootPath))
-                {
-                    StartDirectoryTree(rootPath);
+            // If the paht is a file path, get parent directory path
 
-                    #region Initialize variables for each project
+            // Exception: If we have no path, return empty
+            if (string.IsNullOrEmpty(_path))
+                return "";
 
-                    // Image reset
-                    ResetImages();
+            // Make all slashes back slashes
+            var normalizedPath = _path.Replace('/', '\\');
 
-                    // Dictionary Clear
-                    CornerPoint.Clear();
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('\\');
 
-                    // ObservableCollection<ClassPoint> Clear
-                    ClassPoints.Clear();
+            normalizedPath = normalizedPath.Substring(0, lastIndex);
+            lastIndex = normalizedPath.LastIndexOf('\\');
 
-                    // Color, NumPoints Clear
-                    Colour = Color.FromArgb(0, 255, 255, 255);
-                    NumPoints = "";
-                    CsvFilePaths.Clear();
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return "";
 
-                    // Plus Button Reset
-                    PlusBool = false;
-                    #endregion
+            var projectPath = normalizedPath.Substring(0, lastIndex);
 
-                    // Button Reset
-                    SaveBool = false;
-                    TrainBool = false;
-                    OKBool = false;
-
-                    // ?????toggle button false 로 바꿔야 함!
-                    ToggleBool = false;
-
-                    ToggleIsEnable = false;
-                    ModelPath = "";
-
-                    // Initialize color filters
-                    ColorFilters.Clear();
-
-                    // Calculate numPoints and update table elements
-                    PointCalculator(rootPath);
-                }
-            }
+            //  Remove file name from the file path so we can get a parent directory path
+            return projectPath;
         }
+
+        private string GetParentDirPath()
+        {
+            // Get current directory path
+            string _path = BmpPath1;
+
+            // If the paht is a file path, get parent directory path
+
+            // Exception: If we have no path, return empty
+            if (string.IsNullOrEmpty(_path))
+                return "";
+
+            // Make all slashes back slashes
+            var normalizedPath = _path.Replace('/', '\\');
+
+            // Find the last backslash in the path
+            var lastIndex = normalizedPath.LastIndexOf('\\');
+
+            // If we don't find a backslash, return the path itself
+            if (lastIndex <= 0)
+                return "";
+
+            //  Remove file name from the file path so we can get a parent directory path
+            return normalizedPath.Substring(0, lastIndex);
+        }
+        #endregion
+
+        #region Covert double collection into integer collection
+        private List<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
+        {
+            List<int[]> pos = new List<int[]>();
+
+            foreach (double[] arr in corners)
+            {
+                int[] _array = new int[2] { (int)arr[0], (int)arr[1] };
+
+                pos.Add(_array);
+            }
+
+            return pos;
+        }
+        #endregion
 
         #endregion
 
@@ -445,6 +882,8 @@ namespace BeyonSense.ViewModels
         }
 
         #endregion
+
+        #region Event Handlers
 
         #region Open Button Event Handler: Folder Explorer
         /// <summary>
@@ -468,25 +907,6 @@ namespace BeyonSense.ViewModels
             }
         }
 
-        #endregion
-
-        #region Show Directory Tree on MainView
-        /// <summary>
-        /// Show directory tree from the selected directory
-        /// </summary>
-        /// <param name="path">Selected path from folder explorer</param>
-        private void StartDirectoryTree(string path)
-        {
-            #region Directory TreeView
-            // Get the selected directory path
-            var children = DirectoryStructure.GetRootFolder(path);
-
-            // Create the view models from the data
-            this.Items = new ObservableCollection<DirectoryItemViewModel>(
-                children.Select(root => new DirectoryItemViewModel(root.FullPath, DirectoryItemType.Folder)));
-
-            #endregion
-        }
         #endregion
 
         #region Tree Element Click Event Handler
@@ -757,572 +1177,6 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
-        #region Csv path variable to make boundaray
-        /// <summary>
-        /// A selected csv file path
-        /// </summary>
-        private string csvPath;
-
-        public string CsvPath
-        {
-            get { return csvPath; }
-            set
-            {
-                csvPath = value;
-            }
-        }
-        #endregion
-
-        #region Selected Row
-
-        /// <summary>
-        /// A selected row in the table on the MainView
-        /// </summary>
-        private ClassPixels selectedRow;
-
-        public ClassPixels SelectedRow
-        {
-            get { return selectedRow; }
-
-            set
-            {
-                selectedRow = value;
-
-                if (selectedRow != null)
-                {
-                    // Binding selected color and numPoints
-                    Colour = selectedRow.ClassColor;
-                    NumPoints = selectedRow.NumPoints.ToString();
-                }
-                else
-                {
-                    // Reset color and numPoints
-                    Colour = Color.FromArgb(0, 255, 255, 255);
-                    NumPoints = "";
-                }
-
-                NotifyOfPropertyChange(() => SelectedRow);
-
-            }
-        }
-
-        #region Color variable for Color Box
-
-        // Initial Value is Transparent
-        private Color color = Color.FromArgb(0, 255, 255, 255);
-
-        public Color Colour
-        {
-            get { return color; }
-            set { color = value; }
-        }
-
-        #endregion
-
-
-        #region The number of points variable for TextBlock
-
-        private string numPoints;
-
-        public string NumPoints
-        {
-            get { return numPoints; }
-            set
-            {
-                numPoints = value;
-                NotifyOfPropertyChange(() => numPoints);
-            }
-        }
-
-        #endregion
-
-
-        #endregion
-
-        #region ClassInfo Collection
-        // View is needed to be refreshed if we use List<T>, so we used ObservableCollection<T> instead of List<T>
-
-        #region Table Item Source
-
-        private ObservableCollection<ClassPixels> classPoints = new ObservableCollection<ClassPixels>();
-        public ObservableCollection<ClassPixels> ClassPoints
-        {
-            get { return classPoints; }
-            set
-            {
-                classPoints = value;
-                NotifyOfPropertyChange(() => ClassPoints);
-            }
-        }
-        #endregion
-
-        #region Dictionary<csv path, Collection<ClassCornerPoints>> for LoadBoudary()
-        /// <summary>
-        /// Managing point position for each csv file
-        /// </summary>
-        public Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
-        #endregion
-
-        #endregion
-
-        #region All Csv File Paths
-        // Every csv file path under the selected folder
-        private List<string> CsvFilePaths { get; set; } = new List<string>();
-        #endregion
-
-        #region Reset All images
-
-        private void ResetImages()
-        {
-            #region Reset all the images
-            BmpPath1 = DefaultImagePath;
-            BmpPath2 = DefaultImagePath;
-            BmpPath3 = DefaultImagePath;
-            BmpPath4 = DefaultImagePath;
-            BmpPath5 = DefaultImagePath;
-            BmpPath6 = DefaultImagePath;
-
-
-            MainBmpImage = DefaultImageSource();
-
-            // Reset Overlay Image
-            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
-
-
-            #endregion
-
-        }
-        #endregion
-
-        #region Walking Directory
-        /// <summary>
-        /// Get every csv file paths and add into csvFilePaths variable
-        /// </summary>
-        /// <param name="sDir">string _rootDir</param>
-
-        // Warning variables preventing to open deep directory tree
-        //private int recursiveCount = 0;
-        private bool recursiveAlert = false;
-        private int bmpcount = 0;
-
-        private void DirSearch(string sDir, int cnt = 0)
-        {
-            if (cnt > 1)
-            {
-                if (!recursiveAlert)
-                {
-                    Items.Clear();
-                    ResetImages();
-                    FileExplorerBool = false;
-                    MessageBox.Show("Please make sure that you select a correct project folder.");
-
-                    recursiveAlert = true;
-
-                    return;
-                }
-                else
-                {
-                    return;
-                }
-            }
-
-            try
-            {
-                foreach (string d in Directory.GetDirectories(sDir))
-                {
-
-                    foreach (string f in Directory.GetFiles(d))
-                    {
-                        // Check it file exetension is csv or not
-                        if (System.IO.Path.GetExtension(f) == ".csv")
-                        {
-                            // Add csv file path in the l`ist
-                            CsvFilePaths.Add(f);
-                        }
-
-                        if (System.IO.Path.GetExtension(f) == ".bmp")
-                        {
-                            bmpcount++;
-                        }
-                    }
-                    DirSearch(d, cnt + 1);
-                }
-            }
-
-            // In case of stack overflow
-            catch (System.Exception excpt)
-            {
-                Console.WriteLine("DirSearch Exception: " + excpt);
-                MessageBox.Show("Please choose a correct project folder");
-            }
-
-        }
-        #endregion
-
-        #region Convert String into Integer
-        /// <summary>
-        /// Converter: String to Integer
-        /// </summary>
-        /// <param name="str">string num</param>
-        /// <returns>int num</returns>
-        private int StrToInt(string str)
-        {
-
-            if (!Int32.TryParse(str, out int i))
-            {
-                i = -1;
-            }
-            return i;
-        }
-
-        #endregion
-
-        #region PixelCalculator
-        /// <summary>
-        /// Calculate inside pixels
-        /// </summary>
-        /// <param name="_cornerPoint">Corner Point Collection</param>
-        /// <returns>int the number of pixel</returns>
-
-        private int PixelCalculator(List<int[]> _cornerPoint)
-        {
-            #region Calculation
-
-            int num_pixel = 0;
-            int num_point = _cornerPoint.Count;
-            int[,] points = new int[num_point, 2];
-
-            // Change array into list
-            for (int i = 0; i < num_point; i++)
-            {
-                points[i, 0] = _cornerPoint[i][1];
-                points[i, 1] = _cornerPoint[i][0];
-            }
-
-            // Calculate range of y value
-            int min = points[0, 0];
-            int max = 0;
-
-            for (int i = 0; i < num_point; i++)
-            {
-                if (points[i, 0] < min)
-                {
-                    min = points[i, 0];
-                }
-
-                if (points[i, 0] > max)
-                {
-                    max = points[i, 0];
-                }
-            }
-
-            // Initialize list for each y values along y axis
-            List<List<int>> boundary = new List<List<int>>();
-            for (int i = 0; i < max - min + 1; i++)
-            {
-                boundary.Add(new List<int>());
-            }
-
-            // Exclude sharp point from boudary
-            if ((points[num_point - 1, 0] - points[0, 0]) * (points[1, 0] - points[0, 0]) <= 0)
-            {
-                boundary[points[0, 0] - min].Add(points[0, 1]);
-            }
-
-            else
-            {
-                num_pixel += 1;
-            }
-
-            for (int i = 1; i < num_point - 1; i++)
-            {
-                if ((points[i - 1, 0] - points[i, 0]) * (points[i + 1, 0] - points[i, 0]) <= 0)
-                {
-                    boundary[points[i, 0] - min].Add(points[i, 1]);
-                }
-
-                else
-                {
-                    num_pixel += 1;
-                }
-            }
-
-            if ((points[0, 0] - points[num_point - 1, 0]) * (points[num_point - 2, 0] - points[num_point - 1, 0]) <= 0)
-            {
-                boundary[points[num_point - 1, 0] - min].Add(points[num_point - 1, 1]);
-            }
-
-            else
-            {
-                num_pixel += 1;
-            }
-
-            // Calcuate boudary positions
-            for (int i = 0; i < num_point - 1; i++)
-            {
-                if (points[i + 1, 0] == points[i, 0])
-                {
-                    num_pixel += 0;
-                }
-
-                else if (points[i + 1, 0] - points[i, 0] > 0)
-                {
-                    for (int j = 1; j < points[i + 1, 0] - points[i, 0]; j++)
-                    {
-                        boundary[points[i, 0] - min + j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i + 1, 0] - points[i, 0]));
-                    }
-                }
-
-                else //points[i+1,0] - points[i,0] < 0
-                {
-                    for (int j = 1; j < points[i, 0] - points[i + 1, 0]; j++)
-                    {
-                        boundary[points[i, 0] - min - j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i, 0] - points[i + 1, 0]));
-                    }
-                }
-            }
-
-
-            // Compare the first element to the last one
-            if (points[num_point - 1, 0] == points[0, 0])
-            {
-                num_pixel += 0;
-            }
-
-            else if (points[0, 0] - points[num_point - 1, 0] > 0)
-            {
-                for (int j = 1; j < points[0, 0] - points[num_point - 1, 0]; j++)
-                {
-                    boundary[points[num_point - 1, 0] - min + j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[0, 0] - points[num_point - 1, 0]));
-                }
-            }
-
-            else //points[i+1,0] - points[i,0] < 0
-            {
-                for (int j = 1; j < points[num_point - 1, 0] - points[0, 0]; j++)
-                {
-                    boundary[points[num_point - 1, 0] - min - j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[num_point - 1, 0] - points[0, 0]));
-                }
-            }
-
-            #endregion
-
-
-
-            // Calculate the number of pixels and write the pixel value to binary file
-            for (int i = 0; i < max - min + 1; i++)
-            {
-                if (boundary[i].Count == 0)
-                {
-                    num_pixel += 0;
-                }
-                else
-                {
-                    boundary[i].Sort();
-                    bool inner = false;
-                    for (int j = boundary[i].Min(); j < boundary[i].Max() + 1; j++)
-                    {
-                        if (boundary[i].Contains(j))
-                        {
-                            inner = !inner;
-                        }
-                        if (inner)
-                        {
-                            num_pixel += 1;
-
-                        }
-
-                    }
-                }
-
-            }
-
-            return num_pixel;
-        }
-        #endregion
-
-        #region Point Calculator
-        /// <summary>
-        /// Make ClassPoints Collection and Corner Points Dictionary
-        /// </summary>
-        /// <param name="_rootPath">A selected path by folder explorer</param>
-        /// [This method is called when a folder is selected by folder explorer]
-        private void PointCalculator(string _rootPath)
-        {
-            // Traverse all the directory and find all existing csv file paths
-            DirSearch(_rootPath);
-
-            // The folder has to have at least six Bmp files
-            if (bmpcount / 6 > 0 && bmpcount % 6 == 0)
-            {
-                // Read csv file only if Dirsearch is successfully completed
-                if (!recursiveAlert)
-                {
-                    // For each csv file
-                    foreach (string _path in CsvFilePaths)
-                    {
-                        // Read class name and corner points
-                        ObservableCollection<ClassCornerPoints> _classCorners = new ObservableCollection<ClassCornerPoints>();
-
-                        #region Read Csv Format
-                        // Read csv file
-                        using (var reader = new StreamReader(_path))
-                        {
-                            int _numLine = 0;
-                            while (!reader.EndOfStream)
-                            {
-                                var line = reader.ReadLine();
-
-                                if (_numLine != 0)
-                                {
-                                    string _className = "";
-                                    List<int[]> _cornerPoints = new List<int[]>();
-
-                                    var values = line.Split(',');
-
-                                    _className = values[0];
-                                    //Console.WriteLine(values[0]);
-
-                                    for (int i = 1; i < values.Length; i += 2)
-                                    {
-
-                                        int[] _position = new int[2];
-                                        // x position
-                                        _position[0] = StrToInt(values[i]);
-
-                                        // y position
-                                        try
-                                        {
-                                            _position[1] = StrToInt(values[i + 1]);
-                                        }
-
-                                        // Exception handler: Wrong csv format
-                                        catch (IndexOutOfRangeException e)
-                                        {
-                                            MessageBox.Show("Your csv files might have wrong format.\n");
-                                            ClassPoints.Clear();
-                                            Console.WriteLine("CSV Fromat Error: " + e);
-                                            return;
-                                        }
-
-                                        //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
-                                        _cornerPoints.Add(_position);
-                                    }
-
-                                    // Each line = each class
-                                    _classCorners.Add(new ClassCornerPoints() { ClassName = _className, Points = _cornerPoints });
-                                }
-                                _numLine++;
-                            }
-                        }
-                        #endregion
-
-                        #region Add data to Dictionary
-                        // Allocate new element into the dictionary for each csv file
-                        CornerPoint.Add(_path, _classCorners);
-                        #endregion
-
-                        #region Add data to Item Source
-                        // Calculate the number of inside points and Add ClassPoints 
-                        for (int i = 0; i < _classCorners.Count; i++)
-                        {
-                            // Check if ClassPoints has same class name as _classCorners[i].ClassName
-                            int ack = 0;
-
-                            for (int j = 0; j < ClassPoints.Count; j++)
-                            {
-                                if (_classCorners[i].ClassName == ClassPoints[j].ClassName)
-                                {
-                                    // If there is same class name, add the value
-                                    ack = 1;
-                                    ClassPoints[j].NumPoints += PixelCalculator(_classCorners[i].Points);
-                                }
-                            }
-
-                            // New class
-                            // If not, make new class and allocate the value
-                            if (ack == 0)
-                            {
-                                ClassPoints.Add(new ClassPixels()
-                                {
-                                    ClassName = _classCorners[i].ClassName,
-                                    NumPoints = PixelCalculator(_classCorners[i].Points)
-                                });
-                            }
-                        }
-                        #endregion
-                    }
-
-                    #region Initialize Class Color
-                    //Allocate colors as many as the number of ClassPoints.Count
-                    int k = ClassPoints.Count;
-
-                    // Generate colors 
-                    List<Color> _color = AddColors(k);
-                    for (int i = 0; i < k; i++)
-                    {
-                        ClassPoints[i].ClassColor = _color[i];
-                    }
-
-                    #endregion
-
-                    // Enable Buttons
-                    TrainBool = true;
-                }
-
-            }
-
-            else
-            {
-                ResetImages();
-                Items.Clear();
-                if (!recursiveAlert)
-                    MessageBox.Show("Please choose a correct project folder");
-            }
-
-            // Set this value to 0
-            bmpcount = 0;
-            //recursiveCount = 0;
-            recursiveAlert = false;
-        }
-
-        #endregion
-
-        #region Search Color by ClassName
-        /// <summary>
-        /// Search used color by class name
-        /// </summary>
-        /// <param name="className">class name</param>
-        /// <returns>the class's color</returns>
-
-        private Color SearchColor(string className)
-        {
-            foreach (ClassPixels classPixels in ClassPoints)
-            {
-                if (className == classPixels.ClassName)
-                    return classPixels.ClassColor;
-            }
-            return Colors.Transparent;
-        }
-
-        #endregion
-
-        #region Plus Button Enable Bool
-
-        private bool plusBool = false;
-
-        public bool PlusBool
-        {
-            get { return plusBool; }
-            set
-            {
-                plusBool = value;
-                NotifyOfPropertyChange(() => PlusBool);
-            }
-        }
-
-        #endregion
-
         #region Plus Button Click Event Handler
 
         public void PlusClick()
@@ -1365,226 +1219,6 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region OverlayImage Bool
-        private bool imageBool = false;
-        public bool ImageBool
-        {
-            get { return imageBool; }
-            set
-            {
-                imageBool = value;
-                NotifyOfPropertyChange(() => ImageBool);
-            }
-        }
-
-        #endregion
-
-        #region Read Only Properties
-
-        #region ActualHeight
-        private double myheight;
-        public double MyHeight
-        {
-            get { return myheight; }
-            set
-            {
-                myheight = value;
-                NotifyOfPropertyChange(() => MyHeight);
-                //Console.WriteLine("MyHeight: " + myheight.ToString());
-
-            }
-        }
-
-        #endregion
-
-        #region ActualWidth
-        private double mywidth;
-        public double MyWidth
-        {
-            get { return mywidth; }
-            set
-            {
-                mywidth = value;
-                NotifyOfPropertyChange(() => MyWidth);
-                //Console.WriteLine("MyWidth: " + mywidth.ToString());
-            }
-        }
-        #endregion
-
-        #endregion
-
-        #region New Class Name, Clicked Position and its Color
-
-        private string newLabelName;
-
-        private ObservableCollection<double[]> ClickedPosition = new ObservableCollection<double[]>();
-
-        private Color newLabelColor = Colors.Transparent;
-
-        #endregion
-
-        #region Click points on image
-        /// <summary>
-        /// Event handler when user draw dots on main image
-        /// </summary>
-
-        public void ClickPoint(MouseEventArgs e, IInputElement elem)
-        {
-            #region Get clicked pixel positions
-            var Clicked_X = e.GetPosition(elem).X * BmpWidth / MyWidth;
-            var Clicked_Y = e.GetPosition(elem).Y * BmpHeight / MyHeight;
-
-            Console.WriteLine("x: " + Clicked_X.ToString());
-            Console.WriteLine("y: " + Clicked_Y.ToString());
-            #endregion
-
-            #region Allocate color for new class
-            if (newLabelColor == Colors.Transparent)
-            {
-                // 1. searchcolor 
-                if (Colors.Transparent == (newLabelColor = SearchColor(newLabelName)))
-                {
-                    // 2. Make new color if the new class has no color
-                    newLabelColor = AddColors(1)[0];
-                }
-            }
-            #endregion
-
-            #region Draw Dot and line
-            SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
-
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
-            {
-                dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
-                dc.DrawEllipse(newlabelBrush, null, new Point(Clicked_X, Clicked_Y), 5, 5);
-
-                if (ClickedPosition.Count > 0)
-                {
-                    // Draw a line between the last element of clickedPosition list and new clicked position
-                    Pen pen = new Pen(newlabelBrush, 5);
-
-                    double _x = ClickedPosition.Last()[0];
-                    double _y = ClickedPosition.Last()[1];
-
-                    dc.DrawLine(pen, new Point(_x, _y), new Point(Clicked_X, Clicked_Y));
-                }
-            }
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
-            rtb.Render(dv);
-
-            OverlayImage = rtb;
-
-            #endregion
-
-            #region Push into stack
-
-            // Enable revert button
-            if (DrawLayer.Count == 1)
-            {
-                CanBeReverted = true;
-            }
-
-            // Push rendered bitmap image
-            DrawLayer.Push(rtb);
-
-            #endregion
-
-            #region Add clicked pixel position to the list
-
-            ClickedPosition.Add(new double[2] { Clicked_X, Clicked_Y });
-
-            #endregion
-
-            #region Basic requirement for being clolsed shape
-            if (ClickedPosition.Count > 3)
-            {
-                OKBool = true;
-            }
-            #endregion
-
-        }
-        #endregion
-
-        #region Covert double collection into integer collection
-        private List<int[]> ConvertToIntPos(ObservableCollection<double[]> corners)
-        {
-            List<int[]> pos = new List<int[]>();
-
-            foreach (double[] arr in corners)
-            {
-                int[] _array = new int[2] { (int)arr[0], (int)arr[1] };
-
-                pos.Add(_array);
-            }
-
-            return pos;
-        }
-        #endregion
-
-        #region Get Parent Directory Path
-        /// <summary>
-        /// Read loaded bitmap path and get the parent directory path
-        /// </summary>
-        /// <returns>string path</returns>
-        /// 
-        private string GetParentParentDirPath()
-        {
-            // Get current directory path
-            string _path = BmpPath1;
-
-            // If the paht is a file path, get parent directory path
-
-            // Exception: If we have no path, return empty
-            if (string.IsNullOrEmpty(_path))
-                return "";
-
-            // Make all slashes back slashes
-            var normalizedPath = _path.Replace('/', '\\');
-
-            // Find the last backslash in the path
-            var lastIndex = normalizedPath.LastIndexOf('\\');
-
-            normalizedPath = normalizedPath.Substring(0, lastIndex);
-            lastIndex = normalizedPath.LastIndexOf('\\');
-
-            // If we don't find a backslash, return the path itself
-            if (lastIndex <= 0)
-                return "";
-
-            var projectPath = normalizedPath.Substring(0, lastIndex);
-
-            //  Remove file name from the file path so we can get a parent directory path
-            return projectPath;
-        }
-
-        private string GetParentDirPath()
-        {
-            // Get current directory path
-            string _path = BmpPath1;
-
-            // If the paht is a file path, get parent directory path
-
-            // Exception: If we have no path, return empty
-            if (string.IsNullOrEmpty(_path))
-                return "";
-
-            // Make all slashes back slashes
-            var normalizedPath = _path.Replace('/', '\\');
-
-            // Find the last backslash in the path
-            var lastIndex = normalizedPath.LastIndexOf('\\');
-
-            // If we don't find a backslash, return the path itself
-            if (lastIndex <= 0)
-                return "";
-
-            //  Remove file name from the file path so we can get a parent directory path
-            return normalizedPath.Substring(0, lastIndex);
-        }
-        #endregion
-
         #region Ok Button Handler
         /// <summary>
         /// Add button click event handler
@@ -1614,7 +1248,7 @@ namespace BeyonSense.ViewModels
                     DrawLayer.Pop();
                 }
 
-                OverlayImage = (BitmapSource)DrawLayer.Peek();
+                OverlayImage = DrawLayer.Peek();
 
             }
 
@@ -1723,381 +1357,6 @@ namespace BeyonSense.ViewModels
             DrawLayer.Clear();
 
             #endregion
-        }
-
-        #endregion
-
-        #region Draw Labels
-        private void DrawLabel()
-        {
-            #region Get csv file path
-
-            if (String.IsNullOrEmpty(CsvPath))
-            {
-                //If there is no csv file, set a csv file path
-                CsvPath = GetParentDirPath() + '\\' + "metadata.csv";
-            }
-            #endregion
-
-            // Reset OverlayImage
-            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
-
-            #region Traversal dictionary and draw
-            if (CornerPoint.ContainsKey(CsvPath))
-            {
-                foreach (ClassCornerPoints classCornerPoints in CornerPoint[CsvPath])
-                {
-                    #region Draw each shape
-                    DrawingVisual dv = new DrawingVisual();
-                    using (DrawingContext dc = dv.RenderOpen())
-                    {
-                        // Make Brush using class color
-                        SolidColorBrush classBrush = new SolidColorBrush(SearchColor(classCornerPoints.ClassName));
-
-                        dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
-
-                        // Draw dot and line repeatedly
-
-                        Pen pen = new Pen(classBrush, 5);
-
-                        int i = 0;
-
-                        for (i = 0; i < classCornerPoints.Points.Count - 1; i++)
-                        {
-                            var x1 = classCornerPoints.Points[i][0];
-                            var y1 = classCornerPoints.Points[i][1];
-                            var x2 = classCornerPoints.Points[i + 1][0];
-                            var y2 = classCornerPoints.Points[i + 1][1];
-
-                            dc.DrawEllipse(classBrush, null, new Point(x1, y1), 5, 5);
-                            dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
-
-                        }
-
-                        // Draw line between the first dot and the last one
-                        var x_last = classCornerPoints.Points[i][0];
-                        var y_last = classCornerPoints.Points[i][1];
-                        var x_first = classCornerPoints.Points[0][0];
-                        var y_first = classCornerPoints.Points[0][1];
-                        dc.DrawEllipse(classBrush, null, new Point(x_last, y_last), 5, 5);
-                        dc.DrawLine(pen, new Point(x_last, y_last), new Point(x_first, y_first));
-
-                    }
-
-                    RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
-                    rtb.Render(dv);
-
-                    OverlayImage = rtb;
-
-                    #endregion
-                }
-            }
-            #endregion
-        }
-        #endregion
-
-        #region Color Filter Dictionary
-        private Dictionary<string, BitmapSource> ColorFilters = new Dictionary<string, BitmapSource>();
-
-        #endregion
-
-        #region Generate Color filter by inference
-
-        private void ColorFilterGenerator()
-        {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            Console.WriteLine("Timer is started");
-
-            #region Get paths
-            // Get project folder, model path
-            string modelPath = ModelPath;
-            string projectPath = GetParentParentDirPath();
-            
-
-            List<string> picturePaths = new List<string>();
-
-            foreach (string dir in Directory.GetDirectories(projectPath))
-            {
-                picturePaths.Add(dir);
-            }
-
-            #endregion
-
-            #region Label Data | Color dictionary
-            // TODO: 일단 ClassPoints에 나열된 순서대로 배치해보자
-
-            // Csv file 읽기
-
-            Dictionary<int, Color> colorDict = new Dictionary<int, Color>();
-
-
-
-            try
-            {
-                var labelCsvPath = modelPath.Split(new string[] { ".txt" }, StringSplitOptions.None);
-                using (var reader = new StreamReader(labelCsvPath[0] + "_label.csv"))
-                {
-                    int _numLine = 0;
-                    while (!reader.EndOfStream)
-                    {
-                        var line = reader.ReadLine();
-
-                        if (_numLine != 0)
-                        {
-                            var values = line.Split(',');
-
-                            colorDict.Add(Int32.Parse(values[0]), SearchColor(values[1]));
-
-                            // mapping dictionary 따로 만들기
-
-                            //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
-
-                            #endregion
-                        }
-                        _numLine++;
-                    }
-                }
-            }
-            catch
-            {
-                MessageBox.Show("Check your label metadata.");
-            }
-
-            #region Load a model
-            SVM svm = new SVM();
-            try
-            {
-                FileStorage file = new FileStorage(modelPath, FileStorage.Mode.Read);
-                svm.Read(file.GetNode("opencv_ml_svm"));
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Loading a model: " + e.Message);
-                ToggleIsEnable = false;
-                MessageBox.Show("This model cannot predict current dataset");
-                return;
-            }
-            #endregion
-
-            // Get color filter dictionary
-            #region Access every pixel
-
-            // 사진 마다 for loop
-            foreach (string path in picturePaths)
-            {
-
-                try
-                {
-                    #region Image variable
-                    Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "600.bmp");
-                    Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
-                    Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
-                    Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
-                    Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
-                    Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
-
-                    List<Mat> MatList = new List<Mat>
-                    {
-                        CvInvoke.Imread(path + '\\' + "600.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
-                        CvInvoke.Imread(path + '\\' + "725.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
-                        CvInvoke.Imread(path + '\\' + "825.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
-                        CvInvoke.Imread(path + '\\' + "875.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
-                        CvInvoke.Imread(path + '\\' + "930.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
-                        CvInvoke.Imread(path + '\\' + "985.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale)
-                    };
-
-                    #endregion
-
-                    #region Threshold
-                    // Global threshold
-                    foreach (Mat mat in MatList)
-                    {
-                        CvInvoke.Threshold(mat, mat, 100, 255, Emgu.CV.CvEnum.ThresholdType.Binary | Emgu.CV.CvEnum.ThresholdType.Otsu);
-                    }
-
-                    #endregion
-
-                    #region morphologyEx
-
-                    // morphologyEx
-                    Mat kernel1 = CvInvoke.GetStructuringElement(Emgu.CV.CvEnum.ElementShape.Rectangle,
-                        new System.Drawing.Size(3, 3), new System.Drawing.Point(-1, -1));
-
-                    foreach (Mat mat in MatList)
-                    {
-                        CvInvoke.MorphologyEx(mat, mat, Emgu.CV.CvEnum.MorphOp.Open, kernel1,
-                        new System.Drawing.Point(-1, -1), 1, Emgu.CV.CvEnum.BorderType.Constant, new MCvScalar());
-                    }
-
-                    #endregion
-
-                    #region Adding layers
-
-                    int cnt = 2;
-                    int rows = MatList[0].Rows;
-                    int cols = MatList[0].Cols;
-
-                    Mat addedMat = Mat.Zeros(rows, cols, Emgu.CV.CvEnum.DepthType.Cv8U, 1);
-                    for (int i = 0; i < MatList.Count; i++)
-                    {
-                        Mat mat = MatList[i] / cnt;
-                        addedMat += mat;
-                    }
-
-                    CvInvoke.Threshold(addedMat, addedMat, 200, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
-
-                    Mat label = new Mat();
-                    Mat stats = new Mat();
-                    Mat centroids = new Mat();
-
-                    CvInvoke.ConnectedComponentsWithStats(addedMat, label, stats, centroids);
-
-                    int[] _stats = new int[stats.Rows * stats.Cols];
-                    stats.CopyTo(_stats);
-
-                    List<System.Drawing.Rectangle> RecList = new List<System.Drawing.Rectangle>();
-
-                    for (int i = 1; i < stats.Rows; i++)
-                    {
-                        if (_stats[i * stats.Cols + 4] > 10)
-                        {
-                            var x = _stats[i * stats.Cols + 0];
-                            var y = _stats[i * stats.Cols + 1];
-                            var width = _stats[i * stats.Cols + 2];
-                            var height = _stats[i * stats.Cols + 3];
-
-                            RecList.Add(new System.Drawing.Rectangle(x, y, width, height));
-                        }
-                    }
-
-                    Image<Gray, byte> addedImage = addedMat.ToImage<Gray, byte>();
-                    Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(cols, rows, new Bgra(255, 255, 255, 0));
-
-                    var a = BitConverter.GetBytes(100)[0];
-
-                    foreach (System.Drawing.Rectangle rectangle in RecList)
-                    {
-                        // rectangle 안에 있는 모든 좌표 접근
-
-                        // Column
-                        for (int i = rectangle.X; i < rectangle.X + rectangle.Width; i++)
-                        {
-                            // Row
-                            for (int j = rectangle.Y; j < rectangle.Y + rectangle.Height; j++)
-                            {
-                                if (addedImage.Data[j, i, 0] != 0)
-                                {
-                                    float[,] _vector = new float[1, 6];
-                                    // Data[col(i), row(j), 0]
-                                    _vector[0, 0] = (float)img1.Data[j, i, 0];
-                                    _vector[0, 1] = (float)img2.Data[j, i, 0];
-                                    _vector[0, 2] = (float)img3.Data[j, i, 0];
-                                    _vector[0, 3] = (float)img4.Data[j, i, 0];
-                                    _vector[0, 4] = (float)img5.Data[j, i, 0];
-                                    _vector[0, 5] = (float)img6.Data[j, i, 0];
-
-                                    // matrix를 만든다.
-                                    Matrix<float> matrix = new Matrix<float>(_vector);
-
-                                    // svm.predict 에 넣는다.
-                                    int prediction = (int)svm.Predict(matrix);
-
-                                    // prediction에 따라 해당 matrix에 255 할당
-                                    colorfilter.Data[j, i, 0] = colorDict[prediction].B;
-                                    colorfilter.Data[j, i, 1] = colorDict[prediction].G;
-                                    colorfilter.Data[j, i, 2] = colorDict[prediction].R;
-                                    colorfilter.Data[j, i, 3] = a;
-                                }
-
-                            }
-                        }
-
-                    }
-                    #endregion
-
-                    ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
-                    #endregion
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Inference error: " + e.Message);
-                    ToggleIsEnable = false;
-                    MessageBox.Show("This model cannot predict current dataset");
-                    return;
-
-                }
-            }
-
-            // 여기서 모델 inference가 잘 되면 ToggleIsEnable true이고 아니면 false
-            ToggleIsEnable = true;
-
-            stopwatch.Stop();
-            Console.WriteLine("Elapsed time: " + (stopwatch.ElapsedMilliseconds / 1000).ToString() + "seconds");
-
-        }
-
-        #endregion
-
-
-        #region File explorer bool
-        private bool fileExplorerBool = false;
-        public bool FileExplorerBool
-        {
-            get { return fileExplorerBool; }
-            set
-            {
-                fileExplorerBool = value;
-                NotifyOfPropertyChange(() => FileExplorerBool);
-            }
-        }
-        #endregion
-
-
-        #region Save Button Enable Bool
-
-        private bool saveBool = false;
-
-        public bool SaveBool
-        {
-            get { return saveBool; }
-            set
-            {
-                saveBool = value;
-                NotifyOfPropertyChange(() => SaveBool);
-            }
-        }
-
-        #endregion
-
-        #region Train Button Enable Bool
-
-        private bool trainBool = false;
-
-        public bool TrainBool
-        {
-            get { return trainBool; }
-            set
-            {
-                trainBool = value;
-                NotifyOfPropertyChange(() => TrainBool);
-            }
-        }
-
-        #endregion
-
-        #region Save Button Enable Bool
-
-        private bool oKBool = false;
-
-        public bool OKBool
-        {
-            get { return oKBool; }
-            set
-            {
-                oKBool = value;
-                NotifyOfPropertyChange(() => OKBool);
-            }
         }
 
         #endregion
@@ -2369,51 +1628,6 @@ namespace BeyonSense.ViewModels
         }
         #endregion
 
-        #region String Path to Bitmap Source
-        private BitmapSource StringToBmpSource(string path)
-        {
-            System.IO.FileInfo fi = new System.IO.FileInfo(@path); //put in a valid path to an image or use your image you get from the array
-            BitmapImage src = new BitmapImage();
-            src.BeginInit();
-            src.UriSource = new Uri(fi.FullName, UriKind.Absolute);
-            src.CacheOption = BitmapCacheOption.OnLoad;
-            src.EndInit();
-
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
-            {
-                dc.DrawImage(src, new Rect(0, 0, BmpWidth, BmpHeight));
-            }
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
-            rtb.Render(dv);
-
-            return rtb;
-        }
-        #endregion
-
-        #region Bitmap Rewind Stack
-
-        private Stack DrawLayer = new Stack();
-
-        #endregion
-
-        #region Revert Boolean Variable
-
-        private bool canBeReverted = false;
-
-        public bool CanBeReverted
-        {
-            get { return canBeReverted; }
-            set
-            {
-                canBeReverted = value;
-                NotifyOfPropertyChange(() => canBeReverted);
-            }
-        }
-
-        #endregion
-
         #region Revert Button Handler
 
         public void Revert()
@@ -2444,6 +1658,806 @@ namespace BeyonSense.ViewModels
 
         #endregion
 
+        #region Click points on image
+        /// <summary>
+        /// Event handler when user draw dots on main image
+        /// </summary>
+
+        public void ClickPoint(MouseEventArgs e, IInputElement elem)
+        {
+            #region Get clicked pixel positions
+            var Clicked_X = e.GetPosition(elem).X * BmpWidth / MyWidth;
+            var Clicked_Y = e.GetPosition(elem).Y * BmpHeight / MyHeight;
+
+            Console.WriteLine("x: " + Clicked_X.ToString());
+            Console.WriteLine("y: " + Clicked_Y.ToString());
+            #endregion
+
+            #region Allocate color for new class
+            if (newLabelColor == Colors.Transparent)
+            {
+                // 1. searchcolor 
+                if (Colors.Transparent == (newLabelColor = SearchColor(newLabelName)))
+                {
+                    // 2. Make new color if the new class has no color
+                    newLabelColor = AddColors(1)[0];
+                }
+            }
+            #endregion
+
+            #region Draw Dot and line
+            SolidColorBrush newlabelBrush = new SolidColorBrush(newLabelColor);
+
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
+                dc.DrawEllipse(newlabelBrush, null, new Point(Clicked_X, Clicked_Y), 5, 5);
+
+                if (ClickedPosition.Count > 0)
+                {
+                    // Draw a line between the last element of clickedPosition list and new clicked position
+                    Pen pen = new Pen(newlabelBrush, 5);
+
+                    double _x = ClickedPosition.Last()[0];
+                    double _y = ClickedPosition.Last()[1];
+
+                    dc.DrawLine(pen, new Point(_x, _y), new Point(Clicked_X, Clicked_Y));
+                }
+            }
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+            rtb.Render(dv);
+
+            OverlayImage = rtb;
+
+            #endregion
+
+            #region Push into stack
+
+            // Enable revert button
+            if (DrawLayer.Count == 1)
+            {
+                CanBeReverted = true;
+            }
+
+            // Push rendered bitmap image
+            DrawLayer.Push(rtb);
+
+            #endregion
+
+            #region Add clicked pixel position to the list
+
+            ClickedPosition.Add(new double[2] { Clicked_X, Clicked_Y });
+
+            #endregion
+
+            #region Basic requirement for being clolsed shape
+            if (ClickedPosition.Count > 3)
+            {
+                OKBool = true;
+            }
+            #endregion
+
+        }
+        #endregion
+
+        #endregion
+
+        #region Private Methods
+
+        #region Show Directory Tree on MainView
+        /// <summary>
+        /// Show directory tree from the selected directory
+        /// </summary>
+        /// <param name="path">Selected path from folder explorer</param>
+        private void StartDirectoryTree(string path)
+        {
+            #region Directory TreeView
+            // Get the selected directory path
+            var children = DirectoryStructure.GetRootFolder(path);
+
+            // Create the view models from the data
+            this.Items = new ObservableCollection<DirectoryItemViewModel>(
+                children.Select(root => new DirectoryItemViewModel(root.FullPath, DirectoryItemType.Folder)));
+
+            #endregion
+        }
+        #endregion
+
+        #region Generate Color filter by inference
+
+        private void ColorFilterGenerator()
+        {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.WriteLine("Timer is started");
+
+            #region Get paths
+            // Get project folder, model path
+            string modelPath = ModelPath;
+            string projectPath = GetParentParentDirPath();
+
+
+            List<string> picturePaths = new List<string>();
+
+            foreach (string dir in Directory.GetDirectories(projectPath))
+            {
+                picturePaths.Add(dir);
+            }
+
+            #endregion
+
+            #region Label Data | Color dictionary
+
+            // Csv file 읽기
+
+            Dictionary<int, Color> colorDict = new Dictionary<int, Color>();
+
+
+
+            try
+            {
+                var labelCsvPath = modelPath.Split(new string[] { ".txt" }, StringSplitOptions.None);
+                using (var reader = new StreamReader(labelCsvPath[0] + "_label.csv"))
+                {
+                    int _numLine = 0;
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
+
+                        if (_numLine != 0)
+                        {
+                            var values = line.Split(',');
+
+                            colorDict.Add(Int32.Parse(values[0]), SearchColor(values[1]));
+
+                            #endregion
+                        }
+                        _numLine++;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Check your label metadata.");
+            }
+
+            #region Load a model
+            SVM svm = new SVM();
+            try
+            {
+                FileStorage file = new FileStorage(modelPath, FileStorage.Mode.Read);
+                svm.Read(file.GetNode("opencv_ml_svm"));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Loading a model: " + e.Message);
+                ToggleIsEnable = false;
+                MessageBox.Show("This model cannot predict current dataset");
+                return;
+            }
+            #endregion
+
+            // Get color filter dictionary
+            #region Access every pixel
+
+            // 사진 마다 for loop
+            foreach (string path in picturePaths)
+            {
+
+                try
+                {
+                    #region Image variable
+                    Image<Gray, Byte> img1 = new Image<Gray, Byte>(path + '\\' + "600.bmp");
+                    Image<Gray, Byte> img2 = new Image<Gray, Byte>(path + '\\' + "725.bmp");
+                    Image<Gray, Byte> img3 = new Image<Gray, Byte>(path + '\\' + "825.bmp");
+                    Image<Gray, Byte> img4 = new Image<Gray, Byte>(path + '\\' + "875.bmp");
+                    Image<Gray, Byte> img5 = new Image<Gray, Byte>(path + '\\' + "930.bmp");
+                    Image<Gray, Byte> img6 = new Image<Gray, Byte>(path + '\\' + "985.bmp");
+
+                    List<Mat> MatList = new List<Mat>
+                    {
+                        CvInvoke.Imread(path + '\\' + "600.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "725.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "825.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "875.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "930.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale),
+                        CvInvoke.Imread(path + '\\' + "985.bmp", Emgu.CV.CvEnum.ImreadModes.Grayscale)
+                    };
+
+                    #endregion
+
+                    #region Threshold
+                    // Global threshold
+                    foreach (Mat mat in MatList)
+                    {
+                        CvInvoke.Threshold(mat, mat, 100, 255, Emgu.CV.CvEnum.ThresholdType.Binary | Emgu.CV.CvEnum.ThresholdType.Otsu);
+                    }
+
+                    #endregion
+
+                    #region morphologyEx
+
+                    // morphologyEx
+                    Mat kernel1 = CvInvoke.GetStructuringElement(Emgu.CV.CvEnum.ElementShape.Rectangle,
+                        new System.Drawing.Size(3, 3), new System.Drawing.Point(-1, -1));
+
+                    foreach (Mat mat in MatList)
+                    {
+                        CvInvoke.MorphologyEx(mat, mat, Emgu.CV.CvEnum.MorphOp.Open, kernel1,
+                        new System.Drawing.Point(-1, -1), 1, Emgu.CV.CvEnum.BorderType.Constant, new MCvScalar());
+                    }
+
+                    #endregion
+
+                    #region Adding layers
+
+                    int cnt = 2;
+                    int rows = MatList[0].Rows;
+                    int cols = MatList[0].Cols;
+
+                    Mat addedMat = Mat.Zeros(rows, cols, Emgu.CV.CvEnum.DepthType.Cv8U, 1);
+                    for (int i = 0; i < MatList.Count; i++)
+                    {
+                        Mat mat = MatList[i] / cnt;
+                        addedMat += mat;
+                    }
+
+                    CvInvoke.Threshold(addedMat, addedMat, 200, 255, Emgu.CV.CvEnum.ThresholdType.Binary);
+
+                    Mat label = new Mat();
+                    Mat stats = new Mat();
+                    Mat centroids = new Mat();
+
+                    CvInvoke.ConnectedComponentsWithStats(addedMat, label, stats, centroids);
+
+                    int[] _stats = new int[stats.Rows * stats.Cols];
+                    stats.CopyTo(_stats);
+
+                    List<System.Drawing.Rectangle> RecList = new List<System.Drawing.Rectangle>();
+
+                    for (int i = 1; i < stats.Rows; i++)
+                    {
+                        if (_stats[i * stats.Cols + 4] > 10)
+                        {
+                            var x = _stats[i * stats.Cols + 0];
+                            var y = _stats[i * stats.Cols + 1];
+                            var width = _stats[i * stats.Cols + 2];
+                            var height = _stats[i * stats.Cols + 3];
+
+                            RecList.Add(new System.Drawing.Rectangle(x, y, width, height));
+                        }
+                    }
+
+                    Image<Gray, byte> addedImage = addedMat.ToImage<Gray, byte>();
+                    Image<Bgra, byte> colorfilter = new Image<Bgra, byte>(cols, rows, new Bgra(255, 255, 255, 0));
+
+                    var a = BitConverter.GetBytes(100)[0];
+
+                    foreach (System.Drawing.Rectangle rectangle in RecList)
+                    {
+                        // rectangle 안에 있는 모든 좌표 접근
+
+                        // Column
+                        for (int i = rectangle.X; i < rectangle.X + rectangle.Width; i++)
+                        {
+                            // Row
+                            for (int j = rectangle.Y; j < rectangle.Y + rectangle.Height; j++)
+                            {
+                                if (addedImage.Data[j, i, 0] != 0)
+                                {
+                                    float[,] _vector = new float[1, 6];
+                                    // Data[col(i), row(j), 0]
+                                    _vector[0, 0] = (float)img1.Data[j, i, 0];
+                                    _vector[0, 1] = (float)img2.Data[j, i, 0];
+                                    _vector[0, 2] = (float)img3.Data[j, i, 0];
+                                    _vector[0, 3] = (float)img4.Data[j, i, 0];
+                                    _vector[0, 4] = (float)img5.Data[j, i, 0];
+                                    _vector[0, 5] = (float)img6.Data[j, i, 0];
+
+                                    // matrix를 만든다.
+                                    Matrix<float> matrix = new Matrix<float>(_vector);
+
+                                    // svm.predict 에 넣는다.
+                                    int prediction = (int)svm.Predict(matrix);
+
+                                    // prediction에 따라 해당 matrix에 255 할당
+                                    colorfilter.Data[j, i, 0] = colorDict[prediction].B;
+                                    colorfilter.Data[j, i, 1] = colorDict[prediction].G;
+                                    colorfilter.Data[j, i, 2] = colorDict[prediction].R;
+                                    colorfilter.Data[j, i, 3] = a;
+                                }
+
+                            }
+                        }
+
+                    }
+                    #endregion
+
+                    ColorFilters.Add(path, BitmapSourceConvert.ToBitmapSource(colorfilter));
+                    #endregion
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Inference error: " + e.Message);
+                    ToggleIsEnable = false;
+                    MessageBox.Show("This model cannot predict current dataset");
+                    return;
+
+                }
+            }
+
+            // 여기서 모델 inference가 잘 되면 ToggleIsEnable true이고 아니면 false
+            ToggleIsEnable = true;
+
+            stopwatch.Stop();
+            Console.WriteLine("Elapsed time: " + (stopwatch.ElapsedMilliseconds / 1000).ToString() + "seconds");
+
+        }
+
+        #endregion
+
+        #region Draw Labels
+        private void DrawLabel()
+        {
+            #region Get csv file path
+
+            if (String.IsNullOrEmpty(CsvPath))
+            {
+                //If there is no csv file, set a csv file path
+                CsvPath = GetParentDirPath() + '\\' + "metadata.csv";
+            }
+            #endregion
+
+            // Reset OverlayImage
+            OverlayImage = BitmapSourceConvert.ToBitmapSource(new Image<Bgra, byte>(BmpWidth, BmpHeight, new Bgra(255, 255, 255, 0)));
+
+            #region Traversal dictionary and draw
+            if (CornerPoint.ContainsKey(CsvPath))
+            {
+                foreach (ClassCornerPoints classCornerPoints in CornerPoint[CsvPath])
+                {
+                    #region Draw each shape
+                    DrawingVisual dv = new DrawingVisual();
+                    using (DrawingContext dc = dv.RenderOpen())
+                    {
+                        // Make Brush using class color
+                        SolidColorBrush classBrush = new SolidColorBrush(SearchColor(classCornerPoints.ClassName));
+
+                        dc.DrawImage(OverlayImage, new Rect(0, 0, BmpWidth, BmpHeight));
+
+                        // Draw dot and line repeatedly
+
+                        Pen pen = new Pen(classBrush, 5);
+
+                        int i = 0;
+
+                        for (i = 0; i < classCornerPoints.Points.Count - 1; i++)
+                        {
+                            var x1 = classCornerPoints.Points[i][0];
+                            var y1 = classCornerPoints.Points[i][1];
+                            var x2 = classCornerPoints.Points[i + 1][0];
+                            var y2 = classCornerPoints.Points[i + 1][1];
+
+                            dc.DrawEllipse(classBrush, null, new Point(x1, y1), 5, 5);
+                            dc.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
+
+                        }
+
+                        // Draw line between the first dot and the last one
+                        var x_last = classCornerPoints.Points[i][0];
+                        var y_last = classCornerPoints.Points[i][1];
+                        var x_first = classCornerPoints.Points[0][0];
+                        var y_first = classCornerPoints.Points[0][1];
+                        dc.DrawEllipse(classBrush, null, new Point(x_last, y_last), 5, 5);
+                        dc.DrawLine(pen, new Point(x_last, y_last), new Point(x_first, y_first));
+
+                    }
+
+                    RenderTargetBitmap rtb = new RenderTargetBitmap(BmpWidth, BmpHeight, 96, 96, PixelFormats.Pbgra32);
+                    rtb.Render(dv);
+
+                    OverlayImage = rtb;
+
+                    #endregion
+                }
+            }
+            #endregion
+        }
+        #endregion
+
+        #region Dictionary<csv path, Collection<ClassCornerPoints>> for LoadBoudary()
+        /// <summary>
+        /// Managing point position for each csv file
+        /// </summary>
+        private Dictionary<string, ObservableCollection<ClassCornerPoints>> CornerPoint = new Dictionary<string, ObservableCollection<ClassCornerPoints>>();
+        #endregion
+
+        #region Walking Directory
+        /// <summary>
+        /// Get every csv file paths and add into csvFilePaths variable
+        /// </summary>
+        /// <param name="sDir">string _rootDir</param>
+
+        // Warning variables preventing to open deep directory tree
+        //private int recursiveCount = 0;
+        private bool recursiveAlert = false;
+        private int bmpcount = 0;
+
+        private void DirSearch(string sDir, int cnt = 0)
+        {
+            if (cnt > 1)
+            {
+                if (!recursiveAlert)
+                {
+                    Items.Clear();
+                    ResetImages();
+                    FileExplorerBool = false;
+                    MessageBox.Show("Please make sure that you select a correct project folder.");
+
+                    recursiveAlert = true;
+
+                    return;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            try
+            {
+                foreach (string d in Directory.GetDirectories(sDir))
+                {
+
+                    foreach (string f in Directory.GetFiles(d))
+                    {
+                        // Check it file exetension is csv or not
+                        if (System.IO.Path.GetExtension(f) == ".csv")
+                        {
+                            // Add csv file path in the l`ist
+                            CsvFilePaths.Add(f);
+                        }
+
+                        if (System.IO.Path.GetExtension(f) == ".bmp")
+                        {
+                            bmpcount++;
+                        }
+                    }
+                    DirSearch(d, cnt + 1);
+                }
+            }
+
+            // In case of stack overflow
+            catch (System.Exception excpt)
+            {
+                Console.WriteLine("DirSearch Exception: " + excpt);
+                MessageBox.Show("Please choose a correct project folder");
+            }
+
+        }
+        #endregion
+
+        #region PixelCalculator
+        /// <summary>
+        /// Calculate inside pixels
+        /// </summary>
+        /// <param name="_cornerPoint">Corner Point Collection</param>
+        /// <returns>int the number of pixel</returns>
+
+        private int PixelCalculator(List<int[]> _cornerPoint)
+        {
+            #region Calculation
+
+            int num_pixel = 0;
+            int num_point = _cornerPoint.Count;
+            int[,] points = new int[num_point, 2];
+
+            // Change array into list
+            for (int i = 0; i < num_point; i++)
+            {
+                points[i, 0] = _cornerPoint[i][1];
+                points[i, 1] = _cornerPoint[i][0];
+            }
+
+            // Calculate range of y value
+            int min = points[0, 0];
+            int max = 0;
+
+            for (int i = 0; i < num_point; i++)
+            {
+                if (points[i, 0] < min)
+                {
+                    min = points[i, 0];
+                }
+
+                if (points[i, 0] > max)
+                {
+                    max = points[i, 0];
+                }
+            }
+
+            // Initialize list for each y values along y axis
+            List<List<int>> boundary = new List<List<int>>();
+            for (int i = 0; i < max - min + 1; i++)
+            {
+                boundary.Add(new List<int>());
+            }
+
+            // Exclude sharp point from boudary
+            if ((points[num_point - 1, 0] - points[0, 0]) * (points[1, 0] - points[0, 0]) <= 0)
+            {
+                boundary[points[0, 0] - min].Add(points[0, 1]);
+            }
+
+            else
+            {
+                num_pixel += 1;
+            }
+
+            for (int i = 1; i < num_point - 1; i++)
+            {
+                if ((points[i - 1, 0] - points[i, 0]) * (points[i + 1, 0] - points[i, 0]) <= 0)
+                {
+                    boundary[points[i, 0] - min].Add(points[i, 1]);
+                }
+
+                else
+                {
+                    num_pixel += 1;
+                }
+            }
+
+            if ((points[0, 0] - points[num_point - 1, 0]) * (points[num_point - 2, 0] - points[num_point - 1, 0]) <= 0)
+            {
+                boundary[points[num_point - 1, 0] - min].Add(points[num_point - 1, 1]);
+            }
+
+            else
+            {
+                num_pixel += 1;
+            }
+
+            // Calcuate boudary positions
+            for (int i = 0; i < num_point - 1; i++)
+            {
+                if (points[i + 1, 0] == points[i, 0])
+                {
+                    num_pixel += 0;
+                }
+
+                else if (points[i + 1, 0] - points[i, 0] > 0)
+                {
+                    for (int j = 1; j < points[i + 1, 0] - points[i, 0]; j++)
+                    {
+                        boundary[points[i, 0] - min + j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i + 1, 0] - points[i, 0]));
+                    }
+                }
+
+                else //points[i+1,0] - points[i,0] < 0
+                {
+                    for (int j = 1; j < points[i, 0] - points[i + 1, 0]; j++)
+                    {
+                        boundary[points[i, 0] - min - j].Add(points[i, 1] + (j * (points[i + 1, 1] - points[i, 1])) / (points[i, 0] - points[i + 1, 0]));
+                    }
+                }
+            }
+
+
+            // Compare the first element to the last one
+            if (points[num_point - 1, 0] == points[0, 0])
+            {
+                num_pixel += 0;
+            }
+
+            else if (points[0, 0] - points[num_point - 1, 0] > 0)
+            {
+                for (int j = 1; j < points[0, 0] - points[num_point - 1, 0]; j++)
+                {
+                    boundary[points[num_point - 1, 0] - min + j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[0, 0] - points[num_point - 1, 0]));
+                }
+            }
+
+            else //points[i+1,0] - points[i,0] < 0
+            {
+                for (int j = 1; j < points[num_point - 1, 0] - points[0, 0]; j++)
+                {
+                    boundary[points[num_point - 1, 0] - min - j].Add(points[num_point - 1, 1] + (j * (points[0, 1] - points[num_point - 1, 1])) / (points[num_point - 1, 0] - points[0, 0]));
+                }
+            }
+
+            #endregion
+
+
+
+            // Calculate the number of pixels and write the pixel value to binary file
+            for (int i = 0; i < max - min + 1; i++)
+            {
+                if (boundary[i].Count == 0)
+                {
+                    num_pixel += 0;
+                }
+                else
+                {
+                    boundary[i].Sort();
+                    bool inner = false;
+                    for (int j = boundary[i].Min(); j < boundary[i].Max() + 1; j++)
+                    {
+                        if (boundary[i].Contains(j))
+                        {
+                            inner = !inner;
+                        }
+                        if (inner)
+                        {
+                            num_pixel += 1;
+
+                        }
+
+                    }
+                }
+
+            }
+
+            return num_pixel;
+        }
+        #endregion
+
+        #region Point Calculator
+        /// <summary>
+        /// Make ClassPoints Collection and Corner Points Dictionary
+        /// </summary>
+        /// <param name="_rootPath">A selected path by folder explorer</param>
+        /// [This method is called when a folder is selected by folder explorer]
+        private void PointCalculator(string _rootPath)
+        {
+            // Traverse all the directory and find all existing csv file paths
+            DirSearch(_rootPath);
+
+            // The folder has to have at least six Bmp files
+            if (bmpcount / 6 > 0 && bmpcount % 6 == 0)
+            {
+                // Read csv file only if Dirsearch is successfully completed
+                if (!recursiveAlert)
+                {
+                    // For each csv file
+                    foreach (string _path in CsvFilePaths)
+                    {
+                        // Read class name and corner points
+                        ObservableCollection<ClassCornerPoints> _classCorners = new ObservableCollection<ClassCornerPoints>();
+
+                        #region Read Csv Format
+                        // Read csv file
+                        using (var reader = new StreamReader(_path))
+                        {
+                            int _numLine = 0;
+                            while (!reader.EndOfStream)
+                            {
+                                var line = reader.ReadLine();
+
+                                if (_numLine != 0)
+                                {
+                                    string _className = "";
+                                    List<int[]> _cornerPoints = new List<int[]>();
+
+                                    var values = line.Split(',');
+
+                                    _className = values[0];
+                                    //Console.WriteLine(values[0]);
+
+                                    for (int i = 1; i < values.Length; i += 2)
+                                    {
+
+                                        int[] _position = new int[2];
+                                        // x position
+                                        _position[0] = StrToInt(values[i]);
+
+                                        // y position
+                                        try
+                                        {
+                                            _position[1] = StrToInt(values[i + 1]);
+                                        }
+
+                                        // Exception handler: Wrong csv format
+                                        catch (IndexOutOfRangeException e)
+                                        {
+                                            MessageBox.Show("Your csv files might have wrong format.\n");
+                                            ClassPoints.Clear();
+                                            Console.WriteLine("CSV Fromat Error: " + e);
+                                            return;
+                                        }
+
+                                        //Console.WriteLine("x: " + values[i] + " y: " + values[i + 1] + '\n');
+                                        _cornerPoints.Add(_position);
+                                    }
+
+                                    // Each line = each class
+                                    _classCorners.Add(new ClassCornerPoints() { ClassName = _className, Points = _cornerPoints });
+                                }
+                                _numLine++;
+                            }
+                        }
+                        #endregion
+
+                        #region Add data to Dictionary
+                        // Allocate new element into the dictionary for each csv file
+                        CornerPoint.Add(_path, _classCorners);
+                        #endregion
+
+                        #region Add data to Item Source
+                        try
+                        {
+                            // Calculate the number of inside points and Add ClassPoints 
+                            for (int i = 0; i < _classCorners.Count; i++)
+                            {
+                                // Check if ClassPoints has same class name as _classCorners[i].ClassName
+                                int ack = 0;
+
+                                for (int j = 0; j < ClassPoints.Count; j++)
+                                {
+                                    if (_classCorners[i].ClassName == ClassPoints[j].ClassName)
+                                    {
+                                        // If there is same class name, add the value
+                                        ack = 1;
+                                        ClassPoints[j].NumPoints += PixelCalculator(_classCorners[i].Points);
+                                    }
+                                }
+
+                                // New class
+                                // If not, make new class and allocate the value
+                                if (ack == 0)
+                                {
+                                    ClassPoints.Add(new ClassPixels()
+                                    {
+                                        ClassName = _classCorners[i].ClassName,
+                                        NumPoints = PixelCalculator(_classCorners[i].Points)
+                                    });
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            MessageBox.Show("A wrong csv file is read");
+                        }
+                        #endregion
+                    }
+
+                    #region Initialize Class Color
+                    //Allocate colors as many as the number of ClassPoints.Count
+                    int k = ClassPoints.Count;
+
+                    // Generate colors 
+                    List<Color> _color = AddColors(k);
+                    for (int i = 0; i < k; i++)
+                    {
+                        ClassPoints[i].ClassColor = _color[i];
+                    }
+
+                    #endregion
+
+                    // Enable Buttons
+                    TrainBool = true;
+                }
+
+            }
+
+            else
+            {
+                ResetImages();
+                Items.Clear();
+                if (!recursiveAlert)
+                    MessageBox.Show("Please choose a correct project folder");
+            }
+
+            // Set this value to 0
+            bmpcount = 0;
+            //recursiveCount = 0;
+            recursiveAlert = false;
+        }
+
+        #endregion
+
+        #endregion
 
     }
 }
