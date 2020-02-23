@@ -15,6 +15,7 @@
 - [Future Works](#future-works)
   * [Train](#train)
   * [Capture](#capture)
+ - [Contacts](#contacts)
   
 ## Introduction
 BeyonSense는 Stratio의 단파장 적외선 카메라로, 사람의 눈으로 볼 수 없는 영역의 이미지를 촬영할 수 있습니다. BeyonSense는 Multispectral 카메라로 총 여섯 개의 파장대의 사진을 촬영할 수 있습니다(600nm, 725nm, 825nm, 875nm, 930nm, 985nm). 각 파장대의 사진은 8 bit grayscale bitmap 이미지로 저장됩니다. 
@@ -86,4 +87,5 @@ Image set에 나타난 폴더 계층 구조에서 파일을 클릭하면 해당 
 ### Capture
 왼쪽 상단에 Capture 버튼이 있는데, 이는 BeyonSense 카메라를 연결하여 실시간 영상에서 캡쳐하여 직접 Image set을 가져올 수 있도록 남겨둔 기능입니다.
 
+## Contacts
 **혹시 질문이 있으시거나 이슈가 있으면, 언제든지 이메일 (<rudobco0825@gmail.com>) 혹은 Github issue 남겨주세요 :)**
