@@ -1813,6 +1813,7 @@ namespace BeyonSense.ViewModels
             // Get project folder, model path
             string modelPath = ModelPath;
             string projectPath = GetParentParentDirPath();
+            
 
             List<string> picturePaths = new List<string>();
 
@@ -1826,17 +1827,42 @@ namespace BeyonSense.ViewModels
             #region Label Data | Color dictionary
             // TODO: 일단 ClassPoints에 나열된 순서대로 배치해보자
 
-            //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
+            // Csv file 읽기
 
-            Dictionary<int, Color> colorDict = new Dictionary<int, Color> ();
+            Dictionary<int, Color> colorDict = new Dictionary<int, Color>();
 
-            // Add classes color
-            for (int i = 0; i < ClassPoints.Count; i++)
+
+
+            try
             {
-                colorDict.Add(i + 1, ClassPoints[i].ClassColor);
-            }
+                var labelCsvPath = modelPath.Split(new string[] { ".txt" }, StringSplitOptions.None);
+                using (var reader = new StreamReader(labelCsvPath[0] + "_label.csv"))
+                {
+                    int _numLine = 0;
+                    while (!reader.EndOfStream)
+                    {
+                        var line = reader.ReadLine();
 
-            #endregion
+                        if (_numLine != 0)
+                        {
+                            var values = line.Split(',');
+
+                            colorDict.Add(Int32.Parse(values[0]), SearchColor(values[1]));
+
+                            // mapping dictionary 따로 만들기
+
+                            //{ 0, "background"}, , { 1, "one" }, { 2, "two" }, { 3 , "three" }, { 4 , "four" }
+
+                            #endregion
+                        }
+                        _numLine++;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Check your label metadata.");
+            }
 
             #region Load a model
             SVM svm = new SVM();
