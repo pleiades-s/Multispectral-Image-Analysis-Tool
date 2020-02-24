@@ -4,6 +4,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
 - [Usage](#usage)
   * [Open Project Folder](#open-project-folder)
   * [Image Set](#image-set)
@@ -20,6 +21,19 @@
 ## Introduction
  이 프로그램은 Multispectral 카메라로 총 여섯 개의 파장대에서 촬영한 Image를 가져와 머신러닝을 할 수 있도록 돕는 프로그램입니다. 본 프로젝트의 목적은 Multispectral 카메라로부터 얻은 이미지를 분석 및 학습하기 위한 workflow를 구현하는 것입니다. 구체적으로, 학습을 위하여 이미지에서 원하는 부분만 가져와 모델이 학습할 수 있는 형태로 추출하고 모델로부터의 inference 결과를 시각화하여 모델을 디버깅할 수 있도록 도울 수 있습니다.
 프로그램의 데모 영상은 [링크](https://drive.google.com/open?id=1-jhMmBKRA6Rk_bPgWwGc7_OFk4muC2jK)를 통해 확인하실 수 있습니다.
+
+## Prerequisites
+이 솔루션을 성공적으로 빌드하기 위해서 필요한 소프트웨어를 알려드리겠습니다.
+
+1. Visual Studio 2019 Community
+솔루션을 빌드하기 위해서 IDE 툴이 필요하고, 이 프로그램은 Visual Studio 2019 Community에서 개발되었습니다. [링크](https://visualstudio.microsoft.com/downloads/)를 통해 해당 개발 툴을 설치하실 수 있습니다.
+
+2. Caliburn.micro
+Windows Presentation Foundation (WPF) 개발 시, MVVM 패턴으로 코드를 작성하기 위해 이 프레임워크를 사용하였습니다. 데이터 바인딩에 필요한 INotifypropertychanged 인터페이스 이외에 MVVM 패턴을 위해 개발자 친화적인 기능을 제공합니다. Caliburn.micro는 Visual Studio에서 NuGet Package Manager를 통해 쉽게 설치할 수 있습니다.
+
+3. EmguCV 4.2.0
+.Net Framework에서 OpenCV 라이브러리를 사용할 수 있도록 제공한 라이브러리입니다. 솔루션에 이미 reference가 추가되어 있지만, 혹시 설치가 필요할 시 Visual Studio에서 간단하게 NuGet Package Manager로 설치하거나, 직접 .dll 파일을 reference에 직접 추가하여 사용할 수 있습니다. 정의된 함수는 OpenCV와 매우 흡사하기 때문에, 먼저 상대적으로 자료가 많은 OpenCV로 필요한 기능을 확인하고 그 함수를 EmguCV docs에서 찾아 사용하시길 추천합니다.
+
 
 ## Usage
 데모 프로그램을 사용하는 방법 및 유의할 점을 설명드리겠습니다. 아래 설명이 부담스러우신 분들은 위의 데모 동영상 링크를 통해 기능을 확인해주시면 됩니다.
