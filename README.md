@@ -44,11 +44,13 @@
 ![Error](./Images/Error.png)
 
 1. The reference component *NAME* could not be found.
+
    위의 Warning이 발생하였다면 간단히 해결할 수 있습니다. Solution Explorer > Reference 으로 이동하시고, 오른쪽 클릭을 눌러 Properties를 선택하면 자동적으로 해당 Warning은 해결됩니다.
    
    ![Solution](./Images/Solution.png)
 
 2. Emgu CV is not able to detect the project type, unloading and reloading the project may fix this problem. If you are still having difficulty, please send an email to support@emgu.com
+
    위 에러는 단순히 Visual Studio를 종료 후 다시 실행하는 것으로 해결할 수 있습니다.
 
 ## Usage
