@@ -39,7 +39,7 @@
    .Net Framework에서 OpenCV 라이브러리를 사용할 수 있도록 제공한 라이브러리입니다. 솔루션에 이미 reference가 추가되어 있지만, 혹시 설치가 필요할 시 Visual Studio에서 간단하게 NuGet Package Manager로 설치하거나, 직접 .dll 파일을 reference에 직접 추가하여 사용할 수 있습니다. 정의된 함수는 OpenCV와 매우 흡사하기 때문에, 먼저 상대적으로 자료가 많은 OpenCV로 필요한 기능을 확인하고 그 함수를 EmguCV docs에서 찾아 사용하시길 추천합니다.
 
 ## If you fail to build the solution
-혹시 Clone하여 솔루션 빌드에 실패하셨다면, 아래를 확인해주세요.
+Visual Studio에서 Build > Build Solution을 눌러 솔루션을 빌드한 후, 디버깅을 하시길 바랍니다. 그래도 오류가 계속된다면 아래를 확인해주세요. 
 
 ![Error](./Images/Error.png)
 
