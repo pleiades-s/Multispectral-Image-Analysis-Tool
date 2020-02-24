@@ -1,5 +1,5 @@
-# BeyonSense
-2020 Winter Co-op project with Stratio Inc. at Sungkyunkwan | BeyonSense program on Windows
+# Multispectral Image Analysis Tool
+2020 Winter Co-op project at Sungkyunkwan University
 
 ## Table of Contents
 
@@ -18,8 +18,7 @@
  - [Contacts](#contacts)
   
 ## Introduction
-BeyonSense는 Stratio의 단파장 적외선 카메라로, 사람의 눈으로 볼 수 없는 영역의 이미지를 촬영할 수 있습니다. BeyonSense는 Multispectral 카메라로 총 여섯 개의 파장대의 사진을 촬영할 수 있습니다(600nm, 725nm, 825nm, 875nm, 930nm, 985nm). 각 파장대의 사진은 8 bit grayscale bitmap 이미지로 저장됩니다. 
-본 프로젝트의 목적은 BeyonSense로부터 얻은 이미지를 분석 및 학습하기 위한 workflow를 구현하는 것입니다. 구체적으로, 학습을 위하여 이미지에서 원하는 부분만 가져와 모델이 학습할 수 있는 형태로 추출하고 모델로부터의 inference 결과를 시각화하여 모델을 디버깅할 수 있도록 도울 수 있습니다.
+ 이 프로그램은 Multispectral 카메라로 총 여섯 개의 파장대에서 촬영한 Image를 가져와 머신러닝을 할 수 있도록 돕는 프로그램입니다. 본 프로젝트의 목적은 Multispectral 카메라로부터 얻은 이미지를 분석 및 학습하기 위한 workflow를 구현하는 것입니다. 구체적으로, 학습을 위하여 이미지에서 원하는 부분만 가져와 모델이 학습할 수 있는 형태로 추출하고 모델로부터의 inference 결과를 시각화하여 모델을 디버깅할 수 있도록 도울 수 있습니다.
 프로그램의 데모 영상은 [링크](https://drive.google.com/open?id=1-jhMmBKRA6Rk_bPgWwGc7_OFk4muC2jK)를 통해 확인하실 수 있습니다.
 
 ## Usage
@@ -69,6 +68,13 @@ Image set에 나타난 폴더 계층 구조에서 파일을 클릭하면 해당 
 
 ### Inference
 학습된 모델이 있다면 이를 실제로 Inference할 수 있습니다. 현재 데모는 OpenCV에서 저장한 Text file 형태의 SCM 모델만 가능합니다. Main image에 사진이 띄워져있다면 오른쪽 상단의 Open 버튼이 활성화됩니다. 이 버튼을 통해 학습된 모델을 가져올 수 있습니다. 이때, "모델명_label.csv" 파일이 있어야 합니다. 이 파일을 통해 모델의 Output label 값과 Class 이름의 Mapping 정보가 저장되어 있습니다. 이 Mapping 정보를 통해 Inference 시, 결과를 Class의 할당된 색으로 보여줍니다. 파일의 Class 이름이 현재 Table에 존재하지 않는다면 회색으로 Inference 결과가 나타납니다. 만약 이 파일이 없을 경우, Inference에 실패합니다.
+
+    // 다음은 예시 "모델명_label.csv" 입니다.
+    1, Block 1
+    2, Block 2
+    3, Block 3
+    4, Block 4
+
 정상적으로 Inference에 성공하면, 오른쪽 상단에 모델 경로가 나타나고, Toggle 버튼이 활성화됩니다. Toggle 버튼 On/Off를 통하여 사용자가 명시한 Ground truth와 inference 결과를 비교할 수 있습니다.
 
 ![inference_](./Images/inference_.png)
