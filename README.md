@@ -5,6 +5,7 @@
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
+- [If you fail to build the solution](#if-you-fail-to-build-the-solution)
 - [Usage](#usage)
   * [Open Project Folder](#open-project-folder)
   * [Image Set](#image-set)
@@ -37,6 +38,18 @@
 
    .Net Framework에서 OpenCV 라이브러리를 사용할 수 있도록 제공한 라이브러리입니다. 솔루션에 이미 reference가 추가되어 있지만, 혹시 설치가 필요할 시 Visual Studio에서 간단하게 NuGet Package Manager로 설치하거나, 직접 .dll 파일을 reference에 직접 추가하여 사용할 수 있습니다. 정의된 함수는 OpenCV와 매우 흡사하기 때문에, 먼저 상대적으로 자료가 많은 OpenCV로 필요한 기능을 확인하고 그 함수를 EmguCV docs에서 찾아 사용하시길 추천합니다.
 
+## If you fail to build the solution
+혹시 Clone하여 솔루션 빌드에 실패하셨다면, 아래를 확인해주세요.
+
+![Error](./Images/Error.png)
+
+1. The reference component *NAME* could not be found.
+   위의 Warning이 발생하였다면 간단히 해결할 수 있습니다. Solution Explorer > Reference 으로 이동하시고, 오른쪽 클릭을 눌러 Properties를 선택하면 자동적으로 해당 Warning은 해결됩니다.
+   
+   ![Solution](./Images/Solution.png)
+
+2. Emgu CV is not able to detect the project type, unloading and reloading the project may fix this problem. If you are still having difficulty, please send an email to support@emgu.com
+   위 에러는 단순히 Visual Studio를 종료 후 다시 실행하는 것으로 해결할 수 있습니다.
 
 ## Usage
 데모 프로그램을 사용하는 방법 및 유의할 점을 설명드리겠습니다. 아래 설명이 부담스러우신 분들은 위의 데모 동영상 링크를 통해 기능을 확인해주시면 됩니다.
