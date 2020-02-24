@@ -26,13 +26,16 @@
 이 솔루션을 성공적으로 빌드하기 위해서 필요한 소프트웨어를 알려드리겠습니다.
 
 1. Visual Studio 2019 Community
-솔루션을 빌드하기 위해서 IDE 툴이 필요하고, 이 프로그램은 Visual Studio 2019 Community에서 개발되었습니다. [링크](https://visualstudio.microsoft.com/downloads/)를 통해 해당 개발 툴을 설치하실 수 있습니다.
+
+   솔루션을 빌드하기 위해서 IDE 툴이 필요하고, 이 프로그램은 Visual Studio 2019 Community에서 개발되었습니다. [링크](https://visualstudio.microsoft.com/downloads/)를 통해 해당 개발 툴을 설치하실 수 있습니다.
 
 2. Caliburn.micro
-Windows Presentation Foundation (WPF) 개발 시, MVVM 패턴으로 코드를 작성하기 위해 이 프레임워크를 사용하였습니다. 데이터 바인딩에 필요한 INotifypropertychanged 인터페이스 이외에 MVVM 패턴을 위해 개발자 친화적인 기능을 제공합니다. Caliburn.micro는 Visual Studio에서 NuGet Package Manager를 통해 쉽게 설치할 수 있습니다.
+
+   Windows Presentation Foundation (WPF) 개발 시, MVVM 패턴으로 코드를 작성하기 위해 이 프레임워크를 사용하였습니다. 데이터 바인딩에 필요한 INotifypropertychanged 인터페이스 이외에 MVVM 패턴을 위해 개발자 친화적인 기능을 제공합니다. Caliburn.micro는 Visual Studio에서 NuGet Package Manager를 통해 쉽게 설치할 수 있습니다.
 
 3. EmguCV 4.2.0
-.Net Framework에서 OpenCV 라이브러리를 사용할 수 있도록 제공한 라이브러리입니다. 솔루션에 이미 reference가 추가되어 있지만, 혹시 설치가 필요할 시 Visual Studio에서 간단하게 NuGet Package Manager로 설치하거나, 직접 .dll 파일을 reference에 직접 추가하여 사용할 수 있습니다. 정의된 함수는 OpenCV와 매우 흡사하기 때문에, 먼저 상대적으로 자료가 많은 OpenCV로 필요한 기능을 확인하고 그 함수를 EmguCV docs에서 찾아 사용하시길 추천합니다.
+
+   .Net Framework에서 OpenCV 라이브러리를 사용할 수 있도록 제공한 라이브러리입니다. 솔루션에 이미 reference가 추가되어 있지만, 혹시 설치가 필요할 시 Visual Studio에서 간단하게 NuGet Package Manager로 설치하거나, 직접 .dll 파일을 reference에 직접 추가하여 사용할 수 있습니다. 정의된 함수는 OpenCV와 매우 흡사하기 때문에, 먼저 상대적으로 자료가 많은 OpenCV로 필요한 기능을 확인하고 그 함수를 EmguCV docs에서 찾아 사용하시길 추천합니다.
 
 
 ## Usage
